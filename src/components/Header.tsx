@@ -57,7 +57,7 @@ export default function Header() {
           priority
           className="h-16 w-auto sm:h-20"
         />
-        <span className="font-display text-2xl leading-tight text-maroon sm:text-3xl">
+        <span className="font-display whitespace-nowrap text-[clamp(1rem,5.2vw,1.875rem)] leading-tight text-maroon">
           {tMeta("siteTitle")}
         </span>
       </Link>
