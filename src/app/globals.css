@@ -1,26 +1,264 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Sri Vaishnava temple palette — red-oxide (kumkum) + antique bronze,
+     not Rajasthani gold-and-purple. */
+  --color-temple-maroon: #7a1f1f;
+  --color-temple-maroon-dark: #4f1414;
+  --color-temple-gold: #b98a3d;
+  --color-temple-gold-light: #e8c97a;
+  --color-temple-saffron: #c05a1e;
+  --color-temple-cream: #fbf1de;
+  --color-temple-cream-dark: #f1e2be;
+  --color-temple-ink: #2a1b12;
+  --color-temple-tulsi: #3f5d3a;
+  --color-temple-white: #fffdf7;
+  /* Kumkum red for the Thenkalai naamam's center line — distinct from
+     the deeper maroon brand color so the mark stays legible. */
+  --color-temple-kumkum: #c1272d;
+
+  --background: var(--color-temple-cream);
+  --foreground: var(--color-temple-ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-maroon: var(--color-temple-maroon);
+  --color-maroon-dark: var(--color-temple-maroon-dark);
+  --color-gold: var(--color-temple-gold);
+  --color-gold-light: var(--color-temple-gold-light);
+  --color-saffron: var(--color-temple-saffron);
+  --color-cream: var(--color-temple-cream);
+  --color-cream-dark: var(--color-temple-cream-dark);
+  --color-ink: var(--color-temple-ink);
+  --color-tulsi: var(--color-temple-tulsi);
+  --color-kolam: var(--color-temple-white);
+  --color-kumkum: var(--color-temple-kumkum);
+
+  --font-display: var(--font-temple-display);
+  --font-sans: var(--font-temple-sans);
+  --font-kannada: var(--font-temple-kannada);
+  --font-display-kn: var(--font-temple-display-kn);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* The Sanskrit-styled display face is used app-wide (nav, buttons, body
+   copy, headings alike) so every section reads as one consistent
+   typeface, not a heading/body split. */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-temple-display), var(--font-temple-kannada), serif;
+}
+
+html[lang="kn"] body {
+  font-family: var(--font-temple-display-kn), var(--font-temple-kannada), serif;
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-temple-display), var(--font-temple-kannada), serif;
+  }
+
+  html[lang="kn"] .font-display {
+    font-family: var(--font-temple-display-kn), var(--font-temple-kannada), serif;
+  }
+
+  .bg-divine-gradient {
+    background: linear-gradient(
+      180deg,
+      var(--color-temple-maroon) 0%,
+      var(--color-temple-maroon-dark) 100%
+    );
+  }
+
+  .bg-divine-radial {
+    background: radial-gradient(
+      circle at 50% 0%,
+      var(--color-temple-gold-light) 0%,
+      var(--color-temple-cream) 55%
+    );
+  }
+
+  .text-shadow-divine {
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* Subtle fade-in used for hero and section reveals */
+@keyframes divine-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-divine-fade-up {
+  animation: divine-fade-up 0.6s ease-out both;
+}
+
+/* Flower shower that plays over the homepage deity hero on first load.
+   `top` (not transform) is animated so the percentage travel is relative
+   to the hero container's own height, letting one keyframe work for any
+   hero size. */
+@keyframes petal-fall {
+  0% {
+    top: -8%;
+    opacity: 0;
+    transform: translateX(0) rotate(0deg);
+  }
+  8% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 108%;
+    opacity: 0;
+    transform: translateX(var(--petal-drift, 24px)) rotate(360deg);
+  }
+}
+
+.petal {
+  position: absolute;
+  top: -8%;
+  pointer-events: none;
+  animation-name: petal-fall;
+  animation-timing-function: ease-in;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  will-change: top, transform, opacity;
+}
+
+/* Bell swing — a decaying pendulum, triggered (via the .bell-swing class)
+   at the same moment the synthesized chime plays. Pivots near the top of
+   the image, where the chain would be fixed to the ceiling. */
+@keyframes bell-swing {
+  0% {
+    transform: rotate(0deg);
+  }
+  8% {
+    transform: rotate(15deg);
+  }
+  22% {
+    transform: rotate(-12deg);
+  }
+  36% {
+    transform: rotate(9deg);
+  }
+  50% {
+    transform: rotate(-6deg);
+  }
+  64% {
+    transform: rotate(3.5deg);
+  }
+  78% {
+    transform: rotate(-1.5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.bell-swing {
+  transform-origin: 50% 3%;
+  animation: bell-swing 1.8s ease-out;
+}
+
+/* Realistic-ish oil-lamp flame: a soft layered glow (not an emoji) that
+   flickers with irregular, slightly-async timing per instance so several
+   wicks on one lamp don't pulse in lockstep. */
+@keyframes flame-flicker {
+  0%,
+  100% {
+    opacity: 0.82;
+    transform: scale(1, 1) translateY(0);
+  }
+  22% {
+    opacity: 0.95;
+    transform: scale(1.06, 1.14) translateY(-4%);
+  }
+  41% {
+    opacity: 0.72;
+    transform: scale(0.92, 0.95) translateY(1%);
+  }
+  63% {
+    opacity: 0.92;
+    transform: scale(1.03, 1.08) translateY(-2%);
+  }
+  85% {
+    opacity: 0.76;
+    transform: scale(0.96, 1.0) translateY(1%);
+  }
+}
+
+.flame {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse 45% 65% at 50% 70%,
+    #fff3c9 0%,
+    #ffc23f 32%,
+    #f2811f 60%,
+    rgba(229, 89, 15, 0) 82%
+  );
+  filter: blur(0.4px) drop-shadow(0 0 4px rgba(255, 170, 40, 0.7));
+  animation-name: flame-flicker;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  pointer-events: none;
+  transform-origin: 50% 90%;
+}
+
+/* Soft ambient halo cast by the flame onto the lamp and air around it —
+   a separate, bigger, blurrier layer behind the flame core so the wick
+   reads as an actual light source, not just a bright dot. */
+.flame::before {
+  content: "";
+  position: absolute;
+  inset: -55%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 205, 110, 0.4) 0%,
+    rgba(255, 160, 50, 0.16) 45%,
+    rgba(255, 160, 50, 0) 75%
+  );
+  filter: blur(2px);
+  z-index: -1;
+  animation: inherit;
+}
+
+/* Slow, deliberate rotation for the chakra loading mark — evokes the
+   ever-turning discus rather than a generic fast spinner. */
+@keyframes chakra-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-chakra-spin {
+  animation: chakra-spin 2.4s linear infinite;
+}
+
+/* Continuous rightward scroll for the saree-border strip — the tile is
+   fixed at 240px wide (see SareeBorderDivider), so animating exactly
+   one tile-width keeps the loop seamless. */
+@keyframes border-scroll-right {
+  from {
+    background-position: 0 center;
+  }
+  to {
+    background-position: 240px center;
+  }
+}
+
+.animate-border-scroll {
+  animation: border-scroll-right 30s linear infinite;
 }

@@ -1,0 +1,131 @@
+{
+  "meta": {
+    "siteTitle": "Sri Varadaraja Swamy Devalaya",
+    "siteTagline": "A digital darshan, always within reach"
+  },
+  "nav": {
+    "home": "Home",
+    "poojas": "Poojas",
+    "events": "Events",
+    "gallery": "Gallery",
+    "songs": "Songs",
+    "live": "Live",
+    "booking": "Book Seva",
+    "about": "Temple & Contact",
+    "admin": "Admin"
+  },
+  "home": {
+    "heroEyebrow": "Welcome, Devotee",
+    "heroTitle": "Sri Varadaraja Swamy Devalaya",
+    "heroSubtitle": "Experience daily poojas, sacred rituals and the divine presence of the Lord — in person or from wherever you are.",
+    "ctaWatchLive": "Watch Live Darshan",
+    "ctaBookSeva": "Book a Seva",
+    "liveNowBadge": "Live Darshan is happening now",
+    "liveNowCta": "Join Live",
+    "quickLinksTitle": "Everything you need, in two taps",
+    "todayPoojaTitle": "Today's Poojas",
+    "upcomingEventsTitle": "Upcoming Events",
+    "upcomingEventsCta": "View full calendar",
+    "galleryPreviewTitle": "Moments from the Temple",
+    "galleryPreviewCta": "Browse full gallery",
+    "addressTitle": "Visit Us",
+    "addressCta": "Get directions"
+  },
+  "poojas": {
+    "pageTitle": "Poojas & Sevas",
+    "pageSubtitle": "Daily rituals and sevas you can attend or book in advance.",
+    "timingsLabel": "Timing",
+    "bookableTag": "Bookable",
+    "bookCta": "Book this Seva"
+  },
+  "events": {
+    "pageTitle": "Annual Event Calendar",
+    "pageSubtitle": "Festivals, special poojas and celebrations throughout the year.",
+    "dateLabel": "Date"
+  },
+  "gallery": {
+    "pageTitle": "Photo & Video Album",
+    "pageSubtitle": "Sacred moments captured through the year.",
+    "filterAll": "All",
+    "filterPhotos": "Photos",
+    "filterVideos": "Videos"
+  },
+  "songs": {
+    "pageTitle": "Devotional Songs",
+    "pageSubtitle": "Bhajans and aartis to keep the divine close to your heart.",
+    "playCta": "Play"
+  },
+  "live": {
+    "pageTitle": "Live Darshan",
+    "pageSubtitle": "Join the live stream in Ultra HD, from anywhere in the world.",
+    "offlineTitle": "No live stream right now",
+    "offlineSubtitle": "Check back during pooja timings, or view our past darshans below.",
+    "scheduledLabel": "Next live darshan",
+    "commentsTitle": "Devotee Comments",
+    "commentsPlaceholder": "Sign in to share your thoughts — coming soon",
+    "archiveTitle": "Past Darshans"
+  },
+  "booking": {
+    "pageTitle": "Book a Seva",
+    "pageSubtitle": "Reserve your seva for a specific date. Some sevas are free to reserve, others require online payment.",
+    "step1": "Choose a Seva",
+    "step2": "Choose a Date",
+    "step3": "Your Details",
+    "priceFree": "Free",
+    "priceLabel": "Price",
+    "selectDate": "Select a date",
+    "slotsAvailable": "slots available",
+    "slotsFull": "Fully booked",
+    "continueCta": "Continue",
+    "nameLabel": "Full name",
+    "phoneLabel": "Mobile number",
+    "confirmCta": "Confirm Booking",
+    "comingSoonNote": "Online booking opens soon. This preview shows how the flow will work."
+  },
+  "about": {
+    "pageTitle": "Temple & Contact",
+    "historyTitle": "About the Temple",
+    "timingsTitle": "Temple Timings",
+    "addressTitle": "Address",
+    "contactTitle": "Contact",
+    "directionsCta": "Get Directions"
+  },
+  "footer": {
+    "tagline": "Built with devotion, for every devotee.",
+    "language": "Language"
+  },
+  "language": {
+    "en": "English",
+    "kn": "ಕನ್ನಡ"
+  },
+  "admin": {
+    "portalTitle": "Admin Portal",
+    "portalSubtitle": "Manage temple content, sevas, bookings and the live stream.",
+    "previewBanner": "Preview build — sign-in and saving will be wired up in the next phase.",
+    "nav": {
+      "dashboard": "Dashboard",
+      "poojas": "Poojas",
+      "events": "Events",
+      "gallery": "Gallery",
+      "songs": "Songs",
+      "sevas": "Sevas & Tickets",
+      "bookings": "Bookings",
+      "live": "Live Stream",
+      "comments": "Comments"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "totalBookings": "Total Bookings",
+      "todaySevas": "Sevas Today",
+      "upcomingEvents": "Upcoming Events",
+      "galleryItems": "Gallery Items"
+    },
+    "actions": {
+      "add": "Add New",
+      "edit": "Edit",
+      "release": "Release Slots",
+      "close": "Close Slots",
+      "save": "Save"
+    }
+  }
+}
