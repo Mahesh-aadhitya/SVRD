@@ -1,49 +1,123 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { ringBellNow, scheduleBellRing } from "@/lib/templeBell";
+
+type PetalVariant = "marigold" | "rose" | "jasmine";
 
 // Fixed (not random) so server and client render the same markup — avoids
-// hydration mismatches while still looking organically scattered.
-const PETALS = [
-  { left: "4%", emoji: "🌸", size: 22, duration: 5.2, delay: 0, drift: 30 },
-  { left: "12%", emoji: "🏵️", size: 18, duration: 6.1, delay: 0.6, drift: -20 },
-  { left: "20%", emoji: "🌼", size: 20, duration: 5.6, delay: 1.4, drift: 24 },
-  { left: "28%", emoji: "🌺", size: 24, duration: 6.4, delay: 0.3, drift: -28 },
-  { left: "36%", emoji: "🌸", size: 16, duration: 5.0, delay: 2.1, drift: 18 },
-  { left: "44%", emoji: "🌼", size: 22, duration: 6.8, delay: 1.0, drift: -22 },
-  { left: "52%", emoji: "🏵️", size: 18, duration: 5.4, delay: 1.8, drift: 26 },
-  { left: "60%", emoji: "🌺", size: 20, duration: 6.2, delay: 0.9, drift: -18 },
-  { left: "68%", emoji: "🌸", size: 24, duration: 5.8, delay: 2.4, drift: 20 },
-  { left: "76%", emoji: "🌼", size: 18, duration: 6.0, delay: 0.2, drift: -26 },
-  { left: "84%", emoji: "🏵️", size: 22, duration: 5.3, delay: 1.6, drift: 24 },
-  { left: "92%", emoji: "🌺", size: 16, duration: 6.6, delay: 1.1, drift: -20 },
-  { left: "8%", emoji: "🌼", size: 16, duration: 6.9, delay: 3.0, drift: 16 },
-  { left: "48%", emoji: "🌸", size: 18, duration: 5.7, delay: 3.4, drift: -16 },
-  { left: "88%", emoji: "🏵️", size: 16, duration: 6.3, delay: 2.8, drift: 18 },
+// hydration mismatches while still looking organically scattered. `left`
+// and the fall distance are relative to the deity/thoranam column they're
+// layered over, so the shower reads as falling onto the deity and settling
+// at its feet rather than scattered across the whole hero.
+const PETALS: {
+  left: string;
+  variant: PetalVariant;
+  size: number;
+  duration: number;
+  delay: number;
+  drift: number;
+}[] = [
+  { left: "18%", variant: "marigold", size: 16, duration: 5.2, delay: 0, drift: 22 },
+  { left: "30%", variant: "rose", size: 13, duration: 6.1, delay: 0.9, drift: -16 },
+  { left: "42%", variant: "jasmine", size: 12, duration: 5.6, delay: 1.8, drift: 18 },
+  { left: "54%", variant: "marigold", size: 15, duration: 6.4, delay: 0.4, drift: -20 },
+  { left: "66%", variant: "rose", size: 12, duration: 5.0, delay: 2.4, drift: 14 },
+  { left: "24%", variant: "jasmine", size: 11, duration: 6.8, delay: 1.2, drift: -16 },
+  { left: "36%", variant: "marigold", size: 14, duration: 5.4, delay: 2.0, drift: 20 },
+  { left: "48%", variant: "rose", size: 13, duration: 6.2, delay: 0.6, drift: -14 },
+  { left: "60%", variant: "jasmine", size: 12, duration: 5.8, delay: 2.8, drift: 16 },
+  { left: "72%", variant: "marigold", size: 15, duration: 6.0, delay: 1.5, drift: -18 },
+  { left: "20%", variant: "rose", size: 12, duration: 5.3, delay: 3.2, drift: 20 },
+  { left: "76%", variant: "jasmine", size: 11, duration: 6.6, delay: 0.2, drift: -12 },
+  { left: "44%", variant: "marigold", size: 13, duration: 6.9, delay: 3.6, drift: 14 },
+  { left: "56%", variant: "jasmine", size: 12, duration: 5.7, delay: 1.0, drift: -18 },
 ] as const;
 
-// The bell/petal/chime entrance plays once, full-screen, in <SplashIntro>
-// before this section is ever seen — here the bells and flames are static
-// (well, the flame flicker keeps looping) so the homepage doesn't re-ring
-// the chime every time this section scrolls into view.
+/**
+ * Homepage deity hero: thoranam arch, flanking lamps and bells, and a
+ * marigold/rose/jasmine shower that falls over the deity and settles at
+ * its feet for as long as this section is on screen — it fades out via
+ * IntersectionObserver as soon as it scrolls out of view, and back in when
+ * it scrolls back into view. The temple bell rings once on its own, the
+ * very first time the hero appears (page load), synced with both bell
+ * images swinging — and either bell can also be rung on demand by
+ * clicking it, swinging just that one.
+ */
 export default function DivineHero() {
-  return (
-    <section aria-hidden className="relative overflow-hidden bg-divine-radial">
-      <div className="relative mx-auto flex max-w-6xl justify-center px-4 pb-4 pt-6 sm:px-6">
-        {PETALS.map((p, i) => (
-          <span
-            key={i}
-            className="petal"
-            style={{
-              left: p.left,
-              fontSize: p.size,
-              animationDuration: `${p.duration}s`,
-              animationDelay: `${p.delay}s`,
-              ["--petal-drift" as string]: `${p.drift}px`,
-            }}
-          >
-            {p.emoji}
-          </span>
-        ))}
+  const heroRef = useRef<HTMLElement | null>(null);
+  const bellRefs = useRef<(HTMLImageElement | null)[]>([]);
+  // Prevents the IntersectionObserver from scheduling more than one
+  // auto-ring (e.g. across repeated scroll-in/out).
+  const hasScheduledAutoRingRef = useRef(false);
+  // True only once the auto-ring has actually struck — distinct from the
+  // above, since scheduleBellRing may still be *waiting* for the page's
+  // first gesture when this component sets the "scheduled" flag.
+  const autoRingStruckRef = useRef(false);
+  // Holds the auto-ring's cleanup until it actually strikes. If the
+  // visitor's first-ever interaction on the page happens to be clicking a
+  // bell, that click is itself the gesture the auto-ring was waiting for —
+  // without cancelling it here, it would *also* fire, overlapping the
+  // click's own manual ring.
+  const pendingAutoRingRef = useRef<(() => void) | undefined>(undefined);
+  const [petalsVisible, setPetalsVisible] = useState(true);
 
+  const swingBell = useCallback((i: number) => {
+    const bell = bellRefs.current[i];
+    if (!bell) return;
+    bell.classList.remove("bell-swing");
+    void bell.offsetWidth;
+    bell.classList.add("bell-swing");
+  }, []);
+
+  const swingBothBells = useCallback(() => {
+    autoRingStruckRef.current = true;
+    swingBell(0);
+    swingBell(1);
+  }, [swingBell]);
+
+  const ringBellByClick = useCallback(
+    (i: number) => {
+      if (!autoRingStruckRef.current && pendingAutoRingRef.current) {
+        autoRingStruckRef.current = true;
+        pendingAutoRingRef.current();
+        pendingAutoRingRef.current = undefined;
+      }
+      ringBellNow(() => swingBell(i));
+    },
+    [swingBell],
+  );
+
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setPetalsVisible(entry.isIntersecting);
+        if (entry.isIntersecting && !hasScheduledAutoRingRef.current) {
+          hasScheduledAutoRingRef.current = true;
+          pendingAutoRingRef.current = scheduleBellRing(swingBothBells);
+        }
+      },
+      { threshold: 0.2 },
+    );
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      pendingAutoRingRef.current?.();
+    };
+  }, [swingBothBells]);
+
+  return (
+    <section
+      ref={heroRef}
+      aria-hidden
+      className="relative overflow-hidden bg-divine-radial"
+    >
+      <div className="relative mx-auto flex max-w-6xl justify-center px-4 pb-4 pt-6 sm:px-6">
         <Image
           src="/images/chakra-watermark.png"
           alt=""
@@ -99,8 +173,14 @@ export default function DivineHero() {
           />
         </div>
 
-        <div className="absolute left-[8%] top-0 hidden h-[41%] sm:block sm:left-[10%] sm:h-[45%] md:left-[12%] md:h-[47%]">
+        <div
+          className="absolute left-[8%] top-0 hidden h-[41%] cursor-pointer sm:block sm:left-[10%] sm:h-[45%] md:left-[12%] md:h-[47%]"
+          onClick={() => ringBellByClick(0)}
+        >
           <Image
+            ref={(el) => {
+              bellRefs.current[0] = el;
+            }}
             src="/images/hanging-bell.png"
             alt=""
             width={139}
@@ -108,8 +188,14 @@ export default function DivineHero() {
             className="h-full w-auto object-contain object-top"
           />
         </div>
-        <div className="absolute right-[8%] top-0 hidden h-[41%] sm:block sm:right-[10%] sm:h-[45%] md:right-[12%] md:h-[47%]">
+        <div
+          className="absolute right-[8%] top-0 hidden h-[41%] cursor-pointer sm:block sm:right-[10%] sm:h-[45%] md:right-[12%] md:h-[47%]"
+          onClick={() => ringBellByClick(1)}
+        >
           <Image
+            ref={(el) => {
+              bellRefs.current[1] = el;
+            }}
             src="/images/hanging-bell.png"
             alt=""
             width={139}
@@ -144,8 +230,71 @@ export default function DivineHero() {
             priority
             className="relative h-full w-full object-contain [filter:drop-shadow(0_0_2px_#7a1f1f)_drop-shadow(0_0_2px_#7a1f1f)_drop-shadow(0_0_2px_#7a1f1f)_drop-shadow(0_0_3px_#7a1f1f)]"
           />
+
+          <div
+            className={`pointer-events-none absolute inset-0 z-10 transition-opacity duration-700 ease-out ${
+              petalsVisible ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {PETALS.map((p, i) => (
+              <span
+                key={i}
+                className="petal"
+                style={{
+                  left: p.left,
+                  width: p.size,
+                  height: p.size,
+                  animationDuration: `${p.duration}s`,
+                  animationDelay: `${p.delay}s`,
+                  animationPlayState: petalsVisible ? "running" : "paused",
+                  ["--petal-drift" as string]: `${p.drift}px`,
+                }}
+              >
+                <Petal variant={p.variant} size={p.size} uid={i} />
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function Petal({ variant, size, uid }: { variant: PetalVariant; size: number; uid: number }) {
+  if (variant === "jasmine") {
+    return (
+      <svg viewBox="0 0 24 24" width={size} height={size} className="block drop-shadow-[0_1px_1px_rgba(122,31,31,0.25)]">
+        <g fill="#fbf1de" stroke="#e8c97a" strokeWidth="0.6">
+          <ellipse cx="12" cy="6.2" rx="3" ry="4.2" />
+          <ellipse cx="12" cy="17.8" rx="3" ry="4.2" />
+          <ellipse cx="6.2" cy="12" rx="4.2" ry="3" />
+          <ellipse cx="17.8" cy="12" rx="4.2" ry="3" />
+        </g>
+        <circle cx="12" cy="12" r="2.3" fill="#b98a3d" />
+      </svg>
+    );
+  }
+
+  const gradientId = `petal-grad-${variant}-${uid}`;
+  const [from, to] =
+    variant === "marigold" ? (["#f7c05c", "#c05a1e"] as const) : (["#f6afc2", "#b83a58"] as const);
+
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} className="block drop-shadow-[0_1px_1px_rgba(122,31,31,0.25)]">
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={from} />
+          <stop offset="100%" stopColor={to} />
+        </linearGradient>
+      </defs>
+      <path d="M12 1.5C7.5 6.5 5.5 12.5 12 22.5c6.5-10 4.5-16 0-21Z" fill={`url(#${gradientId})`} />
+      <path
+        d="M12 4.5c-1.7 3-2.7 6.8-1 13"
+        stroke="rgba(255,255,255,0.45)"
+        strokeWidth="0.8"
+        fill="none"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }

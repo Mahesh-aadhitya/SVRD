@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Yatra_One, Tiro_Kannada, Inter, Noto_Sans_Kannada } from "next/font/google";
+import { Yatra_One, Padyakke_Expanded_One, Inter, Noto_Sans_Kannada } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -8,16 +8,17 @@ import PwaRegister from "@/components/PwaRegister";
 import "../globals.css";
 
 // Yatra One: a Devanagari/Sanskrit-lettering-inspired display face (also
-// used for Latin text), paired with Tiro Kannada (a matching carved-serif
-// style) so headings keep the same Sanskrit-adjacent character across
-// both languages instead of switching to a generic sans for Kannada.
+// used for Latin text), paired with Padyakke Expanded One (bold, upright,
+// carved-inscription letterforms) so headings keep the same ceremonial,
+// temple-carved character across both languages instead of switching to
+// a generic sans for Kannada.
 const displayFont = Yatra_One({
   variable: "--font-temple-display",
   subsets: ["latin"],
   weight: "400",
 });
 
-const displayFontKn = Tiro_Kannada({
+const displayFontKn = Padyakke_Expanded_One({
   variable: "--font-temple-display-kn",
   subsets: ["kannada"],
   weight: "400",

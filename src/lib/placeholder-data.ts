@@ -191,12 +191,12 @@ export const songs: Song[] = [
 ];
 
 export const templeInfo = {
-  name: "Sri Varadaraja Swamy Devalaya",
+  name: "Sri Varadaraja Swamy Devasthaanam",
   addressLine1: "Temple Street, Near Main Bazaar",
   addressLine2: "Karnataka, India – 000000",
   phone: "+91 00000 00000",
   email: "info@varadarajaswamytemple.org",
-  mapsQuery: "Sri Varadaraja Swamy Devalaya",
+  mapsQuery: "Sri Varadaraja Swamy Devasthaanam",
   timings: [
     { day: "Mon – Fri", hours: "5:30 AM – 9:00 PM" },
     { day: "Sat – Sun", hours: "5:00 AM – 9:30 PM" },

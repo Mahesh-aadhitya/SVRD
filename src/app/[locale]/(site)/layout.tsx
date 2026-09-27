@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
 import PageWatermark from "@/components/PageWatermark";
 import SareeBorderDivider from "@/components/SareeBorderDivider";
-import SplashIntro from "@/components/SplashIntro";
+import SiteAudio from "@/components/SiteAudio";
 
 export default async function SiteLayout({
   children,
@@ -18,7 +18,7 @@ export default async function SiteLayout({
 
   return (
     <>
-      <SplashIntro />
+      <SiteAudio />
       <PageWatermark />
       <Header />
       <SareeBorderDivider flipped />

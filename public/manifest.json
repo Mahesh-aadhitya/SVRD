@@ -1,7 +1,7 @@
 {
-  "name": "Sri Varadaraja Swamy Devalaya",
-  "short_name": "Varadaraja Devalaya",
-  "description": "Poojas, live darshan, seva booking and temple updates for Sri Varadaraja Swamy Devalaya.",
+  "name": "Sri Varadaraja Swamy Devasthaanam",
+  "short_name": "Varadaraja Devasthaanam",
+  "description": "Poojas, live darshan, seva booking and temple updates for Sri Varadaraja Swamy Devasthaanam.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

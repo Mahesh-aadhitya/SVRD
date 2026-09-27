@@ -52,8 +52,12 @@ body {
   font-family: var(--font-temple-display), var(--font-temple-kannada), serif;
 }
 
+/* Padyakke Expanded One only ships a single 400 weight, so bump it to a
+   browser-synthesized bold to get the thicker, carved-stone look the
+   temple heading calls for. */
 html[lang="kn"] body {
   font-family: var(--font-temple-display-kn), var(--font-temple-kannada), serif;
+  font-weight: 700;
 }
 
 @layer utilities {
@@ -63,6 +67,7 @@ html[lang="kn"] body {
 
   html[lang="kn"] .font-display {
     font-family: var(--font-temple-display-kn), var(--font-temple-kannada), serif;
+    font-weight: 700;
   }
 
   .bg-divine-gradient {
@@ -102,10 +107,12 @@ html[lang="kn"] body {
   animation: divine-fade-up 0.6s ease-out both;
 }
 
-/* Flower shower that plays over the homepage deity hero on first load.
-   `top` (not transform) is animated so the percentage travel is relative
-   to the hero container's own height, letting one keyframe work for any
-   hero size. */
+/* Marigold/rose/jasmine shower over the homepage deity hero: loops for as
+   long as the hero is on screen (DivineHero pauses it via
+   animation-play-state once it scrolls out of view). `top` (not transform)
+   is animated so the percentage travel is relative to the deity column's
+   own height — 108% lands just past the deity's feet before fading out,
+   so each loop reads as petals settling at the feet and vanishing. */
 @keyframes petal-fall {
   0% {
     top: -8%;
@@ -115,7 +122,7 @@ html[lang="kn"] body {
   8% {
     opacity: 1;
   }
-  90% {
+  92% {
     opacity: 1;
   }
   100% {
@@ -131,44 +138,44 @@ html[lang="kn"] body {
   pointer-events: none;
   animation-name: petal-fall;
   animation-timing-function: ease-in;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
   will-change: top, transform, opacity;
 }
 
-/* Bell swing — a decaying pendulum, triggered (via the .bell-swing class)
-   at the same moment the synthesized chime plays. Pivots near the top of
-   the image, where the chain would be fixed to the ceiling. */
+/* Bell swing — exactly two swings, triggered (via the .bell-swing class)
+   at the same moment the synthesized chime plays. templeBell.ts strikes
+   the chime twice (t=0 and t=+0.5s, each ringing out for ~1.5s), so this
+   is timed over the same ~2s total: one swing-out-and-back for the first
+   strike (0%-20%), a brief rest exactly at 25% (t=0.5s) when the second
+   strike lands, a second swing-out-and-back, then rest for the remaining
+   decay. Pivots near the top of the image, where the chain would be fixed
+   to the ceiling. */
 @keyframes bell-swing {
-  0% {
+  0%,
+  25%,
+  100% {
     transform: rotate(0deg);
   }
   8% {
-    transform: rotate(15deg);
+    transform: rotate(16deg);
   }
-  22% {
-    transform: rotate(-12deg);
+  17% {
+    transform: rotate(-11deg);
   }
-  36% {
-    transform: rotate(9deg);
+  33% {
+    transform: rotate(16deg);
   }
-  50% {
-    transform: rotate(-6deg);
+  42% {
+    transform: rotate(-11deg);
   }
-  64% {
-    transform: rotate(3.5deg);
-  }
-  78% {
-    transform: rotate(-1.5deg);
-  }
-  100% {
-    transform: rotate(0deg);
+  55% {
+    transform: rotate(3deg);
   }
 }
 
 .bell-swing {
   transform-origin: 50% 3%;
-  animation: bell-swing 1.8s ease-out;
+  animation: bell-swing 2s ease-out;
 }
 
 /* Realistic-ish oil-lamp flame: a soft layered glow (not an emoji) that
