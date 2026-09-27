@@ -3,8 +3,9 @@ import { useTranslations, useLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import SectionHeading from "@/components/SectionHeading";
 import Card from "@/components/ui/Card";
-import { events } from "@/lib/placeholder-data";
+import { getEvents } from "@/lib/data/events";
 import type { Locale } from "@/i18n/routing";
+import type { TempleEvent } from "@/lib/placeholder-data";
 
 export default async function EventsPage({
   params,
@@ -13,10 +14,11 @@ export default async function EventsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <EventsContent />;
+  const events = await getEvents();
+  return <EventsContent events={events} />;
 }
 
-function EventsContent() {
+function EventsContent({ events }: { events: TempleEvent[] }) {
   const t = useTranslations("events");
   const locale = useLocale() as Locale;
   const sorted = [...events].sort((a, b) => a.date.localeCompare(b.date));

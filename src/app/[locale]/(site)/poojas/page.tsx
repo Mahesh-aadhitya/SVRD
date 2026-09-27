@@ -4,8 +4,9 @@ import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import SectionHeading from "@/components/SectionHeading";
 import Card from "@/components/ui/Card";
-import { poojas } from "@/lib/placeholder-data";
+import { getPoojas } from "@/lib/data/poojas";
 import type { Locale } from "@/i18n/routing";
+import type { Pooja } from "@/lib/placeholder-data";
 
 export default async function PoojasPage({
   params,
@@ -14,10 +15,11 @@ export default async function PoojasPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <PoojasContent />;
+  const poojas = await getPoojas();
+  return <PoojasContent poojas={poojas} />;
 }
 
-function PoojasContent() {
+function PoojasContent({ poojas }: { poojas: Pooja[] }) {
   const t = useTranslations("poojas");
   const locale = useLocale() as Locale;
 

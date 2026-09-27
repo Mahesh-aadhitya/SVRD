@@ -63,7 +63,8 @@
     "scheduledLabel": "Next live darshan",
     "commentsTitle": "Devotee Comments",
     "commentsPlaceholder": "Sign in to share your thoughts — coming soon",
-    "archiveTitle": "Past Darshans"
+    "archiveTitle": "Past Darshans",
+    "instagramCta": "Watch live on Instagram"
   },
   "booking": {
     "pageTitle": "Book a Seva",
@@ -101,7 +102,18 @@
   "admin": {
     "portalTitle": "Admin Portal",
     "portalSubtitle": "Manage temple content, sevas, bookings and the live stream.",
-    "previewBanner": "Preview build — sign-in and saving will be wired up in the next phase.",
+    "login": {
+      "title": "Admin sign in",
+      "subtitle": "Sign in to manage temple content and the live stream.",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submitCta": "Sign in",
+      "invalidCredentials": "Incorrect email or password."
+    },
+    "session": {
+      "signedInAs": "Signed in as {email}",
+      "logout": "Log out"
+    },
     "nav": {
       "dashboard": "Dashboard",
       "poojas": "Poojas",

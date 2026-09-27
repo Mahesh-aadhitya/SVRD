@@ -3,9 +3,8 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { sevas } from "@/lib/placeholder-data";
-import ChakraSpinner from "@/components/ChakraSpinner";
 import type { Locale } from "@/i18n/routing";
+import type { Seva } from "@/lib/seva-types";
 
 function nextDates(count: number) {
   return Array.from({ length: count }, (_, i) => {
@@ -15,7 +14,26 @@ function nextDates(count: number) {
   });
 }
 
-export default function BookingFlow() {
+// Only offer dates the admin has actually released tickets for. Falls back
+// to the next 14 days if a seva somehow has no window set.
+function releasedDates(seva: Seva) {
+  if (!seva.releaseStartDate || !seva.releaseEndDate) return nextDates(14);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = new Date(`${seva.releaseStartDate}T00:00:00`);
+  const end = new Date(`${seva.releaseEndDate}T00:00:00`);
+  const rangeStart = start > today ? start : today;
+  if (rangeStart > end) return [];
+
+  const dates: Date[] = [];
+  for (const d = new Date(rangeStart); d <= end; d.setDate(d.getDate() + 1)) {
+    dates.push(new Date(d));
+  }
+  return dates;
+}
+
+export default function BookingFlow({ sevas }: { sevas: Seva[] }) {
   const t = useTranslations("booking");
   const locale = useLocale() as Locale;
   const searchParams = useSearchParams();
@@ -29,12 +47,8 @@ export default function BookingFlow() {
   const [confirmed, setConfirmed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const dates = useMemo(() => nextDates(14), []);
   const seva = sevas.find((s) => s.id === sevaId) ?? sevas[0];
-
-  if (submitting) {
-    return <ChakraSpinner label={`${t("confirmCta")}…`} />;
-  }
+  const dates = useMemo(() => (seva ? releasedDates(seva) : []), [seva]);
 
   if (confirmed) {
     return (
@@ -90,6 +104,11 @@ export default function BookingFlow() {
       {step === 2 ? (
         <div className="mt-6">
           <p className="text-sm font-medium text-ink/70">{t("selectDate")}</p>
+          {dates.length === 0 ? (
+            <p className="mt-3 rounded-xl bg-cream-dark px-4 py-3 text-sm text-ink/60">
+              No open dates right now — please check back once the temple releases new tickets.
+            </p>
+          ) : null}
           <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
             {dates.map((d) => {
               const iso = d.toISOString().slice(0, 10);
@@ -169,9 +188,10 @@ export default function BookingFlow() {
           <div className="flex items-center gap-3 pt-2">
             <button
               type="submit"
-              className="rounded-full bg-maroon px-6 py-2.5 text-sm font-semibold text-cream hover:bg-maroon-dark"
+              disabled={submitting}
+              className="rounded-full bg-maroon px-6 py-2.5 text-sm font-semibold text-cream hover:bg-maroon-dark disabled:opacity-60"
             >
-              {t("confirmCta")}
+              {submitting ? `${t("confirmCta")}…` : t("confirmCta")}
             </button>
             <BackButton onClick={() => setStep(2)} />
           </div>

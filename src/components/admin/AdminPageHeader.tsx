@@ -7,7 +7,7 @@ export default function AdminPageHeader({
 }) {
   return (
     <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <h1 className="font-display text-2xl text-gold-light">{title}</h1>
+      <h1 className="font-display text-2xl text-maroon">{title}</h1>
       {action}
     </div>
   );

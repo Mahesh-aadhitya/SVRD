@@ -242,18 +242,6 @@ html[lang="kn"] body {
   animation: inherit;
 }
 
-/* Slow, deliberate rotation for the chakra loading mark — evokes the
-   ever-turning discus rather than a generic fast spinner. */
-@keyframes chakra-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-chakra-spin {
-  animation: chakra-spin 2.4s linear infinite;
-}
-
 /* Continuous rightward scroll for the saree-border strip — the tile is
    fixed at 240px wide (see SareeBorderDivider), so animating exactly
    one tile-width keeps the loop seamless. */

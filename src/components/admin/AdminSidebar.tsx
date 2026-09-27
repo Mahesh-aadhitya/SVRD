@@ -20,7 +20,7 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1 overflow-x-auto px-2 py-2 lg:w-60 lg:shrink-0 lg:flex-col lg:gap-0.5 lg:overflow-visible lg:border-r lg:border-white/10 lg:px-3 lg:py-6">
+    <nav className="flex gap-1 overflow-x-auto px-2 py-2 lg:w-60 lg:shrink-0 lg:flex-col lg:gap-0.5 lg:overflow-visible lg:border-r lg:border-ink/10 lg:px-3 lg:py-6">
       {items.map((item) => {
         const isExact = "exact" in item && item.exact;
         const active = isExact ? pathname === item.href : pathname.startsWith(item.href);
@@ -30,8 +30,8 @@ export default function AdminSidebar() {
             href={item.href}
             className={`shrink-0 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               active
-                ? "bg-gold/20 text-gold-light"
-                : "text-cream/70 hover:bg-white/5 hover:text-cream"
+                ? "bg-gold/20 text-maroon"
+                : "text-ink/70 hover:bg-black/[0.03] hover:text-ink"
             }`}
           >
             {t(item.key)}

@@ -1,22 +1,23 @@
-"use client";
-
-import { useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { sevas } from "@/lib/placeholder-data";
+import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { closeSeva } from "@/lib/actions/sevas";
+import ReleaseSevaForm from "@/app/[locale]/admin/(protected)/sevas/ReleaseSevaForm";
 import type { Locale } from "@/i18n/routing";
+import type { Seva } from "@/lib/seva-types";
 
-export default function SevaTicketTable() {
+function formatDate(iso: string) {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+}
+
+export default function SevaTicketTable({ sevas }: { sevas: Seva[] }) {
   const t = useTranslations("admin");
   const tBooking = useTranslations("booking");
   const locale = useLocale() as Locale;
-  const [released, setReleased] = useState<Record<string, boolean>>(
-    Object.fromEntries(sevas.map((s) => [s.id, true]))
-  );
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10">
+    <div className="overflow-hidden rounded-2xl border border-ink/10">
       <table className="w-full text-left text-sm">
-        <thead className="bg-white/5 text-xs uppercase tracking-wide text-cream/50">
+        <thead className="bg-black/[0.03] text-xs uppercase tracking-wide text-ink/50">
           <tr>
             <th className="px-4 py-3 font-medium">Seva</th>
             <th className="px-4 py-3 font-medium">{tBooking("priceLabel")}</th>
@@ -26,39 +27,48 @@ export default function SevaTicketTable() {
           </tr>
         </thead>
         <tbody>
-          {sevas.map((seva) => {
-            const isReleased = released[seva.id];
-            return (
-              <tr key={seva.id} className="border-t border-white/10">
-                <td className="px-4 py-3 font-medium text-cream">{seva.name[locale]}</td>
-                <td className="px-4 py-3 text-cream/70">
-                  {seva.price === 0 ? tBooking("priceFree") : `₹${seva.price}`}
-                </td>
-                <td className="px-4 py-3 text-cream/70">{seva.capacityPerSlot}</td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-xs ${
-                      isReleased
-                        ? "bg-gold/20 text-gold-light"
-                        : "bg-white/10 text-cream/50"
-                    }`}
-                  >
-                    {isReleased ? "Released" : "Closed"}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() =>
-                      setReleased((prev) => ({ ...prev, [seva.id]: !prev[seva.id] }))
-                    }
-                    className="text-xs font-semibold text-gold-light hover:underline"
-                  >
-                    {isReleased ? t("actions.close") : t("actions.release")}
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
+          {sevas.map((seva) => (
+            <tr key={seva.id} className="border-t border-ink/10">
+              <td className="px-4 py-3 font-medium text-ink">{seva.name[locale]}</td>
+              <td className="px-4 py-3 text-ink/70">
+                {seva.price === 0 ? tBooking("priceFree") : `₹${seva.price}`}
+              </td>
+              <td className="px-4 py-3 text-ink/70">{seva.capacityPerSlot}</td>
+              <td className="px-4 py-3">
+                <span
+                  className={`inline-block rounded-full px-2.5 py-1 text-xs ${
+                    seva.isActive ? "bg-gold/20 text-maroon" : "bg-black/5 text-ink/50"
+                  }`}
+                >
+                  {seva.isActive && seva.releaseStartDate && seva.releaseEndDate
+                    ? `Released: ${formatDate(seva.releaseStartDate)} – ${formatDate(seva.releaseEndDate)}`
+                    : seva.isActive
+                      ? "Released"
+                      : "Closed"}
+                </span>
+              </td>
+              <td className="px-4 py-3">
+                <div className="flex flex-col items-end gap-1.5">
+                  <ReleaseSevaForm seva={seva} />
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/admin/sevas/${seva.id}/edit`}
+                      className="text-xs font-semibold text-maroon hover:underline"
+                    >
+                      {t("actions.edit")}
+                    </Link>
+                    {seva.isActive ? (
+                      <form action={closeSeva.bind(null, seva.id)}>
+                        <button type="submit" className="text-xs font-semibold text-maroon hover:underline">
+                          {t("actions.close")}
+                        </button>
+                      </form>
+                    ) : null}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

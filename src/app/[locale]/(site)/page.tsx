@@ -5,13 +5,13 @@ import { Link } from "@/i18n/navigation";
 import SectionHeading from "@/components/SectionHeading";
 import Card from "@/components/ui/Card";
 import DivineHero from "@/components/DivineHero";
-import {
-  poojas,
-  events,
-  gallery,
-  templeInfo,
-} from "@/lib/placeholder-data";
+import { templeInfo } from "@/lib/placeholder-data";
+import { getPoojas } from "@/lib/data/poojas";
+import { getEvents } from "@/lib/data/events";
+import { getGalleryItems } from "@/lib/data/gallery";
 import type { Locale } from "@/i18n/routing";
+import type { Pooja, TempleEvent } from "@/lib/placeholder-data";
+import type { GalleryItem } from "@/lib/gallery-types";
 
 export default async function HomePage({
   params,
@@ -20,11 +20,20 @@ export default async function HomePage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const [poojas, events, gallery] = await Promise.all([getPoojas(), getEvents(), getGalleryItems()]);
 
-  return <HomeContent />;
+  return <HomeContent poojas={poojas} events={events} gallery={gallery} />;
 }
 
-function HomeContent() {
+function HomeContent({
+  poojas,
+  events,
+  gallery,
+}: {
+  poojas: Pooja[];
+  events: TempleEvent[];
+  gallery: GalleryItem[];
+}) {
   const t = useTranslations("home");
   const tPoojas = useTranslations("poojas");
   const locale = useLocale() as Locale;

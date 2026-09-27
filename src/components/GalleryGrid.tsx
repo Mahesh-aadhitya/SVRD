@@ -1,22 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { gallery, type GalleryItem } from "@/lib/placeholder-data";
+import type { GalleryItem } from "@/lib/gallery-types";
+import type { Folder } from "@/lib/folders";
+import { buildFolderTree } from "@/lib/folders";
+import Chip from "@/components/ui/Chip";
 
-type Filter = "all" | "photo" | "video";
+type TypeFilter = "all" | "photo" | "video";
 
-export default function GalleryGrid() {
+export default function GalleryGrid({
+  items,
+  folders,
+}: {
+  items: GalleryItem[];
+  folders: Folder[];
+}) {
   const t = useTranslations("gallery");
-  const [filter, setFilter] = useState<Filter>("all");
+  const tree = useMemo(() => buildFolderTree(folders), [folders]);
+
+  const [categoryId, setCategoryId] = useState<string | "all">("all");
+  const [subfolderId, setSubfolderId] = useState<string | "all">("all");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [active, setActive] = useState<GalleryItem | null>(null);
 
-  const filtered = gallery.filter((item) => filter === "all" || item.type === filter);
+  const selectedCategory = tree.find((c) => c.id === categoryId);
+
+  const filtered = items.filter((item) => {
+    if (typeFilter !== "all" && item.type !== typeFilter) return false;
+    if (categoryId === "all") return true;
+    if (subfolderId !== "all") return item.folderId === subfolderId;
+    const folderIds = [categoryId, ...(selectedCategory?.subfolders.map((s) => s.id) ?? [])];
+    return folderIds.includes(item.folderId);
+  });
 
   return (
     <div className="mt-6">
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
+        <Chip active={categoryId === "all"} onClick={() => { setCategoryId("all"); setSubfolderId("all"); }}>
+          {t("filterAll")}
+        </Chip>
+        {tree.map((category) => (
+          <Chip
+            key={category.id}
+            active={categoryId === category.id}
+            onClick={() => { setCategoryId(category.id); setSubfolderId("all"); }}
+          >
+            {category.name}
+          </Chip>
+        ))}
+      </div>
+
+      {selectedCategory && selectedCategory.subfolders.length > 0 ? (
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Chip active={subfolderId === "all"} onClick={() => setSubfolderId("all")} small>
+            All
+          </Chip>
+          {selectedCategory.subfolders.map((sub) => (
+            <Chip key={sub.id} active={subfolderId === sub.id} onClick={() => setSubfolderId(sub.id)} small>
+              {sub.name}
+            </Chip>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="mt-3 flex gap-2">
         {(
           [
             ["all", t("filterAll")],
@@ -27,9 +76,9 @@ export default function GalleryGrid() {
           <button
             key={value}
             type="button"
-            onClick={() => setFilter(value)}
+            onClick={() => setTypeFilter(value)}
             className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
-              filter === value
+              typeFilter === value
                 ? "border-maroon bg-maroon text-cream"
                 : "border-gold/40 text-ink/70 hover:border-maroon/50"
             }`}
@@ -98,3 +147,4 @@ export default function GalleryGrid() {
     </div>
   );
 }
+
