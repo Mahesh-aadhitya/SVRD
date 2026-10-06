@@ -13,11 +13,11 @@ export default async function AdminLoginPage({
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-cream px-4 text-ink">
       <Image
-        src="/images/emblem-chakra.png"
+        src="/images/chakra-watermark.png"
         alt=""
-        width={360}
-        height={386}
-        className="pointer-events-none absolute -right-20 -top-16 -z-0 opacity-[0.06]"
+        width={1200}
+        height={1432}
+        className="pointer-events-none absolute right-4 top-28 -z-0 hidden h-[380px] w-auto opacity-[0.05] lg:block"
         aria-hidden
       />
       <LoginForm />

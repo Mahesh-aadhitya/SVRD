@@ -88,6 +88,7 @@ export default function GalleryGrid({
         ))}
       </div>
 
+      {filtered.length === 0 ? <p className="mt-6 text-center text-sm text-ink/55">{t("empty")}</p> : null}
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {filtered.map((item) => (
           <button
@@ -100,6 +101,7 @@ export default function GalleryGrid({
               src={item.image}
               alt=""
               fill
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
             {item.type === "video" ? (

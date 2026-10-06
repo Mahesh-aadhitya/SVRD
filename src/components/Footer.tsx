@@ -1,8 +1,8 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { templeInfo } from "@/lib/placeholder-data";
+import type { TempleInfo } from "@/lib/content-types";
 
-export default function Footer() {
+export default function Footer({ info }: { info: TempleInfo }) {
   const t = useTranslations("footer");
   const tNav = useTranslations("nav");
   const tMeta = useTranslations("meta");
@@ -22,14 +22,27 @@ export default function Footer() {
               {tNav("about")}
             </p>
             <ul className="mt-2 space-y-1.5 text-sm text-cream/75">
-              <li>{templeInfo.addressLine1}</li>
-              <li>{templeInfo.addressLine2}</li>
-              <li>{templeInfo.phone}</li>
+              {info.addressLine1 ? <li>{info.addressLine1}</li> : null}
+              {info.addressLine2 ? <li>{info.addressLine2}</li> : null}
+              {info.phone ? (
+                <li>
+                  <a href={`tel:${info.phone.replace(/\s/g, "")}`} className="hover:text-gold-light">
+                    {info.phone}
+                  </a>
+                </li>
+              ) : null}
+              {info.email ? (
+                <li>
+                  <a href={`mailto:${info.email}`} className="hover:text-gold-light">
+                    {info.email}
+                  </a>
+                </li>
+              ) : null}
             </ul>
           </div>
           <div className="flex flex-col gap-2 text-sm text-cream/75">
-            <Link href="/poojas" className="hover:text-gold-light">
-              {tNav("poojas")}
+            <Link href="/sevas" className="hover:text-gold-light">
+              {tNav("sevas")}
             </Link>
             <Link href="/events" className="hover:text-gold-light">
               {tNav("events")}

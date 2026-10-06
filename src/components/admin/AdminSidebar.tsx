@@ -5,14 +5,17 @@ import { Link, usePathname } from "@/i18n/navigation";
 
 const items = [
   { href: "/admin", key: "dashboard", exact: true },
-  { href: "/admin/poojas", key: "poojas" },
+  { href: "/admin/notices", key: "notices" },
   { href: "/admin/events", key: "events" },
   { href: "/admin/gallery", key: "gallery" },
   { href: "/admin/songs", key: "songs" },
   { href: "/admin/sevas", key: "sevas" },
   { href: "/admin/bookings", key: "bookings" },
+  { href: "/admin/darshan", key: "darshan" },
+  { href: "/admin/donations", key: "donations" },
   { href: "/admin/live", key: "live" },
   { href: "/admin/comments", key: "comments" },
+  { href: "/admin/temple", key: "temple" },
 ] as const;
 
 export default function AdminSidebar() {

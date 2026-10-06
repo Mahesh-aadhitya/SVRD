@@ -4,6 +4,8 @@ import { z } from "zod";
 import { updateTag } from "next/cache";
 import { verifyAdminSession } from "@/lib/admin/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveFolderId } from "@/lib/admin/folder-field";
+import { extractYoutubeId } from "@/lib/youtube";
 
 const liveConfigSchema = z
   .object({
@@ -21,30 +23,6 @@ const liveConfigSchema = z
   });
 
 export type LiveConfigFormState = { error?: string; success?: boolean } | undefined;
-
-// Admins may paste a bare video ID or any full YouTube link (watch, youtu.be, /live, /embed, /shorts).
-function extractYoutubeId(input: string): string | null {
-  const trimmed = input.trim();
-  if (/^[A-Za-z0-9_-]{11}$/.test(trimmed)) return trimmed;
-
-  try {
-    const url = new URL(trimmed);
-    const host = url.hostname.replace(/^www\./, "");
-    if (host === "youtu.be") {
-      const id = url.pathname.slice(1).split("/")[0];
-      return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : null;
-    }
-    if (host === "youtube.com" || host === "m.youtube.com" || host === "music.youtube.com") {
-      const v = url.searchParams.get("v");
-      if (v && /^[A-Za-z0-9_-]{11}$/.test(v)) return v;
-      const match = url.pathname.match(/\/(live|embed|shorts)\/([A-Za-z0-9_-]{11})/);
-      if (match) return match[2];
-    }
-  } catch {
-    // not a URL - fall through
-  }
-  return null;
-}
 
 export async function updateLiveConfig(
   _prevState: LiveConfigFormState,
@@ -88,4 +66,48 @@ export async function updateLiveConfig(
 
   updateTag("live-config");
   return { success: true };
+}
+
+const archiveSchema = z.object({
+  titleEn: z.string().trim().min(1).max(200),
+  titleKn: z.string().trim().min(1).max(200),
+  youtube: z.string().trim().min(1),
+});
+
+export type ArchiveFormState = { error?: string; success?: boolean } | undefined;
+
+export async function addLiveArchiveItem(
+  _prevState: ArchiveFormState,
+  formData: FormData,
+): Promise<ArchiveFormState> {
+  await verifyAdminSession();
+  const parsed = archiveSchema.safeParse({
+    titleEn: formData.get("titleEn"),
+    titleKn: formData.get("titleKn"),
+    youtube: formData.get("youtube"),
+  });
+  if (!parsed.success) return { error: "Fill in both titles and the YouTube link." };
+  const youtubeId = extractYoutubeId(parsed.data.youtube);
+  if (!youtubeId) return { error: "Couldn't read a video ID from that YouTube link." };
+
+  const supabase = createAdminClient();
+  const folder = await resolveFolderId(supabase, "live", formData);
+  if ("error" in folder) return folder;
+  const { error } = await supabase.from("live_archive").insert({
+    folder_id: folder.folderId,
+    title: { en: parsed.data.titleEn, kn: parsed.data.titleKn },
+    youtube_id: youtubeId,
+  });
+  if (error) return { error: error.message };
+
+  updateTag("live-archive");
+  return { success: true };
+}
+
+export async function deleteLiveArchiveItem(id: string): Promise<void> {
+  await verifyAdminSession();
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("live_archive").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  updateTag("live-archive");
 }

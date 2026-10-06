@@ -3,10 +3,11 @@
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
+import NavBeacon from "./highlights/NavBeacon";
 
 const items = [
   { href: "/", key: "home", icon: HomeIcon },
-  { href: "/poojas", key: "poojas", icon: FlameIcon },
+  { href: "/sevas", key: "sevas", icon: FlameIcon },
   { href: "/live", key: "live", icon: PlayIcon },
   { href: "/gallery", key: "gallery", icon: ImageIcon },
   { href: "/about", key: "about", icon: MapPinIcon },
@@ -34,8 +35,9 @@ export default function BottomNav() {
               <Icon
                 className={`h-5 w-5 ${active ? "text-maroon" : "text-ink/45"}`}
               />
-              <span className={active ? "text-maroon" : "text-ink/55"}>
+              <span className={`whitespace-nowrap ${active ? "text-maroon" : "text-ink/55"}`}>
                 {t(item.key)}
+                <NavBeacon href={item.href} />
               </span>
             </Link>
           );

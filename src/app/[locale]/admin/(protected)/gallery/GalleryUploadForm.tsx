@@ -21,31 +21,40 @@ export default function GalleryUploadForm({ categories }: { categories: FolderTr
       setError("Choose a folder");
       return;
     }
-    if (!file || file.size === 0) {
+    const hasFile = !!file && file.size > 0;
+    if (type === "photo" && !hasFile) {
       setError("Choose an image");
+      return;
+    }
+    if (type === "video" && !youtubeId.trim()) {
+      setError("Paste the YouTube link");
       return;
     }
 
     setPending(true);
     setError(null);
     try {
-      const upload = await requestGalleryUpload(file.type);
-      if ("error" in upload) throw new Error(upload.error);
+      let imagePath: string | undefined;
+      if (file && hasFile) {
+        const upload = await requestGalleryUpload(file.type);
+        if ("error" in upload) throw new Error(upload.error);
 
-      const supabase = createClient();
-      const { error: uploadError } = await supabase.storage
-        .from("gallery")
-        // Filenames are random UUIDs (see requestGalleryUpload) so a URL's
-        // content never changes — safe to cache for a full year at the CDN
-        // edge and in every visitor's browser, which is what keeps a page
-        // with dozens of images loading instantly under crowd load.
-        .uploadToSignedUrl(upload.path!, upload.token!, file, { cacheControl: "31536000" });
-      if (uploadError) throw new Error(uploadError.message);
+        const supabase = createClient();
+        const { error: uploadError } = await supabase.storage
+          .from("gallery")
+          // Filenames are random UUIDs (see requestGalleryUpload) so a URL's
+          // content never changes — safe to cache for a full year at the CDN
+          // edge and in every visitor's browser, which is what keeps a page
+          // with dozens of images loading instantly under crowd load.
+          .uploadToSignedUrl(upload.path!, upload.token!, file, { cacheControl: "31536000" });
+        if (uploadError) throw new Error(uploadError.message);
+        imagePath = upload.path!;
+      }
 
       const result = await createGalleryItem({
         type,
         folderId,
-        imagePath: upload.path!,
+        imagePath,
         youtubeId: type === "video" ? youtubeId : undefined,
       });
       if (result?.error) throw new Error(result.error);
@@ -108,13 +117,13 @@ export default function GalleryUploadForm({ categories }: { categories: FolderTr
       {type === "video" ? (
         <div>
           <label className="text-sm font-medium text-ink/70" htmlFor="youtubeId">
-            YouTube video ID
+            YouTube link or video ID
           </label>
           <input
             id="youtubeId"
             value={youtubeId}
             onChange={(e) => setYoutubeId(e.target.value)}
-            placeholder="e.g. dQw4w9WgXcQ"
+            placeholder="https://youtu.be/…"
             className="mt-1.5 w-full rounded-xl border border-ink/15 bg-black/[0.03] px-4 py-2.5 text-sm text-ink outline-none focus:border-gold"
           />
         </div>
@@ -122,14 +131,14 @@ export default function GalleryUploadForm({ categories }: { categories: FolderTr
 
       <div>
         <label className="text-sm font-medium text-ink/70" htmlFor="file">
-          {type === "photo" ? "Image" : "Thumbnail image"}
+          {type === "photo" ? "Image" : "Custom thumbnail (optional — YouTube's is used otherwise)"}
         </label>
         <input
           id="file"
           name="file"
           type="file"
           accept="image/jpeg,image/png,image/webp"
-          required
+          required={type === "photo"}
           className="mt-1.5 w-full text-sm text-ink/80 file:mr-3 file:rounded-full file:border-0 file:bg-gold file:px-4 file:py-2 file:text-sm file:font-semibold file:text-maroon-dark"
         />
       </div>

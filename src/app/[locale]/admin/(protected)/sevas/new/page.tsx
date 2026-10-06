@@ -1,5 +1,8 @@
 import { setRequestLocale } from "next-intl/server";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { Link } from "@/i18n/navigation";
+import { getFolders } from "@/lib/data/folders";
+import { buildFolderTree } from "@/lib/folders";
 import SevaForm from "../SevaForm";
 
 export default async function NewSevaPage({
@@ -12,8 +15,11 @@ export default async function NewSevaPage({
 
   return (
     <div>
-      <AdminPageHeader title="Add Seva" />
-      <SevaForm />
+      <Link href="/admin/sevas" className="text-xs font-semibold text-ink/50 hover:text-maroon">
+        ← All sevas
+      </Link>
+      <AdminPageHeader title="Add a new seva" />
+      <SevaForm categories={buildFolderTree(await getFolders("sevas"))} />
     </div>
   );
 }

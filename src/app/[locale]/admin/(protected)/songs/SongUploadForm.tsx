@@ -5,12 +5,15 @@ import { useRouter } from "next/navigation";
 import { requestSongUpload, createSong } from "@/lib/actions/songs";
 import { createClient } from "@/lib/supabase/browser";
 import type { FolderTree } from "@/lib/folders";
+import BilingualField from "@/components/admin/BilingualField";
 
 export default function SongUploadForm({ categories }: { categories: FolderTree }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Bumped after each upload to remount (clear) the controlled title fields.
+  const [resetKey, setResetKey] = useState(0);
 
   async function handleSubmit(formData: FormData) {
     const folderId = String(formData.get("folderId") ?? "");
@@ -51,6 +54,7 @@ export default function SongUploadForm({ categories }: { categories: FolderTree 
       if (result?.error) throw new Error(result.error);
 
       formRef.current?.reset();
+      setResetKey((k) => k + 1);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -61,10 +65,7 @@ export default function SongUploadForm({ categories }: { categories: FolderTree 
 
   return (
     <form ref={formRef} action={handleSubmit} className="max-w-xl space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Title (English)" name="titleEn" required />
-        <Field label="Title (Kannada)" name="titleKn" required />
-      </div>
+      <BilingualField key={resetKey} label="Title" enName="titleEn" knName="titleKn" required />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>

@@ -14,10 +14,20 @@ type SevaRow = {
   is_active: boolean;
   release_start_date: string | null;
   release_end_date: string | null;
+  release_mode: Seva["releaseMode"];
+  release_weekdays: number[] | null;
+  release_dates: string[] | null;
+  folder_id: string | null;
+  frequency: Seva["frequency"];
+  timing: string;
+  schedule: { en: string; kn: string } | null;
+  image_url: string | null;
+  is_listed: boolean;
+  seva_slots: { id: string; start_time: string; end_time: string | null; capacity: number; is_active: boolean }[] | null;
 };
 
 const SEVA_COLUMNS =
-  "id, name, description, price, capacity_per_slot, is_active, release_start_date, release_end_date";
+  "id, name, description, price, capacity_per_slot, is_active, release_start_date, release_end_date, release_mode, release_weekdays, release_dates, folder_id, frequency, timing, schedule, image_url, is_listed, seva_slots(id, start_time, end_time, capacity, is_active)";
 
 function mapRow(row: SevaRow): Seva {
   return {
@@ -29,21 +39,50 @@ function mapRow(row: SevaRow): Seva {
     isActive: row.is_active,
     releaseStartDate: row.release_start_date,
     releaseEndDate: row.release_end_date,
+    releaseMode: row.release_mode,
+    releaseWeekdays: row.release_weekdays,
+    releaseDates: row.release_dates,
+    folderId: row.folder_id,
+    frequency: row.frequency ?? "special",
+    timing: row.timing ?? "",
+    schedule: row.schedule ?? { en: "", kn: "" },
+    imageUrl: row.image_url,
+    isListed: row.is_listed ?? true,
+    slots: (row.seva_slots ?? [])
+      .map((slot) => ({
+        id: slot.id,
+        startTime: slot.start_time.slice(0, 5),
+        endTime: slot.end_time?.slice(0, 5) ?? null,
+        capacity: slot.capacity,
+        isActive: slot.is_active,
+      }))
+      .sort((a, b) => a.startTime.localeCompare(b.startTime)),
   };
 }
 
-// Devotee-facing: only active sevas (matches the sevas_public_read RLS
-// policy, which already filters on is_active — this stays cached/fast).
-export const getActiveSevas = unstable_cache(
+// Every seva the public may see — listed ones and ones open for booking
+// (the sevas_public_read RLS policy). Cached; refreshed when admins save.
+const getPublicSevas = unstable_cache(
   async (): Promise<Seva[]> => {
     const supabase = createPublicClient();
     const { data, error } = await supabase.from("sevas").select(SEVA_COLUMNS).order("sort_order");
-    if (error) throw new Error(`getActiveSevas: ${error.message}`);
-    return (data ?? []).map(mapRow);
+    if (error) throw new Error(`getPublicSevas: ${error.message}`);
+    // RLS already hides inactive slots from the anon client; filter anyway.
+    return (data ?? []).map(mapRow).map((s) => ({ ...s, slots: s.slots.filter((slot) => slot.isActive) }));
   },
-  ["sevas-active"],
+  ["sevas-public"],
   { tags: ["sevas"] },
 );
+
+// Booking: only sevas open for booking.
+export async function getActiveSevas(): Promise<Seva[]> {
+  return (await getPublicSevas()).filter((s) => s.isActive);
+}
+
+// The public Sevas page: sevas the temple chose to list, open or not.
+export async function getListedSevas(): Promise<Seva[]> {
+  return (await getPublicSevas()).filter((s) => s.isListed);
+}
 
 // Admin-facing: every seva including inactive ones, so the admin can
 // reactivate a closed seva. Bypasses RLS via the service-role client, so it

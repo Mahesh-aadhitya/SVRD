@@ -14,6 +14,7 @@ export type LiveArchiveItem = {
   id: string;
   title: { en: string; kn: string };
   youtubeId: string;
+  folderId: string | null;
 };
 
 export const getLiveConfig = unstable_cache(
@@ -42,10 +43,10 @@ export const getLiveArchive = unstable_cache(
     const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("live_archive")
-      .select("id, title, youtube_id")
+      .select("id, title, youtube_id, folder_id")
       .order("created_at", { ascending: false });
     if (error) throw new Error(`getLiveArchive: ${error.message}`);
-    return (data ?? []).map((row) => ({ id: row.id, title: row.title, youtubeId: row.youtube_id }));
+    return (data ?? []).map((row) => ({ id: row.id, title: row.title, youtubeId: row.youtube_id, folderId: row.folder_id }));
   },
   ["live-archive"],
   { tags: ["live-archive"] },

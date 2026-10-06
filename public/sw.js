@@ -1,4 +1,10 @@
-const CACHE_NAME = "temple-app-shell-v5";
+const CACHE_NAME = "temple-app-shell-v8";
+
+// Local / LAN dev servers reuse the same /_next/static URLs while their
+// contents change, so a cache-first worker there serves stale CSS and JS
+// indefinitely. On those hosts the worker clears its caches and removes
+// itself instead of caching anything.
+const IS_DEV_HOST = /^(localhost|127\.|\[::1\]|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(self.location.hostname);
 const OFFLINE_URL = "/offline.html";
 
 const APP_SHELL = [
@@ -12,6 +18,10 @@ const APP_SHELL = [
 ];
 
 self.addEventListener("install", (event) => {
+  if (IS_DEV_HOST) {
+    event.waitUntil(self.skipWaiting());
+    return;
+  }
   event.waitUntil(
     caches
       .open(CACHE_NAME)
@@ -21,6 +31,17 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
+  if (IS_DEV_HOST) {
+    event.waitUntil(
+      caches
+        .keys()
+        .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+        .then(() => self.registration.unregister())
+        .then(() => self.clients.matchAll({ type: "window" }))
+        .then((clients) => clients.forEach((client) => client.navigate(client.url)))
+    );
+    return;
+  }
   event.waitUntil(
     caches
       .keys()
@@ -37,10 +58,12 @@ self.addEventListener("activate", (event) => {
 
 // Network-first for navigations (so content stays fresh), falling back to
 // cache and then the offline page when there is no connection at all.
-// Cache-first for same-origin static assets (fast repeat loads).
+// Cache-first only for assets whose URL changes when their content does
+// (Next's hashed build files) and for images/fonts; everything else goes
+// to the network so a new deploy is never hidden behind an old copy.
 self.addEventListener("fetch", (event) => {
   const { request } = event;
-  if (request.method !== "GET") return;
+  if (IS_DEV_HOST || request.method !== "GET") return;
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
@@ -62,7 +85,10 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (/\.(js|css|png|svg|jpg|jpeg|webp|woff2?)$/.test(url.pathname)) {
+  const immutable =
+    url.pathname.startsWith("/_next/static/") ||
+    /\.(png|svg|jpg|jpeg|webp|woff2?)$/.test(url.pathname);
+  if (immutable) {
     event.respondWith(
       caches.match(request).then(
         (cached) =>

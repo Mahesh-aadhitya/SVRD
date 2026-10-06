@@ -40,7 +40,6 @@
   --font-display: var(--font-temple-display);
   --font-sans: var(--font-temple-sans);
   --font-kannada: var(--font-temple-kannada);
-  --font-display-kn: var(--font-temple-display-kn);
 }
 
 /* The Sanskrit-styled display face is used app-wide (nav, buttons, body
@@ -52,12 +51,14 @@ body {
   font-family: var(--font-temple-display), var(--font-temple-kannada), serif;
 }
 
-/* Padyakke Expanded One only ships a single 400 weight, so bump it to a
-   browser-synthesized bold to get the thicker, carved-stone look the
-   temple heading calls for. */
+/* Kannada pages: Yatra One stays first in the stack so any Latin words
+   (folder names, "English") render exactly as on the English site — it has
+   no Kannada glyphs, so Kannada text falls through to Hubballi. Both faces
+   have a single 400 weight, so the browser is told never to fake-bold them
+   (synthesized bold smears Kannada strokes). */
 html[lang="kn"] body {
-  font-family: var(--font-temple-display-kn), var(--font-temple-kannada), serif;
-  font-weight: 700;
+  font-family: var(--font-temple-display), var(--font-temple-kannada), serif;
+  font-synthesis-weight: none;
 }
 
 @layer utilities {
@@ -66,8 +67,34 @@ html[lang="kn"] body {
   }
 
   html[lang="kn"] .font-display {
+    font-weight: 400;
+  }
+
+  /* The temple's name in Kannada, in the wide Padyakke Expanded face. */
+  html[lang="kn"] .brand-title {
     font-family: var(--font-temple-display-kn), var(--font-temple-kannada), serif;
-    font-weight: 700;
+    font-weight: 400;
+    font-size: clamp(1.2rem, 5.7vw, 2.4rem);
+    line-height: 1.3;
+    /* Double bold: Padyakke has a single weight, so the strokes are
+       thickened with an outline in the text's own colour. */
+    -webkit-text-stroke: 0.055em currentColor;
+    paint-order: stroke fill;
+    letter-spacing: 0.02em;
+  }
+
+  /* Bold Kannada. Hubballi has one weight and browser-synthesized bold
+     smears Kannada strokes, so wherever the design asks for bold (headings,
+     display text, semibold/bold labels and buttons) the letters are
+     thickened with a fine outline in their own colour instead. */
+  html[lang="kn"] :is(h1, h2, h3, h4, strong, b, .font-display, .font-semibold) {
+    -webkit-text-stroke: 0.022em currentColor;
+    paint-order: stroke fill;
+  }
+
+  html[lang="kn"] :is(.font-bold, .font-extrabold) {
+    -webkit-text-stroke: 0.032em currentColor;
+    paint-order: stroke fill;
   }
 
   .bg-divine-gradient {
@@ -256,4 +283,143 @@ html[lang="kn"] body {
 
 .animate-border-scroll {
   animation: border-scroll-right 30s linear infinite;
+}
+
+/* Printing a seva ticket: only the ticket, on one A4 page, colours intact. */
+@page {
+  size: A4;
+  margin: 10mm;
+}
+@media print {
+  /* Drop everything that isn't the ticket or one of its containers. */
+  body:has(#temple-ticket) *:not(:has(#temple-ticket)):not(#temple-ticket):not(#temple-ticket *) {
+    display: none !important;
+  }
+  body:has(#temple-ticket) main,
+  body:has(#temple-ticket) main > div {
+    padding: 0 !important;
+  }
+  html:has(#temple-ticket),
+  body:has(#temple-ticket),
+  body:has(#temple-ticket) *:has(#temple-ticket) {
+    background: #fff !important;
+  }
+  #temple-ticket {
+    max-width: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+/* Loading indicator: the maroon line-art chakram (the hero watermark)
+   breathing gently, a halo of rays turning slowly behind the disc, and a
+   golden shine sweeping across the lines. The shine is masked by the
+   chakram image itself, so it only lights the drawing, never the
+   background. */
+.chakra-loader {
+  position: relative;
+  height: var(--chakra-size, 96px);
+  aspect-ratio: 268 / 320;
+}
+
+.chakra-loader__halo {
+  position: absolute;
+  left: 50%;
+  top: 47%; /* centre of the disc within the drawing */
+  width: 125%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 9999px;
+  background: repeating-conic-gradient(rgba(185, 138, 61, 0.38) 0deg 5deg, transparent 5deg 15deg);
+  mask-image: radial-gradient(circle, transparent 30%, #000 44%, transparent 70%);
+  animation: chakra-halo-turn 10s linear infinite, chakra-halo-pulse 2.4s ease-in-out infinite;
+}
+
+.chakra-loader__emblem {
+  position: relative;
+  height: 100%;
+  animation: chakra-breathe 2.4s ease-in-out infinite;
+}
+
+.chakra-loader__emblem img {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.chakra-loader__shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 38%, rgba(232, 190, 102, 0.95) 50%, transparent 62%) no-repeat;
+  background-size: 300% 100%;
+  mask: url("/images/chakra-loader.png") center / contain no-repeat;
+  animation: chakra-shine 2.4s ease-in-out infinite;
+}
+
+@keyframes chakra-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 1px rgba(185, 138, 61, 0.2));
+  }
+  50% {
+    transform: translateY(-3%) scale(1.03);
+    filter: drop-shadow(0 0 10px rgba(185, 138, 61, 0.7));
+  }
+}
+
+@keyframes chakra-halo-turn {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes chakra-halo-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    scale: 0.94;
+  }
+  50% {
+    opacity: 1;
+    scale: 1.04;
+  }
+}
+
+@keyframes chakra-shine {
+  0% {
+    background-position: 120% 0;
+  }
+  60%,
+  100% {
+    background-position: -20% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chakra-loader__halo,
+  .chakra-loader__emblem,
+  .chakra-loader__shine {
+    animation: none;
+  }
+}
+
+/* Nav lamp: a tiny diya whose flame flickers beside menu items that have
+   something new behind them. */
+.nav-diya__flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: flame-flicker 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-diya__flame {
+    animation: none;
+  }
+}
+
+/* Zodiac glyphs (♈︎…) as plain text symbols, never colour emoji. */
+.rashi-glyph {
+  font-family: "Apple Symbols", "Segoe UI Symbol", "Noto Sans Symbols 2", "Noto Sans Symbols", "DejaVu Sans", sans-serif;
+  font-variant-emoji: text;
 }

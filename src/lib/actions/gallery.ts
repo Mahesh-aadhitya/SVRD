@@ -7,6 +7,7 @@ import { redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { verifyAdminSession } from "@/lib/admin/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { extractYoutubeId, youtubeThumbnail } from "@/lib/youtube";
 
 // createGalleryItem is called directly (await'd) from GalleryUploadForm's own
 // try/catch, as the last step of a manual upload flow — not via a <form
@@ -37,26 +38,37 @@ export async function requestGalleryUpload(contentType: string) {
 const itemSchema = z.object({
   type: z.enum(["photo", "video"]),
   folderId: z.string().uuid(),
-  imagePath: z.string().trim().min(1),
+  imagePath: z.string().trim().optional(),
   youtubeId: z.string().trim().optional(),
 });
 
+// Videos may skip the thumbnail upload — YouTube's own thumbnail is used.
 export async function createGalleryItem(
-  input: { type: "photo" | "video"; folderId: string; imagePath: string; youtubeId?: string },
+  input: { type: "photo" | "video"; folderId: string; imagePath?: string; youtubeId?: string },
 ): Promise<{ error?: string } | undefined> {
   await verifyAdminSession();
   const parsed = itemSchema.safeParse(input);
   if (!parsed.success) return { error: "invalid" };
-  const { type, folderId, imagePath, youtubeId } = parsed.data;
+  const { type, folderId, imagePath } = parsed.data;
+
+  let youtubeId: string | null = null;
+  if (type === "video") {
+    youtubeId = extractYoutubeId(parsed.data.youtubeId ?? "");
+    if (!youtubeId) return { error: "Paste a YouTube video ID or link" };
+  } else if (!imagePath) {
+    return { error: "Choose an image" };
+  }
 
   const supabase = createAdminClient();
-  const { data: pub } = supabase.storage.from("gallery").getPublicUrl(imagePath);
+  const imageUrl = imagePath
+    ? supabase.storage.from("gallery").getPublicUrl(imagePath).data.publicUrl
+    : youtubeThumbnail(youtubeId!);
 
   const { error } = await supabase.from("gallery_items").insert({
     type,
     folder_id: folderId,
-    image_url: pub.publicUrl,
-    youtube_id: type === "video" ? youtubeId || null : null,
+    image_url: imageUrl,
+    youtube_id: youtubeId,
   });
   if (error) return { error: error.message };
 

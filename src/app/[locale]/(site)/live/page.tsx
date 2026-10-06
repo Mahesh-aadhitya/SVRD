@@ -1,12 +1,16 @@
 import Image from "next/image";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import SectionHeading from "@/components/SectionHeading";
-import Card from "@/components/ui/Card";
+import { connection } from "next/server";
 import LiveComments from "@/components/LiveComments";
+import LiveArchiveGrid from "@/components/LiveArchiveGrid";
+import { getApprovedComments, LIVE_COMMENT_CONTEXT } from "@/lib/data/comments";
+import { getFolders } from "@/lib/data/folders";
+import type { Folder } from "@/lib/folders";
+import type { PublicComment } from "@/lib/content-types";
 import { getLiveConfig, getLiveArchive } from "@/lib/data/live";
 import type { LiveConfig, LiveArchiveItem } from "@/lib/data/live";
-import type { Locale } from "@/i18n/routing";
 
 export default async function LivePage({
   params,
@@ -15,13 +19,29 @@ export default async function LivePage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [config, archive] = await Promise.all([getLiveConfig(), getLiveArchive()]);
-  return <LiveContent config={config} archive={archive} />;
+  // Rendered per request so the comment feed is current on first paint.
+  await connection();
+  const [config, archive, comments, folders] = await Promise.all([
+    getLiveConfig(),
+    getLiveArchive(),
+    getApprovedComments(LIVE_COMMENT_CONTEXT),
+    getFolders("live"),
+  ]);
+  return <LiveContent config={config} archive={archive} comments={comments} folders={folders} />;
 }
 
-function LiveContent({ config, archive }: { config: LiveConfig; archive: LiveArchiveItem[] }) {
+function LiveContent({
+  config,
+  archive,
+  comments,
+  folders,
+}: {
+  config: LiveConfig;
+  archive: LiveArchiveItem[];
+  comments: PublicComment[];
+  folders: Folder[];
+}) {
   const t = useTranslations("live");
-  const locale = useLocale() as Locale;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
@@ -67,34 +87,13 @@ function LiveContent({ config, archive }: { config: LiveConfig; archive: LiveArc
 
       <div className="mt-8">
         <p className="font-display text-lg text-maroon">{t("commentsTitle")}</p>
-        <LiveComments />
+        <LiveComments initial={comments} />
       </div>
 
       {archive.length > 0 ? (
         <div className="mt-10">
           <p className="font-display text-lg text-maroon">{t("archiveTitle")}</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {archive.map((item) => (
-              <Card key={item.id} className="overflow-hidden">
-                <div className="relative aspect-video w-full bg-black">
-                  <Image
-                    src="/images/placeholder-gallery-4.svg"
-                    alt={item.title[locale]}
-                    fill
-                    className="object-cover opacity-80"
-                  />
-                  <span className="absolute inset-0 flex items-center justify-center">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/85">
-                      <svg viewBox="0 0 24 24" className="h-4 w-4 translate-x-0.5 fill-maroon">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </span>
-                  </span>
-                </div>
-                <p className="p-3 text-sm font-medium text-ink/80">{item.title[locale]}</p>
-              </Card>
-            ))}
-          </div>
+          <LiveArchiveGrid items={archive} folders={folders} />
         </div>
       ) : null}
     </div>

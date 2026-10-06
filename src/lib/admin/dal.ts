@@ -25,6 +25,12 @@ async function getAdminUser(): Promise<AdminUser | null> {
   return { id: adminRow.id, email: adminRow.email, displayName: adminRow.display_name };
 }
 
+// For public pages that show extra controls to a signed-in admin (e.g. the
+// ticket page sending a scanning admin to the verify screen). Never throws.
+export async function getCurrentAdmin(): Promise<AdminUser | null> {
+  return getAdminUser().catch(() => null);
+}
+
 // Server Components: redirects to the login page when there's no valid admin.
 export async function requireAdmin(locale: Locale): Promise<AdminUser> {
   const admin = await getAdminUser();

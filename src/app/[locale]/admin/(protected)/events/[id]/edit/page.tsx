@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { getFolders } from "@/lib/data/folders";
+import { buildFolderTree } from "@/lib/folders";
 import { getEventById } from "@/lib/data/events";
 import EventForm from "../../EventForm";
 
@@ -18,7 +20,7 @@ export default async function EditEventPage({
   return (
     <div>
       <AdminPageHeader title="Edit Event" />
-      <EventForm event={event} />
+      <EventForm event={event} categories={buildFolderTree(await getFolders("events"))} />
     </div>
   );
 }

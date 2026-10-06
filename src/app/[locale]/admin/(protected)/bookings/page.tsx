@@ -1,68 +1,104 @@
 import { useTranslations, useLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
-import { bookings, sevas } from "@/lib/placeholder-data";
+import BookingTable from "@/components/admin/BookingTable";
+import DatePickerField from "@/components/calendar/DatePickerField";
+import { getBookingsForAdmin, type BookingFilters } from "@/lib/data/bookings";
+import { getAllSevasForAdmin } from "@/lib/data/sevas";
 import type { Locale } from "@/i18n/routing";
+import type { Booking, BookingStatus } from "@/lib/content-types";
+import type { Seva } from "@/lib/seva-types";
 
-const statusStyles: Record<string, string> = {
-  confirmed: "bg-gold/20 text-maroon",
-  pending: "bg-black/5 text-ink/60",
-  cancelled: "bg-red-500/15 text-red-600",
-};
+const STATUSES: BookingStatus[] = ["pending", "confirmed", "cancelled"];
+
+function pick(value: string | string[] | undefined) {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
 
 export default async function AdminBookingsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <Content />;
+  const sp = await searchParams;
+  const status = pick(sp.status) as BookingStatus | undefined;
+  const filters: BookingFilters = {
+    status: status && STATUSES.includes(status) ? status : undefined,
+    sevaId: pick(sp.seva),
+    date: pick(sp.date)?.match(/^\d{4}-\d{2}-\d{2}$/) ? pick(sp.date) : undefined,
+    q: pick(sp.q)?.slice(0, 60),
+  };
+  const [bookings, sevas] = await Promise.all([getBookingsForAdmin(filters), getAllSevasForAdmin()]);
+  return <Content bookings={bookings} sevas={sevas} filters={filters} />;
 }
 
-function Content() {
+function Content({ bookings, sevas, filters }: { bookings: Booking[]; sevas: Seva[]; filters: BookingFilters }) {
   const t = useTranslations("admin");
   const locale = useLocale() as Locale;
+  const exportQuery = new URLSearchParams(
+    Object.entries({ status: filters.status, seva: filters.sevaId, date: filters.date, q: filters.q }).filter(
+      (entry): entry is [string, string] => !!entry[1],
+    ),
+  ).toString();
+  const inputClass =
+    "rounded-xl border border-ink/15 bg-black/[0.03] px-3 py-2 text-sm text-ink outline-none focus:border-gold";
 
   return (
     <div>
-      <AdminPageHeader title={t("nav.bookings")} />
-      <div className="overflow-hidden rounded-2xl border border-ink/10">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-black/[0.03] text-xs uppercase tracking-wide text-ink/50">
-            <tr>
-              <th className="px-4 py-3 font-medium">Devotee</th>
-              <th className="px-4 py-3 font-medium">Seva</th>
-              <th className="px-4 py-3 font-medium">Date</th>
-              <th className="px-4 py-3 font-medium">Amount</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((booking) => {
-              const seva = sevas.find((s) => s.id === booking.sevaId);
-              return (
-                <tr key={booking.id} className="border-t border-ink/10">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-ink">{booking.devoteeName}</p>
-                    <p className="text-xs text-ink/50">{booking.phone}</p>
-                  </td>
-                  <td className="px-4 py-3 text-ink/70">{seva?.name[locale] ?? booking.sevaId}</td>
-                  <td className="px-4 py-3 text-ink/70">{booking.date}</td>
-                  <td className="px-4 py-3 text-ink/70">
-                    {booking.amount === 0 ? "Free" : `₹${booking.amount}`}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-2.5 py-1 text-xs capitalize ${statusStyles[booking.status]}`}>
-                      {booking.status}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <AdminPageHeader
+        title={t("nav.bookings")}
+        action={
+          <div className="flex flex-wrap gap-2">
+            <a
+              href={`/api/admin/bookings/export?view=devotees${filters.date ? `&date=${filters.date}` : ""}${
+                filters.sevaId ? `&seva=${encodeURIComponent(filters.sevaId)}` : ""
+              }`}
+              className="rounded-full bg-maroon px-4 py-2 text-sm font-semibold text-cream hover:bg-maroon-dark"
+            >
+              {filters.date ? "Devotee list for this date" : "Today's devotee list"}
+            </a>
+            <a
+              href={`/api/admin/bookings/export${exportQuery ? `?${exportQuery}` : ""}`}
+              className="rounded-full border border-ink/15 px-4 py-2 text-sm font-semibold text-maroon hover:bg-black/[0.03]"
+            >
+              Export CSV
+            </a>
+          </div>
+        }
+      />
+
+      <form className="mb-5 flex flex-wrap items-end gap-2">
+        <input name="q" defaultValue={filters.q} placeholder="Name, phone or reference" className={`${inputClass} min-w-48 flex-1`} />
+        <select name="status" defaultValue={filters.status ?? ""} className={inputClass}>
+          <option value="">All statuses</option>
+          {STATUSES.map((s) => (
+            <option key={s} value={s} className="capitalize">
+              {s}
+            </option>
+          ))}
+        </select>
+        <select name="seva" defaultValue={filters.sevaId ?? ""} className={inputClass}>
+          <option value="">All sevas</option>
+          {sevas.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name[locale]}
+            </option>
+          ))}
+        </select>
+        <DatePickerField name="date" defaultValue={filters.date} allowPast clearable compact placeholder="Any date" />
+        <button className="rounded-full bg-gold px-4 py-2 text-sm font-semibold text-maroon-dark hover:brightness-105">
+          Filter
+        </button>
+        <a href="?" className="px-2 py-2 text-xs font-semibold text-ink/50 hover:text-maroon">
+          Clear
+        </a>
+      </form>
+
+      <BookingTable bookings={bookings} sevas={sevas} />
     </div>
   );
 }

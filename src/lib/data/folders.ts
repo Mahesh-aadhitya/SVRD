@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { Folder, FolderSection } from "@/lib/folders";
 
@@ -20,4 +21,12 @@ export async function fetchFolders(section: FolderSection): Promise<Folder[]> {
     parentId: row.parent_id,
     sortOrder: row.sort_order,
   }));
+}
+
+// Cached per section, tagged so createFolder/deleteFolder's
+// updateTag(`content-folders-${section}`) refreshes exactly that section.
+export function getFolders(section: FolderSection): Promise<Folder[]> {
+  return unstable_cache(() => fetchFolders(section), ["content_folders", section], {
+    tags: [`content-folders-${section}`],
+  })();
 }

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Yatra_One, Padyakke_Expanded_One, Inter, Noto_Sans_Kannada } from "next/font/google";
+import { Yatra_One, Inter, Padyakke_Expanded_One } from "next/font/google";
+import localFont from "next/font/local";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -8,19 +9,11 @@ import PwaRegister from "@/components/PwaRegister";
 import "../globals.css";
 
 // Yatra One: a Devanagari/Sanskrit-lettering-inspired display face (also
-// used for Latin text), paired with Padyakke Expanded One (bold, upright,
-// carved-inscription letterforms) so headings keep the same ceremonial,
-// temple-carved character across both languages instead of switching to
-// a generic sans for Kannada.
+// used for Latin text), paired with Hubballi for all Kannada text — a
+// traditional, North-Karnataka-style Kannada face.
 const displayFont = Yatra_One({
   variable: "--font-temple-display",
   subsets: ["latin"],
-  weight: "400",
-});
-
-const displayFontKn = Padyakke_Expanded_One({
-  variable: "--font-temple-display-kn",
-  subsets: ["kannada"],
   weight: "400",
 });
 
@@ -29,10 +22,23 @@ const sansFont = Inter({
   subsets: ["latin"],
 });
 
-const kannadaFont = Noto_Sans_Kannada({
+// Self-hosted (Kannada subset) so it can be scaled up with size-adjust:
+// Hubballi's letters are small for their em, and scaling the font itself
+// enlarges Kannada text without touching Latin text or layout spacing.
+const kannadaFont = localFont({
+  src: "../fonts/Hubballi-Kannada.woff2",
   variable: "--font-temple-kannada",
+  weight: "400",
+  display: "swap",
+  declarations: [{ prop: "size-adjust", value: "118%" }],
+});
+
+// Padyakke Expanded One: a wide, stately Kannada display face, used for
+// the temple's name in Kannada.
+const displayFontKn = Padyakke_Expanded_One({
+  variable: "--font-temple-display-kn",
   subsets: ["kannada"],
-  weight: ["400", "500", "600", "700"],
+  weight: "400",
 });
 
 export function generateStaticParams() {
@@ -57,7 +63,11 @@ export async function generateMetadata({
       title: t("siteTitle"),
     },
     icons: {
-      icon: [{ url: "/favicon-32.png", sizes: "32x32", type: "image/png" }],
+      // Gold chakram for the browser tab.
+      icon: [
+        { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+        { url: "/favicon-64.png", sizes: "64x64", type: "image/png" },
+      ],
       apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
     },
   };
