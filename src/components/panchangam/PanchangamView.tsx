@@ -14,7 +14,9 @@ import VerseCard from "./VerseCard";
 import DhanurmasaCard from "./DhanurmasaCard";
 import { CalendarList, MonthView, type ListTab } from "./CalendarViews";
 import { TEMPLE_UTSAVAS } from "@/lib/panchang/names";
-import { verseForDay } from "@/lib/panchang/verses";
+import { occasionFor, type Verse } from "@/lib/panchang/verses";
+import { NO_UPLOADS, acharyaPath, acharyasOn, mediaFor, type AcharyaUploads } from "@/lib/panchang/acharyas";
+import TirunakshatramCard from "./TirunakshatramCard";
 
 const TABS = ["day", "month", "festival", "important", "tirunakshatram", "tirumala", "grahana"] as const;
 type Tab = (typeof TABS)[number];
@@ -63,16 +65,21 @@ function storeLocation(loc: StoredLocation | null) {
 export default function PanchangamView({
   initialDate,
   initialDay,
+  initialVerse,
   locale,
   siteTitle,
   templeLocation,
+  acharyaMedia = NO_UPLOADS,
 }: {
   initialDate: string;
   initialDay: PanchangDay;
+  initialVerse: Verse;
   locale: string;
   siteTitle: string;
   // The temple's pin, as set in the admin's Temple info.
   templeLocation: PanchangLocation;
+  // The temple's pictures and recordings of the Alwars and Acharyas.
+  acharyaMedia?: AcharyaUploads;
 }) {
   const t = useTranslations("panchangam");
   const [date, setDate] = useState(initialDate);
@@ -214,8 +221,36 @@ export default function PanchangamView({
   const placeName = location.device ? deviceName : siteTitle;
   const today = todayAt(location);
 
-  const verse = useMemo(() => verseForDay(day.date, day.observances), [day]);
-  const whatsappText = text.message(siteTitle, placeName, verse);
+  // The verse comes from the server (the whole collection, never repeating
+  // until all are read); other dates are fetched as the visitor moves to them.
+  const occasion = occasionFor(day.observances);
+  // On an Alwar's or Acharya's tirunakshatram the verse is their own
+  // composition (unless the day already has an occasion's verse).
+  const honoured = acharyasOn(day.observances);
+  const tirunakshatramVerse = !occasion ? honoured.find((a) => a.composition)?.composition : undefined;
+  const verseOwner = tirunakshatramVerse ? honoured.find((a) => a.composition === tirunakshatramVerse) : undefined;
+  const verseMedia = verseOwner ? mediaFor(verseOwner, acharyaMedia) : null;
+  const verseKey = `${day.date}|${occasion ?? ""}`;
+  const [verses, setVerses] = useState<Record<string, Verse>>(() => ({
+    [`${initialDate}|${occasionFor(initialDay.observances) ?? ""}`]: initialVerse,
+  }));
+  const verse = tirunakshatramVerse ?? verses[verseKey];
+  useEffect(() => {
+    if (verse) return;
+    const controller = new AbortController();
+    const params = new URLSearchParams({ date: day.date, ...(occasion ? { occasion } : {}) });
+    fetch(`/api/verse?${params}`, { signal: controller.signal })
+      .then((res) => (res.ok ? (res.json() as Promise<Verse>) : null))
+      .then((v) => v && setVerses((cur) => ({ ...cur, [verseKey]: v })))
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [verse, verseKey, day.date, occasion]);
+  const localePrefix = locale === "en" ? "" : `/${locale}`;
+  const acharyaLinks = honoured.map((a) => ({ name: label(a.name, locale), url: `${siteUrl}${localePrefix}${acharyaPath(a.slug)}` }));
+  const whatsappText = [
+    text.message(siteTitle, placeName, verse),
+    ...acharyaLinks.map((l) => `\n🙏 ${t("acharya.knowMoreAbout", { name: l.name })}: ${l.url}`),
+  ].join("");
 
   return (
     <div className="relative isolate bg-[#03020a] text-white/90">
@@ -329,6 +364,7 @@ export default function PanchangamView({
                 </div>
               </div>
             ) : null}
+            <TirunakshatramCard acharyas={honoured} uploads={acharyaMedia} locale={locale} />
             {text.observances.length ? (
               <div className="mt-3 flex flex-wrap justify-center gap-2">
                 {text.observances.map((o) => (
@@ -354,6 +390,7 @@ export default function PanchangamView({
             locale={locale}
             placeName={placeName}
             onPick={openDay}
+            acharyaMedia={acharyaMedia}
           />
         ) : null}
 
@@ -413,7 +450,7 @@ export default function PanchangamView({
         </section>
 
         {/* The full panchangam */}
-        <div className="mx-auto grid max-w-5xl items-start gap-4 px-4 pb-6 sm:px-6 md:grid-cols-2">
+        <div className="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)] items-start gap-4 px-4 pb-6 sm:px-6 md:grid-cols-2">
           <Card title={t("panchaAnga")} className="md:col-span-2">
             <Rows
               rows={[
@@ -538,7 +575,15 @@ export default function PanchangamView({
 
           {day.dhanurmasaDay ? <DhanurmasaCard day={day.dhanurmasaDay} date={day.date} locale={locale} className="md:col-span-2" /> : null}
 
-          <VerseCard verse={verse} locale={locale} date={day.date} className="md:col-span-2" />
+          {verse ? (
+            <VerseCard
+              verse={verse}
+              locale={locale}
+              date={day.date}
+              className="md:col-span-2"
+              audio={verseMedia?.audioUrl ? { src: verseMedia.audioUrl, title: verseMedia.audioCredit?.title, credit: verseMedia.audioCredit } : null}
+            />
+          ) : null}
 
           <Card title={t("share")} className="md:col-span-2">
             <ShareActions
@@ -550,6 +595,7 @@ export default function PanchangamView({
                   siteUrl={siteUrl.replace(/^https?:\/\//, "")}
                   placeName={placeName}
                   verse={verse}
+                  acharyas={honoured.map((a) => ({ acharya: a, imageUrl: mediaFor(a, acharyaMedia).imageUrl, link: `${siteUrl.replace(/^https?:\/\//, "")}${localePrefix}${acharyaPath(a.slug)}` }))}
                 />
               }
               fileBase={`panchangam-${day.date}`}

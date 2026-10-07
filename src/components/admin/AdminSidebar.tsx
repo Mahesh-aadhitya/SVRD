@@ -17,6 +17,8 @@ const items = [
   { href: "/admin/live", key: "live" },
   { href: "/admin/comments", key: "comments" },
   { href: "/admin/kundali", key: "kundali" },
+  { href: "/admin/verses", key: "verses" },
+  { href: "/admin/acharyas", key: "acharyas" },
   { href: "/admin/temple", key: "temple" },
 ] as const;
 

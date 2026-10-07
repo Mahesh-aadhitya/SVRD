@@ -1,0 +1,1082 @@
+[
+ {
+  "id": "vs-1",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 1",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 1"
+  },
+  "text_kn": "ವಿಶ್ವಂ ವಿಷ್ಣುರ್ವಷಟ್ಕಾರೋ ಭೂತಭವ್ಯಭವತ್ಪ್ರಭುಃ ।\nಭೂತಕೃದ್ಭೂತಭೃದ್ಭಾವೋ ಭೂತಾತ್ಮಾ ಭೂತಭಾವನಃ ॥",
+  "roman": "viśvaṁ viṣṇurvaṣaṭkāro bhūtabhavyabhavatprabhuḥ |\nbhūtakṛdbhūtabhṛdbhāvo bhūtātmā bhūtabhāvanaḥ ||"
+ },
+ {
+  "id": "vs-2",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 2",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 2"
+  },
+  "text_kn": "ಪೂತಾತ್ಮಾ ಪರಮಾತ್ಮಾ ಚ ಮುಕ್ತಾನಾಂ ಪರಮಾ ಗತಿಃ ।\nಅವ್ಯಯಃ ಪುರುಷಃ ಸಾಕ್ಷೀ ಕ್ಷೇತ್ರಜ್ಞೋಽಕ್ಷರ ಏವ ಚ ॥",
+  "roman": "pūtātmā paramātmā ca muktānāṁ paramā gatiḥ |\navyayaḥ puruṣaḥ sākṣī kṣetrajño'kṣara eva ca ||"
+ },
+ {
+  "id": "vs-3",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 3",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 3"
+  },
+  "text_kn": "ಯೋಗೋ ಯೋಗವಿದಾಂ ನೇತಾ ಪ್ರಧಾನಪುರುಷೇಶ್ವರಃ ।\nನಾರಸಿಂಹವಪುಃ ಶ್ರೀಮಾನ್ ಕೇಶವಃ ಪುರುಷೋತ್ತಮಃ ॥",
+  "roman": "yogo yogavidāṁ netā pradhānapuruṣeśvaraḥ |\nnārasiṁhavapuḥ śrīmān keśavaḥ puruṣottamaḥ ||"
+ },
+ {
+  "id": "vs-4",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 4",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 4"
+  },
+  "text_kn": "ಸರ್ವಃ ಶರ್ವಃ ಶಿವಃ ಸ್ಥಾಣುರ್ಭೂತಾದಿರ್ನಿಧಿರವ್ಯಯಃ ।\nಸಂಭವೋ ಭಾವನೋ ಭರ್ತಾ ಪ್ರಭವಃ ಪ್ರಭುರೀಶ್ವರಃ ॥",
+  "roman": "sarvaḥ śarvaḥ śivaḥ sthāṇurbhūtādirnidhiravyayaḥ |\nsambhavo bhāvano bhartā prabhavaḥ prabhurīśvaraḥ ||"
+ },
+ {
+  "id": "vs-5",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 5",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 5"
+  },
+  "text_kn": "ಸ್ವಯಂಭೂಃ ಶಂಭುರಾದಿತ್ಯಃ ಪುಷ್ಕರಾಕ್ಷೋ ಮಹಾಸ್ವನಃ ।\nಅನಾದಿನಿಧನೋ ಧಾತಾ ವಿಧಾತಾ ಧಾತುರುತ್ತಮಃ ॥",
+  "roman": "svayambhūḥ śambhurādityaḥ puṣkarākṣo mahāsvanaḥ |\nanādinidhano dhātā vidhātā dhāturuttamaḥ ||"
+ },
+ {
+  "id": "vs-6",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 6",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 6"
+  },
+  "text_kn": "ಅಪ್ರಮೇಯೋ ಹೃಷೀಕೇಶಃ ಪದ್ಮನಾಭೋಽಮರಪ್ರಭುಃ ।\nವಿಶ್ವಕರ್ಮಾ ಮನುಸ್ತ್ವಷ್ಟಾ ಸ್ಥವಿಷ್ಠಃ ಸ್ಥವಿರೋ ಧ್ರುವಃ ॥",
+  "roman": "aprameyo hṛṣīkeśaḥ padmanābho'maraprabhuḥ |\nviśvakarmā manustvaṣṭā sthaviṣṭhaḥ sthaviro dhruvaḥ ||"
+ },
+ {
+  "id": "vs-7",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 7",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 7"
+  },
+  "text_kn": "ಅಗ್ರಾಹ್ಯಃ ಶಾಶ್ವತಃ ಕೃಷ್ಣೋ ಲೋಹಿತಾಕ್ಷಃ ಪ್ರತರ್ದನಃ ।\nಪ್ರಭೂತಸ್ತ್ರಿಕಕುಬ್ಧಾಮ ಪವಿತ್ರಂ ಮಂಗಲಂ ಪರಮ್ ॥",
+  "roman": "agrāhyaḥ śāśvataḥ kṛṣṇo lohitākṣaḥ pratardanaḥ |\nprabhūtastrikakubdhāma pavitraṁ maṅgalaṁ param ||"
+ },
+ {
+  "id": "vs-8",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 8",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 8"
+  },
+  "text_kn": "ಈಶಾನಃ ಪ್ರಾಣದಃ ಪ್ರಾಣೋ ಜ್ಯೇಷ್ಠಃ ಶ್ರೇಷ್ಠಃ ಪ್ರಜಾಪತಿಃ ।\nಹಿರಣ್ಯಗರ್ಭೋ ಭೂಗರ್ಭೋ ಮಾಧವೋ ಮಧುಸೂದನಃ ॥",
+  "roman": "īśānaḥ prāṇadaḥ prāṇo jyeṣṭhaḥ śreṣṭhaḥ prajāpatiḥ |\nhiraṇyagarbho bhūgarbho mādhavo madhusūdanaḥ ||"
+ },
+ {
+  "id": "vs-9",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 9",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 9"
+  },
+  "text_kn": "ಈಶ್ವರೋ ವಿಕ್ರಮೀ ಧನ್ವೀ ಮೇಧಾವೀ ವಿಕ್ರಮಃ ಕ್ರಮಃ ।\nಅನುತ್ತಮೋ ದುರಾಧರ್ಷಃ ಕೃತಜ್ಞಃ ಕೃತಿರಾತ್ಮವಾನ್ ॥",
+  "roman": "īśvaro vikramī dhanvī medhāvī vikramaḥ kramaḥ |\nanuttamo durādharṣaḥ kṛtajñaḥ kṛtirātmavān ||"
+ },
+ {
+  "id": "vs-10",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 10",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 10"
+  },
+  "text_kn": "ಸುರೇಶಃ ಶರಣಂ ಶರ್ಮ ವಿಶ್ವರೇತಾಃ ಪ್ರಜಾಭವಃ ।\nಅಹಃ ಸಂವತ್ಸರೋ ವ್ಯಾಲಃ ಪ್ರತ್ಯಯಃ ಸರ್ವದರ್ಶನಃ ॥",
+  "roman": "sureśaḥ śaraṇaṁ śarma viśvaretāḥ prajābhavaḥ |\nahaḥ saṁvatsaro vyālaḥ pratyayaḥ sarvadarśanaḥ ||"
+ },
+ {
+  "id": "vs-11",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 11",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 11"
+  },
+  "text_kn": "ಅಜಃ ಸರ್ವೇಶ್ವರಃ ಸಿದ್ಧಃ ಸಿದ್ಧಿಃ ಸರ್ವಾದಿರಚ್ಯುತಃ ।\nವೃಷಾಕಪಿರಮೇಯಾತ್ಮಾ ಸರ್ವಯೋಗವಿನಿಃಸೃತಃ ॥",
+  "roman": "ajaḥ sarveśvaraḥ siddhaḥ siddhiḥ sarvādiracyutaḥ |\nvṛṣākapirameyātmā sarvayogaviniḥsṛtaḥ ||"
+ },
+ {
+  "id": "vs-12",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 12",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 12"
+  },
+  "text_kn": "ವಸುರ್ವಸುಮನಾಃ ಸತ್ಯಃ ಸಮಾತ್ಮಾಽಸಮ್ಮಿತಃ ಸಮಃ ।\nಅಮೋಘಃ ಪುಂಡರೀಕಾಕ್ಷೋ ವೃಷಕರ್ಮಾ ವೃಷಾಕೃತಿಃ ॥",
+  "roman": "vasurvasumanāḥ satyaḥ samātmā'sammitaḥ samaḥ |\namoghaḥ puṇḍarīkākṣo vṛṣakarmā vṛṣākṛtiḥ ||"
+ },
+ {
+  "id": "vs-13",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 13",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 13"
+  },
+  "text_kn": "ರುದ್ರೋ ಬಹುಶಿರಾ ಬಭ್ರುರ್ವಿಶ್ವಯೋನಿಃ ಶುಚಿಶ್ರವಾಃ ।\nಅಮೃತಃ ಶಾಶ್ವತಸ್ಥಾಣುರ್ವರಾರೋಹೋ ಮಹಾತಪಾಃ ॥",
+  "roman": "rudro bahuśirā babhrurviśvayoniḥ śuciśravāḥ |\namṛtaḥ śāśvatasthāṇurvarāroho mahātapāḥ ||"
+ },
+ {
+  "id": "vs-14",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 14",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 14"
+  },
+  "text_kn": "ಸರ್ವಗಃ ಸರ್ವವಿದ್ಭಾನುರ್ವಿಷ್ವಕ್ಸೇನೋ ಜನಾರ್ದನಃ ।\nವೇದೋ ವೇದವಿದವ್ಯಂಗೋ ವೇದಾಂಗೋ ವೇದವಿತ್ ಕವಿಃ ॥",
+  "roman": "sarvagaḥ sarvavidbhānurviṣvakseno janārdanaḥ |\nvedo vedavidavyaṅgo vedāṅgo vedavit kaviḥ ||"
+ },
+ {
+  "id": "vs-15",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 15",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 15"
+  },
+  "text_kn": "ಲೋಕಾಧ್ಯಕ್ಷಃ ಸುರಾಧ್ಯಕ್ಷೋ ಧರ್ಮಾಧ್ಯಕ್ಷಃ ಕೃತಾಕೃತಃ ।\nಚತುರಾತ್ಮಾ ಚತುರ್ವ್ಯೂಹಶ್ಚತುರ್ದಂಷ್ಟ್ರಶ್ಚತುರ್ಭುಜಃ ॥",
+  "roman": "lokādhyakṣaḥ surādhyakṣo dharmādhyakṣaḥ kṛtākṛtaḥ |\ncaturātmā caturvyūhaścaturdaṁṣṭraścaturbhujaḥ ||"
+ },
+ {
+  "id": "vs-16",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 16",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 16"
+  },
+  "text_kn": "ಭ್ರಾಜಿಷ್ಣುರ್ಭೋಜನಂ ಭೋಕ್ತಾ ಸಹಿಷ್ಣುರ್ಜಗದಾದಿಜಃ ।\nಅನಘೋ ವಿಜಯೋ ಜೇತಾ ವಿಶ್ವಯೋನಿಃ ಪುನರ್ವಸುಃ ॥",
+  "roman": "bhrājiṣṇurbhojanaṁ bhoktā sahiṣṇurjagadādijaḥ |\nanagho vijayo jetā viśvayoniḥ punarvasuḥ ||"
+ },
+ {
+  "id": "vs-17",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 17",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 17"
+  },
+  "text_kn": "ಉಪೇಂದ್ರೋ ವಾಮನಃ ಪ್ರಾಂಶುರಮೋಘಃ ಶುಚಿರೂರ್ಜಿತಃ ।\nಅತೀಂದ್ರಃ ಸಂಗ್ರಹಃ ಸರ್ಗೋ ಧೃತಾತ್ಮಾ ನಿಯಮೋ ಯಮಃ ॥",
+  "roman": "upendro vāmanaḥ prāṁśuramoghaḥ śucirūrjitaḥ |\natīndraḥ saṅgrahaḥ sargo dhṛtātmā niyamo yamaḥ ||"
+ },
+ {
+  "id": "vs-18",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 18",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 18"
+  },
+  "text_kn": "ವೇದ್ಯೋ ವೈದ್ಯಃ ಸದಾಯೋಗೀ ವೀರಹಾ ಮಾಧವೋ ಮಧುಃ ।\nಅತೀಂದ್ರಿಯೋ ಮಹಾಮಾಯೋ ಮಹೋತ್ಸಾಹೋ ಮಹಾಬಲಃ ॥",
+  "roman": "vedyo vaidyaḥ sadāyogī vīrahā mādhavo madhuḥ |\natīndriyo mahāmāyo mahotsāho mahābalaḥ ||"
+ },
+ {
+  "id": "vs-19",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 19",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 19"
+  },
+  "text_kn": "ಮಹಾಬುದ್ಧಿರ್ಮಹಾವೀರ್ಯೋ ಮಹಾಶಕ್ತಿರ್ಮಹಾದ್ಯುತಿಃ ।\nಅನಿರ್ದೇಶ್ಯವಪುಃ ಶ್ರೀಮಾನಮೇಯಾತ್ಮಾ ಮಹಾದ್ರಿಧೃಕ್ ॥",
+  "roman": "mahābuddhirmahāvīryo mahāśaktirmahādyutiḥ |\nanirdeśyavapuḥ śrīmānameyātmā mahādridhṛk ||"
+ },
+ {
+  "id": "vs-20",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 20",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 20"
+  },
+  "text_kn": "ಮಹೇಷ್ವಾಸೋ ಮಹೀಭರ್ತಾ ಶ್ರೀನಿವಾಸಃ ಸತಾಂ ಗತಿಃ ।\nಅನಿರುದ್ಧಃ ಸುರಾನಂದೋ ಗೋವಿಂದೋ ಗೋವಿದಾಂ ಪತಿಃ ॥",
+  "roman": "maheṣvāso mahībhartā śrīnivāsaḥ satāṁ gatiḥ |\naniruddhaḥ surānando govindo govidāṁ patiḥ ||"
+ },
+ {
+  "id": "vs-21",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 21",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 21"
+  },
+  "text_kn": "ಮರೀಚಿರ್ದಮನೋ ಹಂಸಃ ಸುಪರ್ಣೋ ಭುಜಗೋತ್ತಮಃ ।\nಹಿರಣ್ಯನಾಭಃ ಸುತಪಾಃ ಪದ್ಮನಾಭಃ ಪ್ರಜಾಪತಿಃ ॥",
+  "roman": "marīcirdamano haṁsaḥ suparṇo bhujagottamaḥ |\nhiraṇyanābhaḥ sutapāḥ padmanābhaḥ prajāpatiḥ ||"
+ },
+ {
+  "id": "vs-22",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 22",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 22"
+  },
+  "text_kn": "ಅಮೃತ್ಯುಃ ಸರ್ವದೃಕ್ ಸಿಂಹಃ ಸಂಧಾತಾ ಸಂಧಿಮಾನ್ ಸ್ಥಿರಃ ।\nಅಜೋ ದುರ್ಮರ್ಷಣಃ ಶಾಸ್ತಾ ವಿಶ್ರುತಾತ್ಮಾ ಸುರಾರಿಹಾ ॥",
+  "roman": "amṛtyuḥ sarvadṛk siṁhaḥ sandhātā sandhimān sthiraḥ |\najo durmarṣaṇaḥ śāstā viśrutātmā surārihā ||"
+ },
+ {
+  "id": "vs-23",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 23",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 23"
+  },
+  "text_kn": "ಗುರುರ್ಗುರುತಮೋ ಧಾಮ ಸತ್ಯಃ ಸತ್ಯಪರಾಕ್ರಮಃ ।\nನಿಮಿಷೋಽನಿಮಿಷಃ ಸ್ರಗ್ವೀ ವಾಚಸ್ಪತಿರುದಾರಧೀಃ ॥",
+  "roman": "gururgurutamo dhāma satyaḥ satyaparākramaḥ |\nnimiṣo'nimiṣaḥ sragvī vācaspatirudāradhīḥ ||"
+ },
+ {
+  "id": "vs-24",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 24",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 24"
+  },
+  "text_kn": "ಅಗ್ರಣೀರ್ಗ್ರಾಮಣೀಃ ಶ್ರೀಮಾನ್ ನ್ಯಾಯೋ ನೇತಾ ಸಮೀರಣಃ ।\nಸಹಸ್ರಮೂರ್ಧಾ ವಿಶ್ವಾತ್ಮಾ ಸಹಸ್ರಾಕ್ಷಃ ಸಹಸ್ರಪಾತ್ ॥",
+  "roman": "agraṇīrgrāmaṇīḥ śrīmān nyāyo netā samīraṇaḥ |\nsahasramūrdhā viśvātmā sahasrākṣaḥ sahasrapāt ||"
+ },
+ {
+  "id": "vs-25",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 25",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 25"
+  },
+  "text_kn": "ಆವರ್ತನೋ ನಿವೃತ್ತಾತ್ಮಾ ಸಂವೃತಃ ಸಂಪ್ರಮರ್ದನಃ ।\nಅಹಃ ಸಂವರ್ತಕೋ ವಹ್ನಿರನಿಲೋ ಧರಣೀಧರಃ ॥",
+  "roman": "āvartano nivṛttātmā saṁvṛtaḥ sampramardanaḥ |\nahaḥ saṁvartako vahniranilo dharaṇīdharaḥ ||"
+ },
+ {
+  "id": "vs-26",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 26",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 26"
+  },
+  "text_kn": "ಸುಪ್ರಸಾದಃ ಪ್ರಸನ್ನಾತ್ಮಾ ವಿಶ್ವಧೃಗ್ವಿಶ್ವಭುಗ್ವಿಭುಃ ।\nಸತ್ಕರ್ತಾ ಸತ್ಕೃತಃ ಸಾಧುರ್ಜಹ್ನುರ್ನಾರಾಯಣೋ ನರಃ ॥",
+  "roman": "suprasādaḥ prasannātmā viśvadhṛgviśvabhugvibhuḥ |\nsatkartā satkṛtaḥ sādhurjahnurnārāyaṇo naraḥ ||"
+ },
+ {
+  "id": "vs-27",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 27",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 27"
+  },
+  "text_kn": "ಅಸಂಖ್ಯೇಯೋಽಪ್ರಮೇಯಾತ್ಮಾ ವಿಶಿಷ್ಟಃ ಶಿಷ್ಟಕೃಚ್ಛುಚಿಃ ।\nಸಿದ್ಧಾರ್ಥಃ ಸಿದ್ಧಸಂಕಲ್ಪಃ ಸಿದ್ಧಿದಃ ಸಿದ್ಧಿಸಾಧನಃ ॥",
+  "roman": "asaṅkhyeyo'prameyātmā viśiṣṭaḥ śiṣṭakṛcchuciḥ |\nsiddhārthaḥ siddhasaṅkalpaḥ siddhidaḥ siddhisādhanaḥ ||"
+ },
+ {
+  "id": "vs-28",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 28",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 28"
+  },
+  "text_kn": "ವೃಷಾಹೀ ವೃಷಭೋ ವಿಷ್ಣುರ್ವೃಷಪರ್ವಾ ವೃಷೋದರಃ ।\nವರ್ಧನೋ ವರ್ಧಮಾನಶ್ಚ ವಿವಿಕ್ತಃ ಶ್ರುತಿಸಾಗರಃ ॥",
+  "roman": "vṛṣāhī vṛṣabho viṣṇurvṛṣaparvā vṛṣodaraḥ |\nvardhano vardhamānaśca viviktaḥ śrutisāgaraḥ ||"
+ },
+ {
+  "id": "vs-29",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 29",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 29"
+  },
+  "text_kn": "ಸುಭುಜೋ ದುರ್ಧರೋ ವಾಗ್ಮೀ ಮಹೇಂದ್ರೋ ವಸುದೋ ವಸುಃ ।\nನೈಕರೂಪೋ ಬೃಹದ್ರೂಪಃ ಶಿಪಿವಿಷ್ಟಃ ಪ್ರಕಾಶನಃ ॥",
+  "roman": "subhujo durdharo vāgmī mahendro vasudo vasuḥ |\nnaikarūpo bṛhadrūpaḥ śipiviṣṭaḥ prakāśanaḥ ||"
+ },
+ {
+  "id": "vs-30",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 30",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 30"
+  },
+  "text_kn": "ಓಜಸ್ತೇಜೋದ್ಯುತಿಧರಃ ಪ್ರಕಾಶಾತ್ಮಾ ಪ್ರತಾಪನಃ ।\nಋದ್ಧಃ ಸ್ಪಷ್ಟಾಕ್ಷರೋ ಮಂತ್ರಶ್ಚಂದ್ರಾಂಶುರ್ಭಾಸ್ಕರದ್ಯುತಿಃ ॥",
+  "roman": "ojastejodyutidharaḥ prakāśātmā pratāpanaḥ |\nṛddhaḥ spaṣṭākṣaro mantraścandrāṁśurbhāskaradyutiḥ ||"
+ },
+ {
+  "id": "vs-31",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 31",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 31"
+  },
+  "text_kn": "ಅಮೃತಾಂಶೂದ್ಭವೋ ಭಾನುಃ ಶಶಬಿಂದುಃ ಸುರೇಶ್ವರಃ ।\nಔಷಧಂ ಜಗತಃ ಸೇತುಃ ಸತ್ಯಧರ್ಮಪರಾಕ್ರಮಃ ॥",
+  "roman": "amṛtāṁśūdbhavo bhānuḥ śaśabinduḥ sureśvaraḥ |\nauṣadhaṁ jagataḥ setuḥ satyadharmaparākramaḥ ||"
+ },
+ {
+  "id": "vs-32",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 32",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 32"
+  },
+  "text_kn": "ಭೂತಭವ್ಯಭವನ್ನಾಥಃ ಪವನಃ ಪಾವನೋಽನಲಃ ।\nಕಾಮಹಾ ಕಾಮಕೃತ್ಕಾಂತಃ ಕಾಮಃ ಕಾಮಪ್ರದಃ ಪ್ರಭುಃ ॥",
+  "roman": "bhūtabhavyabhavannāthaḥ pavanaḥ pāvano'nalaḥ |\nkāmahā kāmakṛtkāntaḥ kāmaḥ kāmapradaḥ prabhuḥ ||"
+ },
+ {
+  "id": "vs-33",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 33",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 33"
+  },
+  "text_kn": "ಯುಗಾದಿಕೃದ್ಯುಗಾವರ್ತೋ ನೈಕಮಾಯೋ ಮಹಾಶನಃ ।\nಅದೃಶ್ಯೋ ವ್ಯಕ್ತರೂಪಶ್ಚ ಸಹಸ್ರಜಿದನಂತಜಿತ್ ॥",
+  "roman": "yugādikṛdyugāvarto naikamāyo mahāśanaḥ |\nadṛśyo vyaktarūpaśca sahasrajidanantajit ||"
+ },
+ {
+  "id": "vs-34",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 34",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 34"
+  },
+  "text_kn": "ಇಷ್ಟೋಽವಿಶಿಷ್ಟಃ ಶಿಷ್ಟೇಷ್ಟಃ ಶಿಖಂಡೀ ನಹುಷೋ ವೃಷಃ ।\nಕ್ರೋಧಹಾ ಕ್ರೋಧಕೃತ್ಕರ್ತಾ ವಿಶ್ವಬಾಹುರ್ಮಹೀಧರಃ ॥",
+  "roman": "iṣṭo'viśiṣṭaḥ śiṣṭeṣṭaḥ śikhaṇḍī nahuṣo vṛṣaḥ |\nkrodhahā krodhakṛtkartā viśvabāhurmahīdharaḥ ||"
+ },
+ {
+  "id": "vs-35",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 35",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 35"
+  },
+  "text_kn": "ಅಚ್ಯುತಃ ಪ್ರಥಿತಃ ಪ್ರಾಣಃ ಪ್ರಾಣದೋ ವಾಸವಾನುಜಃ ।\nಅಪಾಂನಿಧಿರಧಿಷ್ಠಾನಮಪ್ರಮತ್ತಃ ಪ್ರತಿಷ್ಠಿತಃ ॥",
+  "roman": "acyutaḥ prathitaḥ prāṇaḥ prāṇado vāsavānujaḥ |\napāṁnidhiradhiṣṭhānamapramattaḥ pratiṣṭhitaḥ ||"
+ },
+ {
+  "id": "vs-36",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 36",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 36"
+  },
+  "text_kn": "ಸ್ಕಂದಃ ಸ್ಕಂದಧರೋ ಧುರ್ಯೋ ವರದೋ ವಾಯುವಾಹನಃ ।\nವಾಸುದೇವೋ ಬೃಹದ್ಭಾನುರಾದಿದೇವಃ ಪುರಂದರಃ ॥",
+  "roman": "skandaḥ skandadharo dhuryo varado vāyuvāhanaḥ |\nvāsudevo bṛhadbhānurādidevaḥ purandaraḥ ||"
+ },
+ {
+  "id": "vs-37",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 37",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 37"
+  },
+  "text_kn": "ಅಶೋಕಸ್ತಾರಣಸ್ತಾರಃ ಶೂರಃ ಶೌರಿರ್ಜನೇಶ್ವರಃ ।\nಅನುಕೂಲಃ ಶತಾವರ್ತಃ ಪದ್ಮೀ ಪದ್ಮನಿಭೇಕ್ಷಣಃ ॥",
+  "roman": "aśokastāraṇastāraḥ śūraḥ śaurirjaneśvaraḥ |\nanukūlaḥ śatāvartaḥ padmī padmanibhekṣaṇaḥ ||"
+ },
+ {
+  "id": "vs-38",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 38",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 38"
+  },
+  "text_kn": "ಪದ್ಮನಾಭೋಽರವಿಂದಾಕ್ಷಃ ಪದ್ಮಗರ್ಭಃ ಶರೀರಭೃತ್ ।\nಮಹರ್ದ್ಧಿರೃದ್ಧೋ ವೃದ್ಧಾತ್ಮಾ ಮಹಾಕ್ಷೋ ಗರುಡಧ್ವಜಃ ॥",
+  "roman": "padmanābho'ravindākṣaḥ padmagarbhaḥ śarīrabhṛt |\nmaharddhirṛddho vṛddhātmā mahākṣo garuḍadhvajaḥ ||"
+ },
+ {
+  "id": "vs-39",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 39",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 39"
+  },
+  "text_kn": "ಅತುಲಃ ಶರಭೋ ಭೀಮಃ ಸಮಯಜ್ಞೋ ಹವಿರ್ಹರಿಃ ।\nಸರ್ವಲಕ್ಷಣಲಕ್ಷಣ್ಯೋ ಲಕ್ಷ್ಮೀವಾನ್ ಸಮಿತಿಂಜಯಃ ॥",
+  "roman": "atulaḥ śarabho bhīmaḥ samayajño havirhariḥ |\nsarvalakṣaṇalakṣaṇyo lakṣmīvān samitiñjayaḥ ||"
+ },
+ {
+  "id": "vs-40",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 40",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 40"
+  },
+  "text_kn": "ವಿಕ್ಷರೋ ರೋಹಿತೋ ಮಾರ್ಗೋ ಹೇತುರ್ದಾಮೋದರಃ ಸಹಃ ।\nಮಹೀಧರೋ ಮಹಾಭಾಗೋ ವೇಗವಾನಮಿತಾಶನಃ ॥",
+  "roman": "vikṣaro rohito mārgo heturdāmodaraḥ sahaḥ |\nmahīdharo mahābhāgo vegavānamitāśanaḥ ||"
+ },
+ {
+  "id": "vs-41",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 41",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 41"
+  },
+  "text_kn": "ಉದ್ಭವಃ ಕ್ಷೋಭಣೋ ದೇವಃ ಶ್ರೀಗರ್ಭಃ ಪರಮೇಶ್ವರಃ ।\nಕರಣಂ ಕಾರಣಂ ಕರ್ತಾ ವಿಕರ್ತಾ ಗಹನೋ ಗುಹಃ ॥",
+  "roman": "udbhavaḥ kṣobhaṇo devaḥ śrīgarbhaḥ parameśvaraḥ |\nkaraṇaṁ kāraṇaṁ kartā vikartā gahano guhaḥ ||"
+ },
+ {
+  "id": "vs-42",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 42",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 42"
+  },
+  "text_kn": "ವ್ಯವಸಾಯೋ ವ್ಯವಸ್ಥಾನಃ ಸಂಸ್ಥಾನಃ ಸ್ಥಾನದೋ ಧ್ರುವಃ ।\nಪರರ್ದ್ಧಿಃ ಪರಮಸ್ಪಷ್ಟಸ್ತುಷ್ಟಃ ಪುಷ್ಟಃ ಶುಭೇಕ್ಷಣಃ ॥",
+  "roman": "vyavasāyo vyavasthānaḥ saṁsthānaḥ sthānado dhruvaḥ |\npararddhiḥ paramaspaṣṭastuṣṭaḥ puṣṭaḥ śubhekṣaṇaḥ ||"
+ },
+ {
+  "id": "vs-43",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 43",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 43"
+  },
+  "text_kn": "ರಾಮೋ ವಿರಾಮೋ ವಿರಜೋ ಮಾರ್ಗೋ ನೇಯೋ ನಯೋಽನಯಃ ।\nವೀರಃ ಶಕ್ತಿಮತಾಂ ಶ್ರೇಷ್ಠೋ ಧರ್ಮೋ ಧರ್ಮವಿದುತ್ತಮಃ ॥",
+  "roman": "rāmo virāmo virajo mārgo neyo nayo'nayaḥ |\nvīraḥ śaktimatāṁ śreṣṭho dharmo dharmaviduttamaḥ ||"
+ },
+ {
+  "id": "vs-44",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 44",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 44"
+  },
+  "text_kn": "ವೈಕುಂಠಃ ಪುರುಷಃ ಪ್ರಾಣಃ ಪ್ರಾಣದಃ ಪ್ರಣವಃ ಪೃಥುಃ ।\nಹಿರಣ್ಯಗರ್ಭಃ ಶತ್ರುಘ್ನೋ ವ್ಯಾಪ್ತೋ ವಾಯುರಧೋಕ್ಷಜಃ ॥",
+  "roman": "vaikuṇṭhaḥ puruṣaḥ prāṇaḥ prāṇadaḥ praṇavaḥ pṛthuḥ |\nhiraṇyagarbhaḥ śatrughno vyāpto vāyuradhokṣajaḥ ||"
+ },
+ {
+  "id": "vs-45",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 45",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 45"
+  },
+  "text_kn": "ಋತುಃ ಸುದರ್ಶನಃ ಕಾಲಃ ಪರಮೇಷ್ಠೀ ಪರಿಗ್ರಹಃ ।\nಉಗ್ರಃ ಸಂವತ್ಸರೋ ದಕ್ಷೋ ವಿಶ್ರಾಮೋ ವಿಶ್ವದಕ್ಷಿಣಃ ॥",
+  "roman": "ṛtuḥ sudarśanaḥ kālaḥ parameṣṭhī parigrahaḥ |\nugraḥ saṁvatsaro dakṣo viśrāmo viśvadakṣiṇaḥ ||"
+ },
+ {
+  "id": "vs-46",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 46",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 46"
+  },
+  "text_kn": "ವಿಸ್ತಾರಃ ಸ್ಥಾವರಸ್ಥಾಣುಃ ಪ್ರಮಾಣಂ ಬೀಜಮವ್ಯಯಮ್ ।\nಅರ್ಥೋಽನರ್ಥೋ ಮಹಾಕೋಶೋ ಮಹಾಭೋಗೋ ಮಹಾಧನಃ ॥",
+  "roman": "vistāraḥ sthāvarasthāṇuḥ pramāṇaṁ bījamavyayam |\nartho'nartho mahākośo mahābhogo mahādhanaḥ ||"
+ },
+ {
+  "id": "vs-47",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 47",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 47"
+  },
+  "text_kn": "ಅನಿರ್ವಿಣ್ಣಃ ಸ್ಥವಿಷ್ಠೋಽಭೂರ್ಧರ್ಮಯೂಪೋ ಮಹಾಮಖಃ ।\nನಕ್ಷತ್ರನೇಮಿರ್ನಕ್ಷತ್ರೀ ಕ್ಷಮಃ ಕ್ಷಾಮಃ ಸಮೀಹನಃ ॥",
+  "roman": "anirviṇṇaḥ sthaviṣṭho'bhūrdharmayūpo mahāmakhaḥ |\nnakṣatranemirnakṣatrī kṣamaḥ kṣāmaḥ samīhanaḥ ||"
+ },
+ {
+  "id": "vs-48",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 48",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 48"
+  },
+  "text_kn": "ಯಜ್ಞ ಇಜ್ಯೋ ಮಹೇಜ್ಯಶ್ಚ ಕ್ರತುಃ ಸತ್ರಂ ಸತಾಂ ಗತಿಃ ।\nಸರ್ವದರ್ಶೀ ವಿಮುಕ್ತಾತ್ಮಾ ಸರ್ವಜ್ಞೋ ಜ್ಞಾನಮುತ್ತಮಮ್ ॥",
+  "roman": "yajña ijyo mahejyaśca kratuḥ satraṁ satāṁ gatiḥ |\nsarvadarśī vimuktātmā sarvajño jñānamuttamam ||"
+ },
+ {
+  "id": "vs-49",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 49",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 49"
+  },
+  "text_kn": "ಸುವ್ರತಃ ಸುಮುಖಃ ಸೂಕ್ಷ್ಮಃ ಸುಘೋಷಃ ಸುಖದಃ ಸುಹೃತ್ ।\nಮನೋಹರೋ ಜಿತಕ್ರೋಧೋ ವೀರಬಾಹುರ್ವಿದಾರಣಃ ॥",
+  "roman": "suvrataḥ sumukhaḥ sūkṣmaḥ sughoṣaḥ sukhadaḥ suhṛt |\nmanoharo jitakrodho vīrabāhurvidāraṇaḥ ||"
+ },
+ {
+  "id": "vs-50",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 50",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 50"
+  },
+  "text_kn": "ಸ್ವಾಪನಃ ಸ್ವವಶೋ ವ್ಯಾಪೀ ನೈಕಾತ್ಮಾ ನೈಕಕರ್ಮಕೃತ್ ।\nವತ್ಸರೋ ವತ್ಸಲೋ ವತ್ಸೀ ರತ್ನಗರ್ಭೋ ಧನೇಶ್ವರಃ ॥",
+  "roman": "svāpanaḥ svavaśo vyāpī naikātmā naikakarmakṛt |\nvatsaro vatsalo vatsī ratnagarbho dhaneśvaraḥ ||"
+ },
+ {
+  "id": "vs-51",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 51",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 51"
+  },
+  "text_kn": "ಧರ್ಮಗುಬ್ಧರ್ಮಕೃದ್ಧರ್ಮೀ ಸದಸತ್ಕ್ಷರಮಕ್ಷರಮ್ ।\nಅವಿಜ್ಞಾತಾ ಸಹಸ್ರಾಂಶುರ್ವಿಧಾತಾ ಕೃತಲಕ್ಷಣಃ ॥",
+  "roman": "dharmagubdharmakṛddharmī sadasatkṣaramakṣaram |\navijñātā sahasrāṁśurvidhātā kṛtalakṣaṇaḥ ||"
+ },
+ {
+  "id": "vs-52",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 52",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 52"
+  },
+  "text_kn": "ಗಭಸ್ತಿನೇಮಿಃ ಸತ್ತ್ವಸ್ಥಃ ಸಿಂಹೋ ಭೂತಮಹೇಶ್ವರಃ ।\nಆದಿದೇವೋ ಮಹಾದೇವೋ ದೇವೇಶೋ ದೇವಭೃದ್ಗುರುಃ ॥",
+  "roman": "gabhastinemiḥ sattvasthaḥ siṁho bhūtamaheśvaraḥ |\nādidevo mahādevo deveśo devabhṛdguruḥ ||"
+ },
+ {
+  "id": "vs-53",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 53",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 53"
+  },
+  "text_kn": "ಉತ್ತರೋ ಗೋಪತಿರ್ಗೋಪ್ತಾ ಜ್ಞಾನಗಮ್ಯಃ ಪುರಾತನಃ ।\nಶರೀರಭೂತಭೃದ್ಭೋಕ್ತಾ ಕಪೀಂದ್ರೋ ಭೂರಿದಕ್ಷಿಣಃ ॥",
+  "roman": "uttaro gopatirgoptā jñānagamyaḥ purātanaḥ |\nśarīrabhūtabhṛdbhoktā kapīndro bhūridakṣiṇaḥ ||"
+ },
+ {
+  "id": "vs-54",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 54",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 54"
+  },
+  "text_kn": "ಸೋಮಪೋಽಮೃತಪಃ ಸೋಮಃ ಪುರುಜಿತ್ಪುರುಸತ್ತಮಃ ।\nವಿನಯೋ ಜಯಃ ಸತ್ಯಸಂಧೋ ದಾಶಾರ್ಹಃ ಸಾತ್ವತಾಂಪತಿಃ ॥",
+  "roman": "somapo'mṛtapaḥ somaḥ purujitpurusattamaḥ |\nvinayo jayaḥ satyasandho dāśārhaḥ sātvatāmpatiḥ ||"
+ },
+ {
+  "id": "vs-55",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 55",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 55"
+  },
+  "text_kn": "ಜೀವೋ ವಿನಯಿತಾ ಸಾಕ್ಷೀ ಮುಕುಂದೋಽಮಿತವಿಕ್ರಮಃ ।\nಅಂಭೋನಿಧಿರನಂತಾತ್ಮಾ ಮಹೋದಧಿಶಯೋಽಂತಕಃ ॥",
+  "roman": "jīvo vinayitā sākṣī mukundo'mitavikramaḥ |\nambhonidhiranantātmā mahodadhiśayo'ntakaḥ ||"
+ },
+ {
+  "id": "vs-56",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 56",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 56"
+  },
+  "text_kn": "ಅಜೋ ಮಹಾರ್ಹಃ ಸ್ವಾಭಾವ್ಯೋ ಜಿತಾಮಿತ್ರಃ ಪ್ರಮೋದನಃ ।\nಆನಂದೋ ನಂದನೋ ನಂದಃ ಸತ್ಯಧರ್ಮಾ ತ್ರಿವಿಕ್ರಮಃ ॥",
+  "roman": "ajo mahārhaḥ svābhāvyo jitāmitraḥ pramodanaḥ |\nānando nandano nandaḥ satyadharmā trivikramaḥ ||"
+ },
+ {
+  "id": "vs-57",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 57",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 57"
+  },
+  "text_kn": "ಮಹರ್ಷಿಃ ಕಪಿಲಾಚಾರ್ಯಃ ಕೃತಜ್ಞೋ ಮೇದಿನೀಪತಿಃ ।\nತ್ರಿಪದಸ್ತ್ರಿದಶಾಧ್ಯಕ್ಷೋ ಮಹಾಶೃಂಗಃ ಕೃತಾಂತಕೃತ್ ॥",
+  "roman": "maharṣiḥ kapilācāryaḥ kṛtajño medinīpatiḥ |\ntripadastridaśādhyakṣo mahāśṛṅgaḥ kṛtāntakṛt ||"
+ },
+ {
+  "id": "vs-58",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 58",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 58"
+  },
+  "text_kn": "ಮಹಾವರಾಹೋ ಗೋವಿಂದಃ ಸುಷೇಣಃ ಕನಕಾಂಗದೀ ।\nಗುಹ್ಯೋ ಗಭೀರೋ ಗಹನೋ ಗುಪ್ತಶ್ಚಕ್ರಗದಾಧರಃ ॥",
+  "roman": "mahāvarāho govindaḥ suṣeṇaḥ kanakāṅgadī |\nguhyo gabhīro gahano guptaścakragadādharaḥ ||"
+ },
+ {
+  "id": "vs-59",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 59",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 59"
+  },
+  "text_kn": "ವೇಧಾಃ ಸ್ವಾಂಗೋಽಜಿತಃ ಕೃಷ್ಣೋ ದೃಢಃ ಸಂಕರ್ಷಣೋಽಚ್ಯುತಃ ।\nವರುಣೋ ವಾರುಣೋ ವೃಕ್ಷಃ ಪುಷ್ಕರಾಕ್ಷೋ ಮಹಾಮನಾಃ ॥",
+  "roman": "vedhāḥ svāṅgo'jitaḥ kṛṣṇo dṛḍhaḥ saṅkarṣaṇo'cyutaḥ |\nvaruṇo vāruṇo vṛkṣaḥ puṣkarākṣo mahāmanāḥ ||"
+ },
+ {
+  "id": "vs-60",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 60",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 60"
+  },
+  "text_kn": "ಭಗವಾನ್ ಭಗಹಾಽಽನಂದೀ ವನಮಾಲೀ ಹಲಾಯುಧಃ ।\nಆದಿತ್ಯೋ ಜ್ಯೋತಿರಾದಿತ್ಯಃ ಸಹಿಷ್ಣುರ್ಗತಿಸತ್ತಮಃ ॥",
+  "roman": "bhagavān bhagahā''nandī vanamālī halāyudhaḥ |\nādityo jyotirādityaḥ sahiṣṇurgatisattamaḥ ||"
+ },
+ {
+  "id": "vs-61",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 61",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 61"
+  },
+  "text_kn": "ಸುಧನ್ವಾ ಖಂಡಪರಶುರ್ದಾರುಣೋ ದ್ರವಿಣಪ್ರದಃ ।\nದಿವಸ್ಪೃಕ್ ಸರ್ವದೃಗ್ವ್ಯಾಸೋ ವಾಚಸ್ಪತಿರಯೋನಿಜಃ ॥",
+  "roman": "sudhanvā khaṇḍaparaśurdāruṇo draviṇapradaḥ |\ndivaspṛk sarvadṛgvyāso vācaspatirayonijaḥ ||"
+ },
+ {
+  "id": "vs-62",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 62",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 62"
+  },
+  "text_kn": "ತ್ರಿಸಾಮಾ ಸಾಮಗಃ ಸಾಮ ನಿರ್ವಾಣಂ ಭೇಷಜಂ ಭಿಷಕ್ ।\nಸಂನ್ಯಾಸಕೃಚ್ಛಮಃ ಶಾಂತೋ ನಿಷ್ಠಾ ಶಾಂತಿಃ ಪರಾಯಣಮ್ ॥",
+  "roman": "trisāmā sāmagaḥ sāma nirvāṇaṁ bheṣajaṁ bhiṣak |\nsaṁnyāsakṛcchamaḥ śānto niṣṭhā śāntiḥ parāyaṇam ||"
+ },
+ {
+  "id": "vs-63",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 63",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 63"
+  },
+  "text_kn": "ಶುಭಾಂಗಃ ಶಾಂತಿದಃ ಸ್ರಷ್ಟಾ ಕುಮುದಃ ಕುವಲೇಶಯಃ ।\nಗೋಹಿತೋ ಗೋಪತಿರ್ಗೋಪ್ತಾ ವೃಷಭಾಕ್ಷೋ ವೃಷಪ್ರಿಯಃ ॥",
+  "roman": "śubhāṅgaḥ śāntidaḥ sraṣṭā kumudaḥ kuvaleśayaḥ |\ngohito gopatirgoptā vṛṣabhākṣo vṛṣapriyaḥ ||"
+ },
+ {
+  "id": "vs-64",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 64",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 64"
+  },
+  "text_kn": "ಅನಿವರ್ತೀ ನಿವೃತ್ತಾತ್ಮಾ ಸಂಕ್ಷೇಪ್ತಾ ಕ್ಷೇಮಕೃಚ್ಛಿವಃ ।\nಶ್ರೀವತ್ಸವಕ್ಷಾಃ ಶ್ರೀವಾಸಃ ಶ್ರೀಪತಿಃ ಶ್ರೀಮತಾಂವರಃ ॥",
+  "roman": "anivartī nivṛttātmā saṅkṣeptā kṣemakṛcchivaḥ |\nśrīvatsavakṣāḥ śrīvāsaḥ śrīpatiḥ śrīmatāṁvaraḥ ||"
+ },
+ {
+  "id": "vs-65",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 65",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 65"
+  },
+  "text_kn": "ಶ್ರೀದಃ ಶ್ರೀಶಃ ಶ್ರೀನಿವಾಸಃ ಶ್ರೀನಿಧಿಃ ಶ್ರೀವಿಭಾವನಃ ।\nಶ್ರೀಧರಃ ಶ್ರೀಕರಃ ಶ್ರೇಯಃ ಶ್ರೀಮಾಂಲ್ಲೋಕತ್ರಯಾಶ್ರಯಃ ॥",
+  "roman": "śrīdaḥ śrīśaḥ śrīnivāsaḥ śrīnidhiḥ śrīvibhāvanaḥ |\nśrīdharaḥ śrīkaraḥ śreyaḥ śrīmām̐llokatrayāśrayaḥ ||"
+ },
+ {
+  "id": "vs-66",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 66",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 66"
+  },
+  "text_kn": "ಸ್ವಕ್ಷಃ ಸ್ವಂಗಃ ಶತಾನಂದೋ ನಂದಿರ್ಜ್ಯೋತಿರ್ಗಣೇಶ್ವರಃ ।\nವಿಜಿತಾತ್ಮಾಽವಿಧೇಯಾತ್ಮಾ ಸತ್ಕೀರ್ತಿಶ್ಛಿನ್ನಸಂಶಯಃ ॥",
+  "roman": "svakṣaḥ svaṅgaḥ śatānando nandirjyotirgaṇeśvaraḥ |\nvijitātmā'vidheyātmā satkīrtiśchinnasaṁśayaḥ ||"
+ },
+ {
+  "id": "vs-67",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 67",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 67"
+  },
+  "text_kn": "ಉದೀರ್ಣಃ ಸರ್ವತಶ್ಚಕ್ಷುರನೀಶಃ ಶಾಶ್ವತಸ್ಥಿರಃ ।\nಭೂಶಯೋ ಭೂಷಣೋ ಭೂತಿರ್ವಿಶೋಕಃ ಶೋಕನಾಶನಃ ॥",
+  "roman": "udīrṇaḥ sarvataścakṣuranīśaḥ śāśvatasthiraḥ |\nbhūśayo bhūṣaṇo bhūtirviśokaḥ śokanāśanaḥ ||"
+ },
+ {
+  "id": "vs-68",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 68",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 68"
+  },
+  "text_kn": "ಅರ್ಚಿಷ್ಮಾನರ್ಚಿತಃ ಕುಂಭೋ ವಿಶುದ್ಧಾತ್ಮಾ ವಿಶೋಧನಃ ।\nಅನಿರುದ್ಧೋಽಪ್ರತಿರಥಃ ಪ್ರದ್ಯುಮ್ನೋಽಮಿತವಿಕ್ರಮಃ ॥",
+  "roman": "arciṣmānarcitaḥ kumbho viśuddhātmā viśodhanaḥ |\naniruddho'pratirathaḥ pradyumno'mitavikramaḥ ||"
+ },
+ {
+  "id": "vs-69",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 69",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 69"
+  },
+  "text_kn": "ಕಾಲನೇಮಿನಿಹಾ ವೀರಃ ಶೌರಿಃ ಶೂರಜನೇಶ್ವರಃ ।\nತ್ರಿಲೋಕಾತ್ಮಾ ತ್ರಿಲೋಕೇಶಃ ಕೇಶವಃ ಕೇಶಿಹಾ ಹರಿಃ ॥",
+  "roman": "kālaneminihā vīraḥ śauriḥ śūrajaneśvaraḥ |\ntrilokātmā trilokeśaḥ keśavaḥ keśihā hariḥ ||"
+ },
+ {
+  "id": "vs-70",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 70",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 70"
+  },
+  "text_kn": "ಕಾಮದೇವಃ ಕಾಮಪಾಲಃ ಕಾಮೀ ಕಾಂತಃ ಕೃತಾಗಮಃ ।\nಅನಿರ್ದೇಶ್ಯವಪುರ್ವಿಷ್ಣುರ್ವೀರೋಽನಂತೋ ಧನಂಜಯಃ ॥",
+  "roman": "kāmadevaḥ kāmapālaḥ kāmī kāntaḥ kṛtāgamaḥ |\nanirdeśyavapurviṣṇurvīro'nanto dhanañjayaḥ ||"
+ },
+ {
+  "id": "vs-71",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 71",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 71"
+  },
+  "text_kn": "ಬ್ರಹ್ಮಣ್ಯೋ ಬ್ರಹ್ಮಕೃದ್ ಬ್ರಹ್ಮಾ ಬ್ರಹ್ಮ ಬ್ರಹ್ಮವಿವರ್ಧನಃ ।\nಬ್ರಹ್ಮವಿದ್ ಬ್ರಾಹ್ಮಣೋ ಬ್ರಹ್ಮೀ ಬ್ರಹ್ಮಜ್ಞೋ ಬ್ರಾಹ್ಮಣಪ್ರಿಯಃ ॥",
+  "roman": "brahmaṇyo brahmakṛd brahmā brahma brahmavivardhanaḥ |\nbrahmavid brāhmaṇo brahmī brahmajño brāhmaṇapriyaḥ ||"
+ },
+ {
+  "id": "vs-72",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 72",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 72"
+  },
+  "text_kn": "ಮಹಾಕ್ರಮೋ ಮಹಾಕರ್ಮಾ ಮಹಾತೇಜಾ ಮಹೋರಗಃ ।\nಮಹಾಕ್ರತುರ್ಮಹಾಯಜ್ವಾ ಮಹಾಯಜ್ಞೋ ಮಹಾಹವಿಃ ॥",
+  "roman": "mahākramo mahākarmā mahātejā mahoragaḥ |\nmahākraturmahāyajvā mahāyajño mahāhaviḥ ||"
+ },
+ {
+  "id": "vs-73",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 73",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 73"
+  },
+  "text_kn": "ಸ್ತವ್ಯಃ ಸ್ತವಪ್ರಿಯಃ ಸ್ತೋತ್ರಂ ಸ್ತುತಿಃ ಸ್ತೋತಾ ರಣಪ್ರಿಯಃ ।\nಪೂರ್ಣಃ ಪೂರಯಿತಾ ಪುಣ್ಯಃ ಪುಣ್ಯಕೀರ್ತಿರನಾಮಯಃ ॥",
+  "roman": "stavyaḥ stavapriyaḥ stotraṁ stutiḥ stotā raṇapriyaḥ |\npūrṇaḥ pūrayitā puṇyaḥ puṇyakīrtiranāmayaḥ ||"
+ },
+ {
+  "id": "vs-74",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 74",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 74"
+  },
+  "text_kn": "ಮನೋಜವಸ್ತೀರ್ಥಕರೋ ವಸುರೇತಾ ವಸುಪ್ರದಃ ।\nವಸುಪ್ರದೋ ವಾಸುದೇವೋ ವಸುರ್ವಸುಮನಾ ಹವಿಃ ॥",
+  "roman": "manojavastīrthakaro vasuretā vasupradaḥ |\nvasuprado vāsudevo vasurvasumanā haviḥ ||"
+ },
+ {
+  "id": "vs-75",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 75",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 75"
+  },
+  "text_kn": "ಸದ್ಗತಿಃ ಸತ್ಕೃತಿಃ ಸತ್ತಾ ಸದ್ಭೂತಿಃ ಸತ್ಪರಾಯಣಃ ।\nಶೂರಸೇನೋ ಯದುಶ್ರೇಷ್ಠಃ ಸನ್ನಿವಾಸಃ ಸುಯಾಮುನಃ ॥",
+  "roman": "sadgatiḥ satkṛtiḥ sattā sadbhūtiḥ satparāyaṇaḥ |\nśūraseno yaduśreṣṭhaḥ sannivāsaḥ suyāmunaḥ ||"
+ },
+ {
+  "id": "vs-76",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 76",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 76"
+  },
+  "text_kn": "ಭೂತಾವಾಸೋ ವಾಸುದೇವಃ ಸರ್ವಾಸುನಿಲಯೋಽನಲಃ ।\nದರ್ಪಹಾ ದರ್ಪದೋ ದೃಪ್ತೋ ದುರ್ಧರೋಽಥಾಪರಾಜಿತಃ ॥",
+  "roman": "bhūtāvāso vāsudevaḥ sarvāsunilayo'nalaḥ |\ndarpahā darpado dṛpto durdharo'thāparājitaḥ ||"
+ },
+ {
+  "id": "vs-77",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 77",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 77"
+  },
+  "text_kn": "ವಿಶ್ವಮೂರ್ತಿರ್ಮಹಾಮೂರ್ತಿರ್ದೀಪ್ತಮೂರ್ತಿರಮೂರ್ತಿಮಾನ್ ।\nಅನೇಕಮೂರ್ತಿರವ್ಯಕ್ತಃ ಶತಮೂರ್ತಿಃ ಶತಾನನಃ ॥",
+  "roman": "viśvamūrtirmahāmūrtirdīptamūrtiramūrtimān |\nanekamūrtiravyaktaḥ śatamūrtiḥ śatānanaḥ ||"
+ },
+ {
+  "id": "vs-78",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 78",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 78"
+  },
+  "text_kn": "ಏಕೋ ನೈಕಃ ಸವಃ ಕಃ ಕಿಂ ಯತ್ ತತ್ಪದಮನುತ್ತಮಮ್ ।\nಲೋಕಬಂಧುರ್ಲೋಕನಾಥೋ ಮಾಧವೋ ಭಕ್ತವತ್ಸಲಃ ॥",
+  "roman": "eko naikaḥ savaḥ kaḥ kiṁ yat tatpadamanuttamam |\nlokabandhurlokanātho mādhavo bhaktavatsalaḥ ||"
+ },
+ {
+  "id": "vs-79",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 79",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 79"
+  },
+  "text_kn": "ಸುವರ್ಣವರ್ಣೋ ಹೇಮಾಂಗೋ ವರಾಂಗಶ್ಚಂದನಾಂಗದೀ ।\nವೀರಹಾ ವಿಷಮಃ ಶೂನ್ಯೋ ಘೃತಾಶೀರಚಲಶ್ಚಲಃ ॥",
+  "roman": "suvarṇavarṇo hemāṅgo varāṅgaścandanāṅgadī |\nvīrahā viṣamaḥ śūnyo ghṛtāśīracalaścalaḥ ||"
+ },
+ {
+  "id": "vs-80",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 80",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 80"
+  },
+  "text_kn": "ಅಮಾನೀ ಮಾನದೋ ಮಾನ್ಯೋ ಲೋಕಸ್ವಾಮೀ ತ್ರಿಲೋಕಧೃಕ್ ।\nಸುಮೇಧಾ ಮೇಧಜೋ ಧನ್ಯಃ ಸತ್ಯಮೇಧಾ ಧರಾಧರಃ ॥",
+  "roman": "amānī mānado mānyo lokasvāmī trilokadhṛk |\nsumedhā medhajo dhanyaḥ satyamedhā dharādharaḥ ||"
+ },
+ {
+  "id": "vs-81",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 81",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 81"
+  },
+  "text_kn": "ತೇಜೋವೃಷೋ ದ್ಯುತಿಧರಃ ಸರ್ವಶಸ್ತ್ರಭೃತಾಂ ವರಃ ।\nಪ್ರಗ್ರಹೋ ನಿಗ್ರಹೋ ವ್ಯಗ್ರೋ ನೈಕಶೃಂಗೋ ಗದಾಗ್ರಜಃ ॥",
+  "roman": "tejovṛṣo dyutidharaḥ sarvaśastrabhṛtāṁ varaḥ |\npragraho nigraho vyagro naikaśṛṅgo gadāgrajaḥ ||"
+ },
+ {
+  "id": "vs-82",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 82",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 82"
+  },
+  "text_kn": "ಚತುರ್ಮೂರ್ತಿಶ್ಚತುರ್ಬಾಹುಶ್ಚತುರ್ವ್ಯೂಹಶ್ಚತುರ್ಗತಿಃ ।\nಚತುರಾತ್ಮಾ ಚತುರ್ಭಾವಶ್ಚತುರ್ವೇದವಿದೇಕಪಾತ್ ॥",
+  "roman": "caturmūrtiścaturbāhuścaturvyūhaścaturgatiḥ |\ncaturātmā caturbhāvaścaturvedavidekapāt ||"
+ },
+ {
+  "id": "vs-83",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 83",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 83"
+  },
+  "text_kn": "ಸಮಾವರ್ತೋಽನಿವೃತ್ತಾತ್ಮಾ ದುರ್ಜಯೋ ದುರತಿಕ್ರಮಃ ।\nದುರ್ಲಭೋ ದುರ್ಗಮೋ ದುರ್ಗೋ ದುರಾವಾಸೋ ದುರಾರಿಹಾ ॥",
+  "roman": "samāvarto'nivṛttātmā durjayo duratikramaḥ |\ndurlabho durgamo durgo durāvāso durārihā ||"
+ },
+ {
+  "id": "vs-84",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 84",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 84"
+  },
+  "text_kn": "ಶುಭಾಂಗೋ ಲೋಕಸಾರಂಗಃ ಸುತಂತುಸ್ತಂತುವರ್ಧನಃ ।\nಇಂದ್ರಕರ್ಮಾ ಮಹಾಕರ್ಮಾ ಕೃತಕರ್ಮಾ ಕೃತಾಗಮಃ ॥",
+  "roman": "śubhāṅgo lokasāraṅgaḥ sutantustantuvardhanaḥ |\nindrakarmā mahākarmā kṛtakarmā kṛtāgamaḥ ||"
+ },
+ {
+  "id": "vs-85",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 85",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 85"
+  },
+  "text_kn": "ಉದ್ಭವಃ ಸುಂದರಃ ಸುಂದೋ ರತ್ನನಾಭಃ ಸುಲೋಚನಃ ।\nಅರ್ಕೋ ವಾಜಸನಃ ಶೃಂಗೀ ಜಯಂತಃ ಸರ್ವವಿಜ್ಜಯೀ ॥",
+  "roman": "udbhavaḥ sundaraḥ sundo ratnanābhaḥ sulocanaḥ |\narko vājasanaḥ śṛṅgī jayantaḥ sarvavijjayī ||"
+ },
+ {
+  "id": "vs-86",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 86",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 86"
+  },
+  "text_kn": "ಸುವರ್ಣಬಿಂದುರಕ್ಷೋಭ್ಯಃ ಸರ್ವವಾಗೀಶ್ವರೇಶ್ವರಃ ।\nಮಹಾಹ್ರದೋ ಮಹಾಗರ್ತೋ ಮಹಾಭೂತೋ ಮಹಾನಿಧಿಃ ॥",
+  "roman": "suvarṇabindurakṣobhyaḥ sarvavāgīśvareśvaraḥ |\nmahāhrado mahāgarto mahābhūto mahānidhiḥ ||"
+ },
+ {
+  "id": "vs-87",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 87",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 87"
+  },
+  "text_kn": "ಕುಮುದಃ ಕುಂದರಃ ಕುಂದಃ ಪರ್ಜನ್ಯಃ ಪಾವನೋಽನಿಲಃ ।\nಅಮೃತಾಶೋಽಮೃತವಪುಃ ಸರ್ವಜ್ಞಃ ಸರ್ವತೋಮುಖಃ ॥",
+  "roman": "kumudaḥ kundaraḥ kundaḥ parjanyaḥ pāvano'nilaḥ |\namṛtāśo'mṛtavapuḥ sarvajñaḥ sarvatomukhaḥ ||"
+ },
+ {
+  "id": "vs-88",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 88",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 88"
+  },
+  "text_kn": "ಸುಲಭಃ ಸುವ್ರತಃ ಸಿದ್ಧಃ ಶತ್ರುಜಿಚ್ಛತ್ರುತಾಪನಃ ।\nನ್ಯಗ್ರೋಧೋಽದುಂಬರೋಽಶ್ವತ್ಥಶ್ಚಾಣೂರಾಂಧ್ರನಿಷೂದನಃ ॥",
+  "roman": "sulabhaḥ suvrataḥ siddhaḥ śatrujicchatrutāpanaḥ |\nnyagrodho'dumbaro'śvatthaścāṇūrāndhraniṣūdanaḥ ||"
+ },
+ {
+  "id": "vs-89",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 89",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 89"
+  },
+  "text_kn": "ಸಹಸ್ರಾರ್ಚಿಃ ಸಪ್ತಜಿಹ್ವಃ ಸಪ್ತೈಧಾಃ ಸಪ್ತವಾಹನಃ ।\nಅಮೂರ್ತಿರನಘೋಽಚಿಂತ್ಯೋ ಭಯಕೃದ್ಭಯನಾಶನಃ ॥",
+  "roman": "sahasrārciḥ saptajihvaḥ saptaidhāḥ saptavāhanaḥ |\namūrtiranagho'cintyo bhayakṛdbhayanāśanaḥ ||"
+ },
+ {
+  "id": "vs-90",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 90",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 90"
+  },
+  "text_kn": "ಅಣುರ್ಬೃಹತ್ಕೃಶಃ ಸ್ಥೂಲೋ ಗುಣಭೃನ್ನಿರ್ಗುಣೋ ಮಹಾನ್ ।\nಅಧೃತಃ ಸ್ವಧೃತಃ ಸ್ವಾಸ್ಯಃ ಪ್ರಾಗ್ವಂಶೋ ವಂಶವರ್ಧನಃ ॥",
+  "roman": "aṇurbṛhatkṛśaḥ sthūlo guṇabhṛnnirguṇo mahān |\nadhṛtaḥ svadhṛtaḥ svāsyaḥ prāgvaṁśo vaṁśavardhanaḥ ||"
+ },
+ {
+  "id": "vs-91",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 91",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 91"
+  },
+  "text_kn": "ಭಾರಭೃತ್ ಕಥಿತೋ ಯೋಗೀ ಯೋಗೀಶಃ ಸರ್ವಕಾಮದಃ ।\nಆಶ್ರಮಃ ಶ್ರಮಣಃ ಕ್ಷಾಮಃ ಸುಪರ್ಣೋ ವಾಯುವಾಹನಃ ॥",
+  "roman": "bhārabhṛt kathito yogī yogīśaḥ sarvakāmadaḥ |\nāśramaḥ śramaṇaḥ kṣāmaḥ suparṇo vāyuvāhanaḥ ||"
+ },
+ {
+  "id": "vs-92",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 92",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 92"
+  },
+  "text_kn": "ಧನುರ್ಧರೋ ಧನುರ್ವೇದೋ ದಂಡೋ ದಮಯಿತಾ ದಮಃ ।\nಅಪರಾಜಿತಃ ಸರ್ವಸಹೋ ನಿಯಂತಾಽನಿಯಮೋಽಯಮಃ ॥",
+  "roman": "dhanurdharo dhanurvedo daṇḍo damayitā damaḥ |\naparājitaḥ sarvasaho niyantā'niyamo'yamaḥ ||"
+ },
+ {
+  "id": "vs-93",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 93",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 93"
+  },
+  "text_kn": "ಸತ್ತ್ವವಾನ್ ಸಾತ್ತ್ವಿಕಃ ಸತ್ಯಃ ಸತ್ಯಧರ್ಮಪರಾಯಣಃ ।\nಅಭಿಪ್ರಾಯಃ ಪ್ರಿಯಾರ್ಹೋಽರ್ಹಃ ಪ್ರಿಯಕೃತ್ ಪ್ರೀತಿವರ್ಧನಃ ॥",
+  "roman": "sattvavān sāttvikaḥ satyaḥ satyadharmaparāyaṇaḥ |\nabhiprāyaḥ priyārho'rhaḥ priyakṛt prītivardhanaḥ ||"
+ },
+ {
+  "id": "vs-94",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 94",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 94"
+  },
+  "text_kn": "ವಿಹಾಯಸಗತಿರ್ಜ್ಯೋತಿಃ ಸುರುಚಿರ್ಹುತಭುಗ್ವಿಭುಃ ।\nರವಿರ್ವಿರೋಚನಃ ಸೂರ್ಯಃ ಸವಿತಾ ರವಿಲೋಚನಃ ॥",
+  "roman": "vihāyasagatirjyotiḥ surucirhutabhugvibhuḥ |\nravirvirocanaḥ sūryaḥ savitā ravilocanaḥ ||"
+ },
+ {
+  "id": "vs-95",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 95",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 95"
+  },
+  "text_kn": "ಅನಂತೋ ಹುತಭುಗ್ಭೋಕ್ತಾ ಸುಖದೋ ನೈಕಜೋಽಗ್ರಜಃ ।\nಅನಿರ್ವಿಣ್ಣಃ ಸದಾಮರ್ಷೀ ಲೋಕಾಧಿಷ್ಠಾನಮದ್ಭುತಃ ॥",
+  "roman": "ananto hutabhugbhoktā sukhado naikajo'grajaḥ |\nanirviṇṇaḥ sadāmarṣī lokādhiṣṭhānamadbhutaḥ ||"
+ },
+ {
+  "id": "vs-96",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 96",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 96"
+  },
+  "text_kn": "ಸನಾತ್ಸನಾತನತಮಃ ಕಪಿಲಃ ಕಪಿರವ್ಯಯಃ ।\nಸ್ವಸ್ತಿದಃ ಸ್ವಸ್ತಿಕೃತ್ಸ್ವಸ್ತಿ ಸ್ವಸ್ತಿಭುಕ್ಸ್ವಸ್ತಿದಕ್ಷಿಣಃ ॥",
+  "roman": "sanātsanātanatamaḥ kapilaḥ kapiravyayaḥ |\nsvastidaḥ svastikṛtsvasti svastibhuksvastidakṣiṇaḥ ||"
+ },
+ {
+  "id": "vs-97",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 97",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 97"
+  },
+  "text_kn": "ಅರೌದ್ರಃ ಕುಂಡಲೀ ಚಕ್ರೀ ವಿಕ್ರಮ್ಯೂರ್ಜಿತಶಾಸನಃ ।\nಶಬ್ದಾತಿಗಃ ಶಬ್ದಸಹಃ ಶಿಶಿರಃ ಶರ್ವರೀಕರಃ ॥",
+  "roman": "araudraḥ kuṇḍalī cakrī vikramyūrjitaśāsanaḥ |\nśabdātigaḥ śabdasahaḥ śiśiraḥ śarvarīkaraḥ ||"
+ },
+ {
+  "id": "vs-98",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 98",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 98"
+  },
+  "text_kn": "ಅಕ್ರೂರಃ ಪೇಶಲೋ ದಕ್ಷೋ ದಕ್ಷಿಣಃ ಕ್ಷಮಿಣಾಂವರಃ ।\nವಿದ್ವತ್ತಮೋ ವೀತಭಯಃ ಪುಣ್ಯಶ್ರವಣಕೀರ್ತನಃ ॥",
+  "roman": "akrūraḥ peśalo dakṣo dakṣiṇaḥ kṣamiṇāṁvaraḥ |\nvidvattamo vītabhayaḥ puṇyaśravaṇakīrtanaḥ ||"
+ },
+ {
+  "id": "vs-99",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 99",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 99"
+  },
+  "text_kn": "ಉತ್ತಾರಣೋ ದುಷ್ಕೃತಿಹಾ ಪುಣ್ಯೋ ದುಃಸ್ವಪ್ನನಾಶನಃ ।\nವೀರಹಾ ರಕ್ಷಣಃ ಸಂತೋ ಜೀವನಃ ಪರ್ಯವಸ್ಥಿತಃ ॥",
+  "roman": "uttāraṇo duṣkṛtihā puṇyo duḥsvapnanāśanaḥ |\nvīrahā rakṣaṇaḥ santo jīvanaḥ paryavasthitaḥ ||"
+ },
+ {
+  "id": "vs-100",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 100",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 100"
+  },
+  "text_kn": "ಅನಂತರೂಪೋಽನಂತಶ್ರೀರ್ಜಿತಮನ್ಯುರ್ಭಯಾಪಹಃ ।\nಚತುರಶ್ರೋ ಗಭೀರಾತ್ಮಾ ವಿದಿಶೋ ವ್ಯಾದಿಶೋ ದಿಶಃ ॥",
+  "roman": "anantarūpo'nantaśrīrjitamanyurbhayāpahaḥ |\ncaturaśro gabhīrātmā vidiśo vyādiśo diśaḥ ||"
+ },
+ {
+  "id": "vs-101",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 101",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 101"
+  },
+  "text_kn": "ಅನಾದಿರ್ಭೂರ್ಭುವೋ ಲಕ್ಷ್ಮೀಃ ಸುವೀರೋ ರುಚಿರಾಂಗದಃ ।\nಜನನೋ ಜನಜನ್ಮಾದಿರ್ಭೀಮೋ ಭೀಮಪರಾಕ್ರಮಃ ॥",
+  "roman": "anādirbhūrbhuvo lakṣmīḥ suvīro rucirāṅgadaḥ |\njanano janajanmādirbhīmo bhīmaparākramaḥ ||"
+ },
+ {
+  "id": "vs-102",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 102",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 102"
+  },
+  "text_kn": "ಆಧಾರನಿಲಯೋಽಧಾತಾ ಪುಷ್ಪಹಾಸಃ ಪ್ರಜಾಗರಃ ।\nಊರ್ಧ್ವಗಃ ಸತ್ಪಥಾಚಾರಃ ಪ್ರಾಣದಃ ಪ್ರಣವಃ ಪಣಃ ॥",
+  "roman": "ādhāranilayo'dhātā puṣpahāsaḥ prajāgaraḥ |\nūrdhvagaḥ satpathācāraḥ prāṇadaḥ praṇavaḥ paṇaḥ ||"
+ },
+ {
+  "id": "vs-103",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 103",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 103"
+  },
+  "text_kn": "ಪ್ರಮಾಣಂ ಪ್ರಾಣನಿಲಯಃ ಪ್ರಾಣಭೃತ್ಪ್ರಾಣಜೀವನಃ ।\nತತ್ತ್ವಂ ತತ್ತ್ವವಿದೇಕಾತ್ಮಾ ಜನ್ಮಮೃತ್ಯುಜರಾತಿಗಃ ॥",
+  "roman": "pramāṇaṁ prāṇanilayaḥ prāṇabhṛtprāṇajīvanaḥ |\ntattvaṁ tattvavidekātmā janmamṛtyujarātigaḥ ||"
+ },
+ {
+  "id": "vs-104",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 104",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 104"
+  },
+  "text_kn": "ಭೂರ್ಭುವಃಸ್ವಸ್ತರುಸ್ತಾರಃ ಸವಿತಾ ಪ್ರಪಿತಾಮಹಃ ।\nಯಜ್ಞೋ ಯಜ್ಞಪತಿರ್ಯಜ್ವಾ ಯಜ್ಞಾಂಗೋ ಯಜ್ಞವಾಹನಃ ॥",
+  "roman": "bhūrbhuvaḥsvastarustāraḥ savitā prapitāmahaḥ |\nyajño yajñapatiryajvā yajñāṅgo yajñavāhanaḥ ||"
+ },
+ {
+  "id": "vs-105",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 105",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 105"
+  },
+  "text_kn": "ಯಜ್ಞಭೃದ್ ಯಜ್ಞಕೃದ್ ಯಜ್ಞೀ ಯಜ್ಞಭುಗ್ ಯಜ್ಞಸಾಧನಃ ।\nಯಜ್ಞಾಂತಕೃದ್ ಯಜ್ಞಗುಹ್ಯಮನ್ನಮನ್ನಾದ ಏವ ಚ ॥",
+  "roman": "yajñabhṛd yajñakṛd yajñī yajñabhug yajñasādhanaḥ |\nyajñāntakṛd yajñaguhyamannamannāda eva ca ||"
+ },
+ {
+  "id": "vs-106",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 106",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 106"
+  },
+  "text_kn": "ಆತ್ಮಯೋನಿಃ ಸ್ವಯಂಜಾತೋ ವೈಖಾನಃ ಸಾಮಗಾಯನಃ ।\nದೇವಕೀನಂದನಃ ಸ್ರಷ್ಟಾ ಕ್ಷಿತೀಶಃ ಪಾಪನಾಶನಃ ॥",
+  "roman": "ātmayoniḥ svayañjāto vaikhānaḥ sāmagāyanaḥ |\ndevakīnandanaḥ sraṣṭā kṣitīśaḥ pāpanāśanaḥ ||"
+ },
+ {
+  "id": "vs-107",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 107",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 107"
+  },
+  "text_kn": "ಶಂಖಭೃನ್ನಂದಕೀ ಚಕ್ರೀ ಶಾರ್ಙ್ಗಧನ್ವಾ ಗದಾಧರಃ ।\nರಥಾಂಗಪಾಣಿರಕ್ಷೋಭ್ಯಃ ಸರ್ವಪ್ರಹರಣಾಯುಧಃ ॥",
+  "roman": "śaṅkhabhṛnnandakī cakrī śārṅgadhanvā gadādharaḥ |\nrathāṅgapāṇirakṣobhyaḥ sarvapraharaṇāyudhaḥ ||"
+ },
+ {
+  "id": "vs-108",
+  "collection": "vs",
+  "source": {
+   "en": "Sri Vishnu Sahasranama · Verse 108",
+   "kn": "ಶ್ರೀ ವಿಷ್ಣು ಸಹಸ್ರನಾಮ · ಶ್ಲೋಕ 108"
+  },
+  "text_kn": "ವನಮಾಲೀ ಗದೀ ಶಾರ್ಙ್ಗೀ ಶಂಖೀ ಚಕ್ರೀ ಚ ನಂದಕೀ ।\nಶ್ರೀಮಾನ್ ನಾರಾಯಣೋ ವಿಷ್ಣುರ್ವಾಸುದೇವೋಽಭಿರಕ್ಷತು ॥",
+  "roman": "vanamālī gadī śārṅgī śaṅkhī cakrī ca nandakī |\nśrīmān nārāyaṇo viṣṇurvāsudevo'bhirakṣatu ||"
+ }
+]

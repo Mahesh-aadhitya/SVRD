@@ -13,6 +13,8 @@ import CategorySelect from "@/components/admin/CategorySelect";
 import BilingualField from "@/components/admin/BilingualField";
 import Calendar from "@/components/calendar/Calendar";
 import { rebalance, setSlotCount, splitEvenly } from "@/lib/slot-split";
+import type { ImportantDay } from "@/lib/panchang/important-days";
+import type { CalendarCategory } from "@/lib/panchang/year";
 
 type SlotDraft = { key: string; id?: string; startTime: string; endTime: string; capacity: number; locked: boolean };
 
@@ -56,6 +58,25 @@ function startOfMonth(iso: string, monthsAhead: number) {
 
 const isWeekend = (d: Date) => d.getDay() === 0 || d.getDay() === 6;
 
+// Festival marks on the booking calendar, by kind of day.
+const MARK_COLOR: Record<CalendarCategory, string> = {
+  temple: "#b8862f",
+  festival: "#ea580c",
+  tirunakshatram: "#c026d3",
+  important: "#0284c7",
+  grahana: "#e11d48",
+  tirumala: "#059669",
+};
+const MARK_LABEL: Partial<Record<CalendarCategory, string>> = {
+  temple: "Our temple utsava",
+  festival: "Festival",
+  important: "Ekadashi, Purnima & holy days",
+  tirunakshatram: "Alwar / Acharya tirunakshatram",
+  grahana: "Grahana (eclipse)",
+};
+const BLOCKED_DAY = "bg-red-50 text-red-700 line-through decoration-red-300 ring-1 ring-inset ring-red-300 hover:bg-red-100";
+const short = (iso: string) => formatIso(iso, "en", { weekday: "short", day: "numeric", month: "short" });
+
 const FREQUENCY_CHOICES: Record<SevaFrequency, { title: string; hint: string; schedule: string }> = {
   nitya: { title: "Nitya seva", hint: "Performed every day", schedule: "e.g. Every day" },
   monthly: { title: "Monthly seva", hint: "Once a month", schedule: "e.g. Every month on Shravana nakshatra" },
@@ -63,7 +84,16 @@ const FREQUENCY_CHOICES: Record<SevaFrequency, { title: string; hint: string; sc
   special: { title: "Darshan & special", hint: "Darshan tickets, one-off sevas", schedule: "e.g. On selected dates" },
 };
 
-export default function SevaForm({ seva, categories }: { seva?: Seva; categories: FolderTree }) {
+export default function SevaForm({
+  seva,
+  categories,
+  importantDays = {},
+}: {
+  seva?: Seva;
+  categories: FolderTree;
+  /** Festivals and holy days ahead, marked on the booking calendar. */
+  importantDays?: Record<string, ImportantDay[]>;
+}) {
   const locale = useLocale() as Locale;
   const today = localTodayIso();
   const [state, formAction, pending] = useActionState(saveSeva.bind(null, seva?.id ?? null, locale), undefined);
@@ -97,9 +127,40 @@ export default function SevaForm({ seva, categories }: { seva?: Seva; categories
   const [listed, setListed] = useState(seva ? seva.isListed : true);
 
   const dateSet = new Set(dates);
-  const toggleDate = (iso: string) =>
+  // Days closed inside the booking window, each with the reason devotees see.
+  const [blocked, setBlocked] = useState<Record<string, string>>(() =>
+    Object.fromEntries(Object.entries(seva?.blockedDates ?? {}).filter(([d]) => d >= today)),
+  );
+  const [tapMode, setTapMode] = useState<"open" | "block">("open");
+  const [focusDate, setFocusDate] = useState<string | null>(null);
+  const unblock = (iso: string) =>
+    setBlocked((prev) => {
+      if (!(iso in prev)) return prev;
+      const { [iso]: _removed, ...rest } = prev; // eslint-disable-line @typescript-eslint/no-unused-vars
+      return rest;
+    });
+  const block = (iso: string) => {
+    setDates((prev) => prev.filter((d) => d !== iso));
+    setBlocked((prev) => (iso in prev ? prev : { ...prev, [iso]: "" }));
+    setFocusDate(iso);
+  };
+  const toggleDate = (iso: string) => {
+    if (tapMode === "block") {
+      if (iso in blocked) unblock(iso);
+      else block(iso);
+      return;
+    }
+    unblock(iso);
     setDates((prev) => (prev.includes(iso) ? prev.filter((d) => d !== iso) : [...prev, iso].sort()));
-  const addDates = (more: string[]) => setDates((prev) => [...new Set([...prev, ...more])].sort());
+  };
+  const addDates = (more: string[]) => {
+    const add = more.filter((d) => !(d in blocked));
+    setDates((prev) => [...new Set([...prev, ...add])].sort());
+  };
+  const openDate = (iso: string) => {
+    unblock(iso);
+    setDates((prev) => [...new Set([...prev, iso])].sort());
+  };
 
   const quickPicks: { label: string; dates: () => string[] }[] = [
     { label: "Next 7 days", dates: () => daysBetween(today, addDays(today, 6)) },
@@ -116,11 +177,20 @@ export default function SevaForm({ seva, categories }: { seva?: Seva; categories
     ? slots.map(({ id, startTime, endTime, capacity }) => ({ id, startTime, endTime, capacity }))
     : [];
   const nextDate = dates.find((d) => d >= today);
+  const blockedList = Object.keys(blocked).sort();
+  // Unselected days between the first and last open dates: closed, and worth a reason.
+  const gaps = dates.length > 1 ? daysBetween(dates[0], dates.at(-1)!).filter((d) => !dateSet.has(d) && !(d in blocked)) : [];
+  const upcomingImportant = Object.keys(importantDays)
+    .filter((d) => d >= today && d <= addDays(today, 120))
+    .sort()
+    .slice(0, 14);
+  const usedCategories = [...new Set(Object.values(importantDays).flat().map((d) => d.category))];
 
   return (
     <form action={formAction} className="max-w-4xl space-y-6 pb-24">
       <input type="hidden" name="slots" value={JSON.stringify(slotsPayload)} />
       <input type="hidden" name="dates" value={JSON.stringify(dates)} />
+      <input type="hidden" name="blocked" value={JSON.stringify(blocked)} />
 
       {/* 1 — Details */}
       <Section step={1} title="Seva details">
@@ -322,8 +392,57 @@ export default function SevaForm({ seva, categories }: { seva?: Seva; categories
 
         <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,22rem)_1fr]">
           <div>
-            <p className="mb-2 text-sm text-ink/70">Tap the days devotees can book. Tap again to remove.</p>
-            <Calendar locale={locale} onSelect={toggleDate} isSelected={(iso) => dateSet.has(iso)} />
+            <div role="radiogroup" aria-label="What a tap does" className="mb-2 grid grid-cols-2 gap-1 rounded-full bg-black/[0.05] p-1 text-xs font-semibold">
+              {(
+                [
+                  ["open", "Tap to open for booking"],
+                  ["block", "Tap to block with a note"],
+                ] as const
+              ).map(([mode, text]) => (
+                <button
+                  key={mode}
+                  type="button"
+                  role="radio"
+                  aria-checked={tapMode === mode}
+                  onClick={() => setTapMode(mode)}
+                  className={`rounded-full px-3 py-1.5 transition-colors ${
+                    tapMode === mode ? (mode === "open" ? "bg-maroon text-cream shadow" : "bg-red-600 text-white shadow") : "text-ink/60 hover:text-ink"
+                  }`}
+                >
+                  {text}
+                </button>
+              ))}
+            </div>
+            <p className="mb-2 text-xs text-ink/55">
+              {tapMode === "open"
+                ? "Tap the days devotees can book. Tap again to remove."
+                : "Tap a day to close it and write why — devotees see the reason. Tap again to unblock."}
+            </p>
+            <Calendar
+              locale={locale}
+              onSelect={toggleDate}
+              isSelected={(iso) => dateSet.has(iso)}
+              dayClassName={(iso) => (iso in blocked ? BLOCKED_DAY : undefined)}
+              dayMark={(iso) => {
+                const marks = importantDays[iso];
+                return marks?.length ? { colors: [...new Set(marks.map((m) => MARK_COLOR[m.category]))], title: marks.map((m) => m.name).join(" · ") } : null;
+              }}
+            />
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-ink/60">
+              <span className="inline-flex items-center gap-1">
+                <span className="h-2.5 w-2.5 rounded bg-maroon" /> Open
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-2.5 w-2.5 rounded bg-red-100 ring-1 ring-red-300" /> Blocked
+              </span>
+              {usedCategories.map((c) =>
+                MARK_LABEL[c] ? (
+                  <span key={c} className="inline-flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: MARK_COLOR[c] }} /> {MARK_LABEL[c]}
+                  </span>
+                ) : null,
+              )}
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -350,10 +469,11 @@ export default function SevaForm({ seva, categories }: { seva?: Seva; categories
                 <>
                   <p className="text-sm font-semibold text-maroon">
                     {dates.length} day{dates.length === 1 ? "" : "s"} open for booking
+                    {blockedList.length ? <span className="font-normal text-red-700"> · {blockedList.length} blocked</span> : null}
                   </p>
                   {nextDate ? (
                     <p className="mt-0.5 text-xs text-ink/55">
-                      First: {formatIso(nextDate, "en", { weekday: "short", day: "numeric", month: "short" })} · Last:{" "}
+                      First: {short(nextDate)} · Last:{" "}
                       {formatIso(dates.at(-1)!, "en", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   ) : null}
@@ -363,6 +483,109 @@ export default function SevaForm({ seva, categories }: { seva?: Seva; categories
                 </>
               )}
             </div>
+
+            {/* Blocked days and their reasons */}
+            {blockedList.length || gaps.length ? (
+              <div className="rounded-xl border border-red-200 bg-red-50/60 p-4">
+                <p className="text-sm font-semibold text-red-800">Blocked days</p>
+                <p className="mt-0.5 text-xs text-ink/55">Devotees see this note when they tap the day on the booking calendar.</p>
+                {blockedList.length ? (
+                  <ul className="mt-3 space-y-2">
+                    {blockedList.map((iso) => (
+                      <li key={iso} className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+                        <span className="w-28 shrink-0 text-xs font-semibold text-ink/75">
+                          {short(iso)}
+                          {importantDays[iso] ? <span className="block font-normal text-ink/45">{importantDays[iso][0].name}</span> : null}
+                        </span>
+                        <input
+                          value={blocked[iso]}
+                          maxLength={160}
+                          autoFocus={focusDate === iso}
+                          onChange={(e) => setBlocked((prev) => ({ ...prev, [iso]: e.target.value }))}
+                          placeholder="Why it's closed, e.g. Brahmotsavam — no sevas"
+                          aria-label={`Reason ${iso} is blocked`}
+                          className={`${inputClass} min-w-0 flex-1 py-2`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => openDate(iso)}
+                          className="shrink-0 rounded-full px-2.5 py-1.5 text-xs font-semibold text-maroon hover:bg-maroon/5"
+                        >
+                          Open instead
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => unblock(iso)}
+                          aria-label={`Unblock ${iso}`}
+                          className="h-8 w-8 shrink-0 rounded-full text-red-600 hover:bg-red-500/10"
+                        >
+                          ✕
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                {gaps.length ? (
+                  <div className="mt-3">
+                    <p className="text-xs text-ink/60">
+                      {gaps.length} day{gaps.length === 1 ? "" : "s"} in between {gaps.length === 1 ? "is" : "are"} closed without a reason — tap one to add a note:
+                    </p>
+                    <div className="mt-1.5 flex max-h-28 flex-wrap gap-1.5 overflow-y-auto">
+                      {gaps.slice(0, 60).map((iso) => (
+                        <button
+                          key={iso}
+                          type="button"
+                          onClick={() => block(iso)}
+                          className="rounded-full border border-red-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-red-700 hover:border-red-400"
+                        >
+                          + {short(iso)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {/* Festivals ahead, so the admin can open or close them on purpose */}
+            {upcomingImportant.length ? (
+              <div className="rounded-xl border border-gold/40 bg-cream/60 p-4">
+                <p className="text-sm font-semibold text-maroon">Important days ahead</p>
+                <ul className="mt-2 divide-y divide-gold/20">
+                  {upcomingImportant.map((iso) => {
+                    const isOpen = dateSet.has(iso);
+                    const isBlocked = iso in blocked;
+                    return (
+                      <li key={iso} className="flex items-center gap-3 py-2">
+                        <span className="w-24 shrink-0 text-xs font-semibold text-ink/70">{short(iso)}</span>
+                        <span className="min-w-0 flex-1 text-xs text-ink/80">
+                          {importantDays[iso].map((m, i) => (
+                            <span key={i} className="mr-2 inline-flex items-center gap-1">
+                              <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: MARK_COLOR[m.category] }} />
+                              {m.name}
+                            </span>
+                          ))}
+                        </span>
+                        {isOpen ? (
+                          <span className="shrink-0 rounded-full bg-maroon/10 px-2 py-0.5 text-[11px] font-semibold text-maroon">Open</span>
+                        ) : isBlocked ? (
+                          <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700">Blocked</span>
+                        ) : (
+                          <span className="flex shrink-0 gap-1">
+                            <button type="button" onClick={() => openDate(iso)} className="rounded-full border border-maroon/30 px-2 py-0.5 text-[11px] font-semibold text-maroon hover:bg-maroon/5">
+                              Open
+                            </button>
+                            <button type="button" onClick={() => block(iso)} className="rounded-full border border-red-300 px-2 py-0.5 text-[11px] font-semibold text-red-700 hover:bg-red-50">
+                              Block
+                            </button>
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ) : null}
 
             <label className="flex items-start gap-2 text-sm text-ink/80">
               <input type="checkbox" name="postNotice" defaultChecked={!seva} className="mt-0.5 h-4 w-4" />

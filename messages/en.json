@@ -111,7 +111,8 @@
       "available": "Available",
       "filling": "Filling fast",
       "full": "Full",
-      "closed": "Not open"
+      "closed": "Not open",
+      "blocked": "Closed (tap for reason)"
     },
     "prevMonth": "Previous",
     "nextMonth": "Next",
@@ -140,7 +141,13 @@
     "signInBody": "Sign in with Google to book — your tickets, darshan and prasadam history stay in your account.",
     "myBookings": "My bookings",
     "reservedPayTitle": "Seva reserved — complete payment",
-    "payLaterNote": "Can't pay now? Your seat is held — pay ₹{amount} later from your ticket page, or at the temple counter with this reference."
+    "payLaterNote": "Can't pay now? Your seat is held — pay ₹{amount} later from your ticket page, or at the temple counter with this reference.",
+    "typeLabel": "Type of seva",
+    "categoryLabel": "Category",
+    "allTypes": "All sevas",
+    "noneInFilter": "No sevas open for booking here — try another type or All sevas.",
+    "blockedTitle": "Not available on {date}",
+    "sevaCount": "{count, plural, one {# seva} other {# sevas}}"
   },
   "about": {
     "pageTitle": "Temple & Contact",
@@ -184,10 +191,12 @@
       "comments": "Comments",
       "temple": "Temple Info",
       "notices": "Notice Board",
+      "verses": "Verses",
       "darshan": "Darshan Log",
       "donations": "Donations",
       "kundali": "Kundali / Jataka",
-      "payments": "Payments"
+      "payments": "Payments",
+      "acharyas": "Alwars & Acharyas"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -559,7 +568,8 @@
     "nextDate": "Next: {date}",
     "notOpen": "Booking not open",
     "empty": "Seva details will appear here soon.",
-    "allSevas": "All sevas"
+    "allSevas": "All sevas",
+    "typeLabel": "Show"
   },
   "panchangam": {
     "pageTitle": "Panchangam",
@@ -735,7 +745,42 @@
       "day": "Day {day} of 30",
       "pasuram": "Tiruppavai pasuram {n}"
     },
-    "useTemple": "Use temple location"
+    "useTemple": "Use temple location",
+    "acharya": {
+      "indexTitle": "Alwars & Acharyas",
+      "indexSubtitle": "The saints of the Srivaishnava tradition — their lives, their works, and the tirunakshatram on which each is honoured.",
+      "alwars": "The twelve Alwars",
+      "alwarsNote": "The poet-saints whose four thousand Tamil verses make up the Nalayira Divya Prabandham.",
+      "acharyas": "The Acharyas",
+      "acharyasNote": "The teachers who gathered, explained and carried the Alwars' verses and the Vedanta forward.",
+      "tirunakshatram": "Tirunakshatram",
+      "next": "Next tirunakshatram: {date}",
+      "todayBadge": "Tirunakshatram today",
+      "todayTitle": "Today is the tirunakshatram of",
+      "birthplace": "Born at",
+      "amsam": "Amsam of",
+      "period": "Period",
+      "alsoKnownAs": "Also known as",
+      "life": "Life",
+      "works": "Works",
+      "composition": "A composition",
+      "knowMore": "Life & works",
+      "knowMoreAbout": "Know more about {name}",
+      "all": "All Alwars & Acharyas",
+      "openDay": "Panchangam for that day",
+      "shareText": "{name} — life, works and tirunakshatram",
+      "verseNote": "On the tirunakshatram, the verse of the day is this composition.",
+      "listen": "Listen to the recitation",
+      "pause": "Pause",
+      "nityasuris": "Nityasuris",
+      "nityasurisNote": "The Lord's eternal attendants honoured as Alwars — Sri Sudarshana and Garuda.",
+      "recent": "Recent Acharyas",
+      "recentNote": "Acharyas of our own times who carried the tradition forward.",
+      "tirunakshatramUnknown": "Tirunakshatram to be added",
+      "pictureCredit": "Picture: {author} · {license}",
+      "audioCredit": "Recording: {author} · {license}",
+      "listenShort": "Listen"
+    }
   },
   "share": {
     "share": "Share",

@@ -5,6 +5,8 @@ import type { PanchangDay } from "@/lib/panchang/compute";
 import { RASHI_GLYPHS, TEMPLE_UTSAVAS, label } from "@/lib/panchang/names";
 import type { Verse } from "@/lib/panchang/verses";
 import { useDayText } from "./dayText";
+import AcharyaPortrait from "@/components/acharya/AcharyaPortrait";
+import type { Acharya } from "@/lib/panchang/acharyas";
 
 /**
  * The day's panchangam as a fixed-size (1080px wide) card for sharing as an
@@ -21,13 +23,16 @@ export default function ShareCard({
   siteUrl,
   placeName,
   verse,
+  acharyas = [],
 }: {
   day: PanchangDay;
   locale: string;
   siteTitle: string;
   siteUrl: string;
   placeName: string;
-  verse: Verse;
+  verse?: Verse;
+  /** Alwars/Acharyas whose tirunakshatram it is, with their picture and page link. */
+  acharyas?: { acharya: Acharya; imageUrl: string | null; link: string }[];
 }) {
   const t = useTranslations("panchangam");
   const text = useDayText(day, locale);
@@ -49,7 +54,7 @@ export default function ShareCard({
     [t("gulikaKalam"), text.span(day.gulikaKalam), false],
     [t("durmuhurtham"), day.durmuhurtham.map(text.span).join(", "), false],
   ];
-  const meanings = kn ? [verse.meaning.kn, verse.meaning.en] : [verse.meaning.en, verse.meaning.kn];
+  const meanings = verse ? (kn ? [verse.meaning.kn, verse.meaning.en] : [verse.meaning.en, verse.meaning.kn]) : [];
 
   return (
     <div style={{ width: 1080, padding: 28, background: "#05030f" }}>
@@ -189,24 +194,54 @@ export default function ShareCard({
             <div style={{ ...panel, marginTop: 22, textAlign: "center", fontSize: 28, color: "#ffe6a6" }}>🪔 {text.observances.join(" · ")}</div>
           ) : null}
 
+          {acharyas.map(({ acharya, imageUrl, link }) => (
+            <div
+              key={acharya.slug}
+              style={{
+                ...panel,
+                marginTop: 22,
+                display: "flex",
+                alignItems: "center",
+                gap: 26,
+                padding: "20px 30px",
+                border: "2px solid rgba(240,170,255,0.45)",
+                background: "linear-gradient(90deg, rgba(220,120,255,0.16), rgba(255,190,90,0.12), rgba(220,120,255,0.16))",
+              }}
+            >
+              <AcharyaPortrait name={label(acharya.name, locale)} imageUrl={imageUrl} size={118} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 19, color: "#f3c8ff", letterSpacing: kn ? 0 : 3, textTransform: "uppercase" }}>
+                  {t("acharya.todayTitle")}
+                </div>
+                <div style={{ fontSize: 34, color: "#fff1c9", lineHeight: 1.25 }}>{label(acharya.name, locale)}</div>
+                <div style={{ fontSize: 21, color: "#e6def5", lineHeight: 1.45, marginTop: 6 }}>{label(acharya.summary, locale)}</div>
+                <div style={{ fontSize: 19, color: "#f5d48a", marginTop: 8 }}>
+                  {t("acharya.knowMore")} → {link}
+                </div>
+              </div>
+            </div>
+          ))}
+
           {text.dhanurmasaLine ? (
             <div style={{ ...panel, marginTop: 22, textAlign: "center", fontSize: 25, color: "#ffe6a6" }}>🌅 {text.dhanurmasaLine}</div>
           ) : null}
 
           {/* The day's verse */}
-          <div style={{ ...panel, marginTop: 22, padding: "24px 34px", borderColor: "rgba(232,201,122,0.45)" }}>
-            <div style={{ fontSize: 20, color: "#e8c97a", textAlign: "center" }}>
-              📿 {t("verseOfDay")} · {label(verse.source, locale)}
-            </div>
-            <div style={{ marginTop: 12, fontSize: 27, lineHeight: 1.55, color: "#fff4d6", textAlign: "center", whiteSpace: "pre-line" }}>
-              {kn ? verse.kn : verse.roman}
-            </div>
-            {meanings.map((m, i) => (
-              <div key={i} style={{ marginTop: 12, fontSize: 21, lineHeight: 1.5, color: i ? "#b9b0d6" : "#e6def5", textAlign: "center" }}>
-                {m}
+          {verse ? (
+            <div style={{ ...panel, marginTop: 22, padding: "24px 34px", borderColor: "rgba(232,201,122,0.45)" }}>
+              <div style={{ fontSize: 20, color: "#e8c97a", textAlign: "center" }}>
+                📿 {t("verseOfDay")} · {label(verse.source, locale)}
               </div>
-            ))}
-          </div>
+              <div style={{ marginTop: 12, fontSize: 27, lineHeight: 1.55, color: "#fff4d6", textAlign: "center", whiteSpace: "pre-line" }}>
+                {kn ? verse.kn : verse.roman}
+              </div>
+              {meanings.map((m, i) => (
+                <div key={i} style={{ marginTop: 12, fontSize: 21, lineHeight: 1.5, color: i ? "#b9b0d6" : "#e6def5", textAlign: "center" }}>
+                  {m}
+                </div>
+              ))}
+            </div>
+          ) : null}
 
           <Divider />
           <div style={{ textAlign: "center", fontSize: 19, color: "#a99fc4" }}>

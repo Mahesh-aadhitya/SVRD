@@ -376,26 +376,48 @@ export const VERSES: Verse[] = [
 
 const byId = (id: string) => VERSES.find((x) => x.id === id)!;
 
-// Rotation that alternates the three sources from day to day.
-const GITA_IDS = VERSES.filter((x) => x.id.startsWith("bg-")).map((x) => x.id);
-const VS_IDS = VERSES.filter((x) => x.id.startsWith("vs-")).map((x) => x.id);
-const DP_IDS = VERSES.filter((x) => x.id.startsWith("dp-")).map((x) => x.id);
-const ROTATION = Array.from({ length: Math.max(GITA_IDS.length, VS_IDS.length, DP_IDS.length) }, (_, i) => [
-  GITA_IDS[i % GITA_IDS.length],
-  VS_IDS[i % VS_IDS.length],
-  DP_IDS[i % DP_IDS.length],
-]).flat();
+// Verses kept for their occasions; they never appear in the daily rotation,
+// so an occasion can't repeat a verse shown a few days before or after it.
+export const OCCASION = {
+  goda: "dp-varanam",
+  varadaraja: "dp-pey",
+  gitaJayanti: "bg-18-66",
+  vaikunthaEkadashi: "bg-18-65",
+  ramaNavami: "vs-ramarama",
+  tiruvadipooram: "dp-tiruppavai-29",
+} as const;
+export type OccasionKey = keyof typeof OCCASION;
+const RESERVED = new Set<string>(Object.values(OCCASION));
 
-/** The verse for a day: chosen for the occasion where one fits, else the rotation. */
-export function verseForDay(date: string, observances: Observance[]): Verse {
+/** The occasion a day's verse is chosen for, if any. */
+export function occasionFor(observances: Observance[]): OccasionKey | null {
   const has = (test: (o: Observance) => boolean) => observances.some(test);
-  if (has((o) => o.kind === "utsava" && o.key === "goda")) return byId("dp-varanam");
-  if (has((o) => o.kind === "utsava" && o.key === "varadaraja")) return byId("dp-pey");
-  if (has((o) => o.kind === "vaikunthaEkadashi")) return byId("bg-18-66");
-  if (has((o) => o.kind === "festival" && o.masa === 8 && o.tithi === 10)) return byId("bg-18-66"); // Gita Jayanti
-  if (has((o) => o.kind === "festival" && o.masa === 0 && o.tithi === 8)) return byId("vs-ramarama"); // Rama Navami
-  if (has((o) => o.kind === "tirunakshatram" && o.index === 4)) return byId("dp-tiruppavai-29"); // Tiruvadipooram
-  if (has((o) => o.kind === "ekadashi")) return byId(VS_IDS[dayNumber(date) % VS_IDS.length]);
+  if (has((o) => o.kind === "utsava" && o.key === "goda")) return "goda";
+  if (has((o) => o.kind === "utsava" && o.key === "varadaraja")) return "varadaraja";
+  if (has((o) => o.kind === "festival" && o.masa === 8 && o.tithi === 10)) return "gitaJayanti";
+  if (has((o) => o.kind === "vaikunthaEkadashi")) return "vaikunthaEkadashi";
+  if (has((o) => o.kind === "festival" && o.masa === 0 && o.tithi === 8)) return "ramaNavami";
+  if (has((o) => o.kind === "tirunakshatram" && o.index === 4)) return "tiruvadipooram";
+  return null;
+}
+
+// The rotation: every other verse exactly once, the three sources spread
+// evenly through it, so no verse comes back until all the others have been read.
+const pool = (prefix: string) => VERSES.filter((x) => x.id.startsWith(prefix) && !RESERVED.has(x.id)).map((x) => x.id);
+const ROTATION = [pool("bg-"), pool("vs-"), pool("dp-")]
+  .flatMap((ids, source) => ids.map((id, i) => ({ id, at: (i + 0.5) / ids.length, source })))
+  .sort((a, b) => a.at - b.at || a.source - b.source)
+  .map((x) => x.id);
+
+/**
+ * The verse for a day without the database: the occasion's verse, else a
+ * fixed rotation of the verses above. The site uses the full collection in
+ * Supabase (verse_for_day), which never repeats a verse until all are read;
+ * this is only its fallback.
+ */
+export function verseForDay(date: string, observances: Observance[]): Verse {
+  const occasion = occasionFor(observances);
+  if (occasion) return byId(OCCASION[occasion]);
   return byId(ROTATION[dayNumber(date) % ROTATION.length]);
 }
 

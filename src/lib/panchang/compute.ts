@@ -25,6 +25,11 @@ export const TEMPLE_LOCATION: PanchangLocation = {
   tzOffsetMin: 330,
 };
 
+/** The temple's own pin from the admin's Temple info, else Kolar. */
+export function templeLocationFrom(info: { lat: number | null; lon: number | null } | null, name: string): PanchangLocation {
+  return info?.lat != null && info.lon != null ? { name, lat: info.lat, lon: info.lon, tzOffsetMin: 330 } : TEMPLE_LOCATION;
+}
+
 // One run of a day element (tithi, nakshatra…) — `start`/`end` are epoch ms.
 export type Segment = { index: number; start: number; end: number };
 export type Span = { start: number; end: number };

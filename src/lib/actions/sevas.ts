@@ -34,6 +34,7 @@ const sevaSchema = z.object({
   dayCapacity: z.coerce.number().int().min(1, "Devotees per day must be at least 1"),
   slots: z.array(slotSchema).max(24),
   dates: z.array(isoDate).max(400),
+  blocked: z.record(isoDate, z.string().trim().max(160)),
   openForBooking: z.boolean(),
   postNotice: z.boolean(),
   frequency: z.enum(SEVA_FREQUENCIES),
@@ -80,6 +81,7 @@ export async function saveSeva(
     dayCapacity: formData.get("dayCapacity") || 1,
     slots: parseJson(formData.get("slots")),
     dates: parseJson(formData.get("dates")),
+    blocked: parseJson(formData.get("blocked") ?? "{}"),
     openForBooking: formData.get("openForBooking") === "on",
     postNotice: formData.get("postNotice") === "on",
     frequency: formData.get("frequency") || "special",
@@ -104,6 +106,10 @@ export async function saveSeva(
   if (input.openForBooking && dates.length === 0) {
     return { error: "Select at least one booking date on the calendar, or switch off “Open for booking”." };
   }
+
+  // Blocked days are the ones not open for booking; past ones are dropped.
+  const open = new Set(dates);
+  const blocked = Object.fromEntries(Object.entries(input.blocked).filter(([d]) => d >= today && !open.has(d)));
 
   const supabase = createAdminClient();
   const duplicate = await findDuplicateEntry(
@@ -145,6 +151,7 @@ export async function saveSeva(
     schedule: { en: input.scheduleEn, kn: input.scheduleKn },
     image_url: input.image || null,
     is_listed: input.listed,
+    blocked_dates: blocked,
   };
   const { error } = existingId
     ? await supabase.from("sevas").update(row).eq("id", id)

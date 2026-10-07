@@ -6,10 +6,11 @@ import { useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
-import { formatSlot, isReleasedOn, type Seva, type SevaSlot } from "@/lib/seva-types";
+import { formatSlot, isReleasedOn, SEVA_FREQUENCIES, type Seva, type SevaFrequency, type SevaSlot } from "@/lib/seva-types";
 import { MAX_TICKETS_PER_BOOKING, type BookedCounts } from "@/lib/content-types";
 import { createBooking, getSevaAvailability, type CreateBookingResult } from "@/lib/actions/bookings";
 import CategoryFilterBar from "@/components/CategoryFilterBar";
+import Chip, { ChipRow } from "@/components/ui/Chip";
 import AvailabilityCalendar, { selectedColors, statusColors, type DayStatus } from "@/components/booking/AvailabilityCalendar";
 import ChakraLoader from "@/components/ChakraLoader";
 import DevoteeFields, { emptyDevotee, fieldClass, type DevoteeDraft } from "@/components/booking/DevoteeFields";
@@ -53,6 +54,7 @@ export default function BookingFlow({
   upi?: UpiDetails | null;
 }) {
   const t = useTranslations("booking");
+  const tSevas = useTranslations("sevas");
   const tTicket = useTranslations("ticket");
   const tMeta = useTranslations("meta");
   const router = useRouter();
@@ -86,17 +88,28 @@ export default function BookingFlow({
   const [refreshKey, setRefreshKey] = useState(0);
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [subfolderId, setSubfolderId] = useState<string | null>(null);
+  // Type of seva (nitya, monthly…); null = all.
+  const [frequency, setFrequency] = useState<SevaFrequency | null>(null);
+  // A day the temple closed, tapped to read why.
+  const [blockedDay, setBlockedDay] = useState<string | null>(null);
 
   const tree = useMemo(() => buildFolderTree(folders), [folders]);
-  // Only offer categories that actually contain an open seva.
-  const usedTree = useMemo(
-    () =>
-      tree
-        .map((c) => ({ ...c, subfolders: c.subfolders.filter((s) => sevas.some((sv) => sv.folderId === s.id)) }))
-        .filter((c) => c.subfolders.length > 0 || sevas.some((sv) => sv.folderId === c.id)),
-    [tree, sevas],
-  );
-  const visibleSevas = filterByFolder(sevas, selectedFolderIds(usedTree, categoryId, subfolderId));
+  const types = SEVA_FREQUENCIES.filter((f) => sevas.some((s) => s.frequency === f));
+  const ofType = (f: SevaFrequency | null) => (f ? sevas.filter((s) => s.frequency === f) : sevas);
+  const visibleSevas = filterByFolder(ofType(frequency), selectedFolderIds(tree, categoryId, subfolderId));
+
+  // Changing a filter keeps the chosen seva if it's still listed, otherwise
+  // picks the first one that is (preferring one open for booking).
+  function applyFilter(f: SevaFrequency | null, cat: string | null, sub: string | null) {
+    setFrequency(f);
+    setCategoryId(cat);
+    setSubfolderId(sub);
+    const list = filterByFolder(ofType(f), selectedFolderIds(tree, cat, sub));
+    if (!list.some((s) => s.id === sevaId)) {
+      const next = list.find((s) => ranges.get(s.id)) ?? list[0];
+      if (next) chooseSeva(next.id);
+    }
+  }
 
   const seva = sevas.find((s) => s.id === sevaId) ?? null;
   const range = seva ? ranges.get(seva.id) ?? null : null;
@@ -132,6 +145,7 @@ export default function BookingFlow({
       : Math.max(0, (seva?.capacityPerSlot ?? 0) - (counts?.[iso]?.["_"] ?? 0));
 
   const dayInfo = (iso: string): { status: DayStatus; left: number } => {
+    if (seva && iso >= today && iso in seva.blockedDates && !isReleasedOn(seva, iso)) return { status: "blocked", left: 0 };
     if (!seva || iso < today || !isReleasedOn(seva, iso)) return { status: "closed", left: 0 };
     if (slots.length === 0) {
       const left = seatsLeft(iso, null);
@@ -147,11 +161,20 @@ export default function BookingFlow({
   function chooseSeva(id: string) {
     setSevaId(id);
     setDate(null);
+    setBlockedDay(null);
     setSlotId(null);
     setError(null);
   }
 
   function chooseDate(iso: string) {
+    if (dayInfo(iso).status === "blocked") {
+      setDate(null);
+      setSlotId(null);
+      setBlockedDay(iso);
+      requestAnimationFrame(() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
+      return;
+    }
+    setBlockedDay(null);
     setDate(iso);
     setSlotId(null);
     setError(null);
@@ -281,19 +304,38 @@ export default function BookingFlow({
 
   return (
     <div className="mt-6">
+      {types.length > 1 ? (
+        <ChipRow label={t("typeLabel")}>
+          {types.map((f) => (
+            <Chip key={f} active={frequency === f} onClick={() => applyFilter(f, categoryId, subfolderId)} count={ofType(f).length}>
+              {tSevas(`groups.${f}.title`)}
+            </Chip>
+          ))}
+          <Chip active={frequency === null} onClick={() => applyFilter(null, categoryId, subfolderId)} count={sevas.length}>
+            {t("allTypes")}
+          </Chip>
+        </ChipRow>
+      ) : null}
       <CategoryFilterBar
-        tree={usedTree}
+        className="mt-3"
+        label={t("categoryLabel")}
+        tree={tree}
         categoryId={categoryId}
         subfolderId={subfolderId}
-        onChange={(cat, sub) => {
-          setCategoryId(cat);
-          setSubfolderId(sub);
-        }}
+        onChange={(cat, sub) => applyFilter(frequency, cat, sub)}
         allLabel={t("filterAll")}
+        count={(ids) => filterByFolder(ofType(frequency), ids).length}
       />
 
       {/* Seva picker */}
-      <div role="tablist" aria-label={t("step1")} className="-mx-4 mt-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+      {visibleSevas.length === 0 ? (
+        <p className="mt-4 rounded-2xl bg-cream-dark px-5 py-6 text-center text-sm text-ink/60">{t("noneInFilter")}</p>
+      ) : null}
+      <div
+        role="tablist"
+        aria-label={t("step1")}
+        className="-mx-4 mt-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-[repeat(auto-fill,minmax(13rem,1fr))] sm:overflow-visible sm:px-0"
+      >
         {visibleSevas.map((s) => {
           const active = s.id === sevaId;
           const open = !!ranges.get(s.id);
@@ -304,10 +346,13 @@ export default function BookingFlow({
               role="tab"
               aria-selected={active}
               onClick={() => chooseSeva(s.id)}
-              className={`min-w-44 shrink-0 rounded-2xl border px-4 py-3 text-left transition-colors ${
+              className={`min-w-44 shrink-0 snap-start rounded-2xl border px-4 py-3 text-left transition-colors sm:min-w-0 ${
                 active ? "border-maroon bg-maroon text-cream shadow-md" : "border-gold/30 bg-white/70 text-ink hover:border-maroon/40"
               }`}
             >
+              <span className={`block text-[10px] font-bold uppercase tracking-wide ${active ? "text-gold-light" : "text-saffron"}`}>
+                {tSevas(`groups.${s.frequency}.badge`)}
+              </span>
               <span className="block font-display text-base leading-tight">{s.name[locale]}</span>
               <span className={`mt-1 block text-xs ${active ? "text-cream/85" : "text-ink/55"}`}>
                 {s.price === 0 ? t("priceFree") : `₹${s.price}`} · {open ? t("openForBooking") : t("notOpenYet")}
@@ -339,7 +384,8 @@ export default function BookingFlow({
                   <AvailabilityCalendar
                     key={seva.id}
                     firstMonth={range.first}
-                    lastMonth={range.last}
+                    lastMonth={maxIso(range.last, ...Object.keys(seva.blockedDates))!}
+                    showBlocked={Object.keys(seva.blockedDates).some((d) => d >= today)}
                     selected={date}
                     locale={locale}
                     dayStatus={(iso) => dayInfo(iso).status}
@@ -350,7 +396,15 @@ export default function BookingFlow({
 
               {/* Time slots for the chosen date */}
               <div ref={panelRef} className="scroll-mt-4" style={{ flex: "1 1 260px", minWidth: 0 }}>
-                {!date ? (
+                {blockedDay ? (
+                  <div className="rounded-xl border border-dashed border-rose-300 bg-rose-50 px-4 py-5 text-sm">
+                    <p className="font-semibold text-rose-800">
+                      {t("blockedTitle", { date: fmt(blockedDay, { weekday: "long", day: "numeric", month: "long" }) })}
+                    </p>
+                    {seva.blockedDates[blockedDay] ? <p className="mt-1 text-rose-900/80">{seva.blockedDates[blockedDay]}</p> : null}
+                    <p className="mt-3 text-xs text-ink/55">{t("pickDateHint")}</p>
+                  </div>
+                ) : !date ? (
                   <p className="rounded-xl bg-cream-dark px-4 py-8 text-center text-sm text-ink/60">{t("pickDateHint")}</p>
                 ) : (
                   <>

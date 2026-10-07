@@ -3,6 +3,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { Link } from "@/i18n/navigation";
 import { getFolders } from "@/lib/data/folders";
 import { buildFolderTree } from "@/lib/folders";
+import { getUpcomingImportantDays } from "@/lib/data/important-days";
 import SevaForm from "../SevaForm";
 
 export default async function NewSevaPage({
@@ -19,7 +20,8 @@ export default async function NewSevaPage({
         ← All sevas
       </Link>
       <AdminPageHeader title="Add a new seva" />
-      <SevaForm categories={buildFolderTree(await getFolders("sevas"))} />
+      <SevaForm categories={buildFolderTree(await getFolders("sevas"))} importantDays={await getUpcomingImportantDays()} />
     </div>
   );
 }
+

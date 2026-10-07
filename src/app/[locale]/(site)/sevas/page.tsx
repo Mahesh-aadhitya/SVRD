@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import SectionHeading from "@/components/SectionHeading";
 import ContentImage from "@/components/ContentImage";
 import ShareButton from "@/components/ShareButton";
+import { ChipCount, ChipRow, chipClass } from "@/components/ui/Chip";
 import { getListedSevas } from "@/lib/data/sevas";
 import { formatIso, todayInIndia } from "@/lib/dates";
 import { isReleasedOn, SEVA_FREQUENCIES, type Seva, type SevaFrequency } from "@/lib/seva-types";
@@ -24,34 +25,46 @@ function nextOpenDate(seva: Seva, today: string) {
   return null;
 }
 
-export default async function SevasPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function SevasPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ type?: string }>;
+}) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const sevas = await getListedSevas();
+  const [{ type }, sevas] = await Promise.all([searchParams, getListedSevas()]);
   const today = todayInIndia();
   const open = Object.fromEntries(sevas.map((s) => [s.id, nextOpenDate(s, today)]));
-  return <Content sevas={sevas} open={open} />;
+  const frequency = SEVA_FREQUENCIES.find((f) => f === type) ?? null;
+  return <Content sevas={sevas} open={open} frequency={frequency} />;
 }
 
-function Content({ sevas, open }: { sevas: Seva[]; open: Record<string, string | null> }) {
+function Content({ sevas, open, frequency }: { sevas: Seva[]; open: Record<string, string | null>; frequency: SevaFrequency | null }) {
   const t = useTranslations("sevas");
-  const groups = SEVA_FREQUENCIES.map((f) => [f, sevas.filter((s) => s.frequency === f)] as const).filter(([, list]) => list.length > 0);
+  const all = SEVA_FREQUENCIES.map((f) => [f, sevas.filter((s) => s.frequency === f)] as const).filter(([, list]) => list.length > 0);
+  // One type, or every type in its own section ("All", the default).
+  const groups = frequency ? all.filter(([f]) => f === frequency) : all;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <SectionHeading title={t("pageTitle")} subtitle={t("pageSubtitle")} />
 
-      {groups.length > 1 ? (
-        <nav className="mt-6 flex flex-wrap gap-2" aria-label={t("pageTitle")}>
-          {groups.map(([f, list]) => (
-            <a
-              key={f}
-              href={`#${f}`}
-              className="rounded-full border border-gold/40 bg-white/70 px-4 py-1.5 text-sm font-semibold text-maroon hover:border-maroon/50"
-            >
-              {t(`groups.${f}.title`)} <span className="text-ink/40">· {list.length}</span>
-            </a>
-          ))}
+      {all.length > 1 ? (
+        <nav className="mt-6" aria-label={t("pageTitle")}>
+          <ChipRow label={t("typeLabel")}>
+            {all.map(([f, list]) => (
+              <Link key={f} href={{ pathname: "/sevas", query: { type: f } }} scroll={false} className={chipClass(frequency === f)}>
+                {t(`groups.${f}.title`)}
+                <ChipCount count={list.length} active={frequency === f} />
+              </Link>
+            ))}
+            <Link href="/sevas" scroll={false} className={chipClass(frequency === null)}>
+              {t("allSevas")}
+              <ChipCount count={sevas.length} active={frequency === null} />
+            </Link>
+          </ChipRow>
         </nav>
       ) : null}
 

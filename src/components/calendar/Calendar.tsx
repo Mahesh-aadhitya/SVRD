@@ -22,6 +22,10 @@ export type CalendarProps = {
   isDisabled?: (iso: string) => boolean;
   /** Small caption under the day number, e.g. slots left. */
   dayNote?: (iso: string) => React.ReactNode;
+  /** Coloured dots under the day number (e.g. festivals), named on hover. */
+  dayMark?: (iso: string) => { colors: string[]; title: string } | null;
+  /** Extra classes for an unselected day (e.g. a blocked day). */
+  dayClassName?: (iso: string) => string | undefined;
   onSelect: (iso: string) => void;
   locale?: string;
 };
@@ -42,6 +46,8 @@ export default function Calendar({
   isInRange,
   isDisabled,
   dayNote,
+  dayMark,
+  dayClassName,
   onSelect,
   locale = "en",
 }: CalendarProps) {
@@ -109,6 +115,9 @@ export default function Calendar({
           const inRange =
             (!!rangeStart && !!rangeEnd && iso > rangeStart && iso < rangeEnd) || (isInRange?.(iso) ?? false);
           const note = !disabled ? dayNote?.(iso) : null;
+          const mark = dayMark?.(iso) ?? null;
+          const custom = !selected && !disabled ? dayClassName?.(iso) : undefined;
+          const fullDate = parseIso(iso).toLocaleDateString(intlLocale, { dateStyle: "full" });
           return (
             <button
               key={iso}
@@ -116,20 +125,30 @@ export default function Calendar({
               disabled={disabled}
               onClick={() => onSelect(iso)}
               aria-pressed={selected}
-              aria-label={parseIso(iso).toLocaleDateString(intlLocale, { dateStyle: "full" })}
-              className={`flex min-h-10 flex-col items-center justify-center rounded-lg text-sm transition-colors ${
+              aria-label={mark ? `${fullDate} — ${mark.title}` : fullDate}
+              title={mark?.title}
+              className={`relative flex min-h-10 flex-col items-center justify-center rounded-lg text-sm transition-colors ${
                 selected
                   ? "bg-maroon font-semibold text-cream"
-                  : inRange
-                    ? "bg-gold/25 text-maroon-dark"
-                    : disabled
-                      ? "cursor-not-allowed text-ink/20 line-through decoration-ink/15"
-                      : "text-ink hover:bg-gold/15"
-              } ${iso === today && !selected ? "ring-1 ring-inset ring-gold" : ""}`}
+                  : custom
+                    ? custom
+                    : inRange
+                      ? "bg-gold/25 text-maroon-dark"
+                      : disabled
+                        ? "cursor-not-allowed text-ink/20 line-through decoration-ink/15"
+                        : "text-ink hover:bg-gold/15"
+              } ${iso === today && !selected ? "ring-1 ring-inset ring-gold" : ""} ${mark && !selected && !custom ? "font-semibold" : ""}`}
             >
               <span>{parseIso(iso).getDate()}</span>
               {note ? (
                 <span className={`text-[9px] leading-none ${selected ? "text-cream/80" : "text-ink/50"}`}>{note}</span>
+              ) : null}
+              {mark ? (
+                <span className="absolute bottom-1 flex gap-0.5" aria-hidden>
+                  {mark.colors.slice(0, 3).map((c, i) => (
+                    <span key={i} className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: c, boxShadow: selected ? "0 0 0 1px #fff" : undefined }} />
+                  ))}
+                </span>
               ) : null}
             </button>
           );

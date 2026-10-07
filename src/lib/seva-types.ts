@@ -28,6 +28,8 @@ export type Seva = {
   imageUrl: string | null;
   /** Shown on the public Sevas page (independent of being open for booking). */
   isListed: boolean;
+  /** Days the admin closed inside the booking window, with the reason shown to devotees. */
+  blockedDates: Record<string, string>;
 };
 
 export const SEVA_FREQUENCIES = ["nitya", "monthly", "annual", "special"] as const;

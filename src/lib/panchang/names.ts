@@ -403,4 +403,9 @@ export const TIRUNAKSHATRAMS: { rashi: number; nakshatra: number; name: Named }[
   { rashi: 9, nakshatra: 12, name: n("Kurathalwan Tirunakshatram", "ಕೂರತ್ತಾಳ್ವಾನ್ ತಿರುನಕ್ಷತ್ರ") },
   { rashi: 9, nakshatra: 6, name: n("Embar Tirunakshatram", "ಎಂಬಾರ್ ತಿರುನಕ್ಷತ್ರ") },
   { rashi: 10, nakshatra: 4, name: n("Tirukkachi Nambi Tirunakshatram", "ತಿರುಕ್ಕಚ್ಚಿ ನಂಬಿ ತಿರುನಕ್ಷತ್ರ") },
+  // Nityasuris: the Lord's discus (Sudarshana Jayanti) and Garuda.
+  { rashi: 2, nakshatra: 13, name: n("Chakrathalwar Tirunakshatram · Sudarshana Jayanti", "ಚಕ್ರತ್ತಾಳ್ವಾರ್ ತಿರುನಕ್ಷತ್ರ · ಸುದರ್ಶನ ಜಯಂತಿ") },
+  { rashi: 3, nakshatra: 14, name: n("Garudalwar Tirunakshatram · Garuda Jayanti", "ಗರುಡಾಳ್ವಾರ್ ತಿರುನಕ್ಷತ್ರ · ಗರುಡ ಜಯಂತಿ") },
+  // Recent Acharyas.
+  { rashi: 5, nakshatra: 12, name: n("Madhuramangalam Jeeyar Tirunakshatram", "ಮಧುರಮಂಗಲಂ ಜೀಯರ್ ತಿರುನಕ್ಷತ್ರ") },
 ];

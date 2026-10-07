@@ -4,9 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Locale } from "@/i18n/routing";
 import type { Song } from "@/lib/song-types";
-import type { Folder } from "@/lib/folders";
-import { buildFolderTree } from "@/lib/folders";
-import Chip from "@/components/ui/Chip";
+import { buildFolderTree, filterByFolder, selectedFolderIds, type Folder } from "@/lib/folders";
+import CategoryFilterBar from "@/components/CategoryFilterBar";
 import ShareButton from "@/components/ShareButton";
 
 export default function SongList({ songs, folders }: { songs: Song[]; folders: Folder[] }) {
@@ -14,11 +13,10 @@ export default function SongList({ songs, folders }: { songs: Song[]; folders: F
   const t = useTranslations("songs");
   const tree = useMemo(() => buildFolderTree(folders), [folders]);
 
-  const [categoryId, setCategoryId] = useState<string | "all">("all");
-  const [subfolderId, setSubfolderId] = useState<string | "all">("all");
+  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [subfolderId, setSubfolderId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const selectedCategory = tree.find((c) => c.id === categoryId);
 
   // A shared link (?song=…) opens that track, ready to play.
   useEffect(() => {
@@ -28,44 +26,22 @@ export default function SongList({ songs, folders }: { songs: Song[]; folders: F
       requestAnimationFrame(() => document.getElementById(`song-${id}`)?.scrollIntoView({ block: "center" }));
     }
   }, [songs]);
-  const filtered = songs.filter((song) => {
-    if (categoryId === "all") return true;
-    if (subfolderId !== "all") return song.folderId === subfolderId;
-    const folderIds = [categoryId, ...(selectedCategory?.subfolders.map((s) => s.id) ?? [])];
-    return folderIds.includes(song.folderId);
-  });
+  const filtered = filterByFolder(songs, selectedFolderIds(tree, categoryId, subfolderId));
 
   return (
     <div>
-      {tree.length > 0 ? (
-        <div className="mt-6 flex flex-wrap gap-2">
-          <Chip active={categoryId === "all"} onClick={() => { setCategoryId("all"); setSubfolderId("all"); }}>
-            {t("filterAll")}
-          </Chip>
-          {tree.map((category) => (
-            <Chip
-              key={category.id}
-              active={categoryId === category.id}
-              onClick={() => { setCategoryId(category.id); setSubfolderId("all"); }}
-            >
-              {category.name}
-            </Chip>
-          ))}
-        </div>
-      ) : null}
-
-      {selectedCategory && selectedCategory.subfolders.length > 0 ? (
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Chip active={subfolderId === "all"} onClick={() => setSubfolderId("all")} small>
-            All
-          </Chip>
-          {selectedCategory.subfolders.map((sub) => (
-            <Chip key={sub.id} active={subfolderId === sub.id} onClick={() => setSubfolderId(sub.id)} small>
-              {sub.name}
-            </Chip>
-          ))}
-        </div>
-      ) : null}
+      <CategoryFilterBar
+        className="mt-6"
+        tree={tree}
+        categoryId={categoryId}
+        subfolderId={subfolderId}
+        onChange={(cat, sub) => {
+          setCategoryId(cat);
+          setSubfolderId(sub);
+        }}
+        allLabel={t("filterAll")}
+        count={(ids) => filterByFolder(songs, ids).length}
+      />
 
       {filtered.length === 0 ? (
         <p className="mt-6 text-center text-sm text-ink/55">{t("empty")}</p>

@@ -1,4 +1,4 @@
-const CACHE_NAME = "temple-app-shell-v8";
+const CACHE_NAME = "temple-app-shell-v9";
 
 // Local / LAN dev servers reuse the same /_next/static URLs while their
 // contents change, so a cache-first worker there serves stale CSS and JS

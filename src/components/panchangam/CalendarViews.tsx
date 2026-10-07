@@ -2,18 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import ShareButton from "@/components/ShareButton";
+import { Link } from "@/i18n/navigation";
+import AcharyaPortrait from "@/components/acharya/AcharyaPortrait";
+import { NO_UPLOADS, acharyaForTirunakshatram, acharyaPath, mediaFor, type AcharyaUploads } from "@/lib/panchang/acharyas";
 import { useTranslations } from "next-intl";
 import type { PanchangLocation } from "@/lib/panchang/compute";
 import { formatTime } from "@/lib/panchang/format";
-import { observanceName } from "@/lib/panchang/observance-text";
+import { calendarEntryName } from "@/lib/panchang/observance-text";
 import {
-  GRAHANA_NAMES,
   MASAS,
   NAKSHATRA_NAMES,
   PAKSHAS,
-  SPECIAL_FESTIVALS,
   TEMPLE_UTSAVAS,
-  TIRUMALA_EVENTS,
   label,
   tithiName,
 } from "@/lib/panchang/names";
@@ -36,14 +36,7 @@ export function useYearCalendar(year: number, location: PanchangLocation) {
   return useMemo(() => yearCalendar(year, location), [year, location]);
 }
 
-export function entryName(e: CalendarEntry, locale: string) {
-  const L = (n: { en: string; kn: string }) => label(n, locale);
-  if (e.observance) return observanceName(e.observance, locale);
-  if (e.tirumala) return L(TIRUMALA_EVENTS[e.tirumala]);
-  if (e.special === "varamahalakshmi") return L(SPECIAL_FESTIVALS.varamahalakshmi);
-  if (e.grahana) return `${L(GRAHANA_NAMES[e.grahana.type])} ${L(GRAHANA_NAMES[e.grahana.kind])}`;
-  return "";
-}
+export const entryName = calendarEntryName;
 
 const fmtDate = (iso: string, locale: string, opts: Intl.DateTimeFormatOptions) => {
   const [y, m, d] = iso.split("-").map(Number);
@@ -92,7 +85,8 @@ const navBtn = "rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-
 
 // ── Lists: festivals, important days, grahanas, Tirumala ─────────────────
 
-const IMPORTANT_FILTERS = ["all", "ekadashi", "moon", "pradosha", "sankashti", "shravana", "sankranti"] as const;
+// "All" is the default but sits last, as in every filter row on the site.
+const IMPORTANT_FILTERS = ["ekadashi", "moon", "pradosha", "sankashti", "shravana", "sankranti", "all"] as const;
 type ImportantFilter = (typeof IMPORTANT_FILTERS)[number];
 
 function matchesImportant(e: CalendarEntry, f: ImportantFilter) {
@@ -117,6 +111,7 @@ export function CalendarList({
   locale,
   placeName,
   onPick,
+  acharyaMedia = NO_UPLOADS,
 }: {
   tab: ListTab;
   year: number;
@@ -125,6 +120,7 @@ export function CalendarList({
   locale: string;
   placeName: string;
   onPick: (date: string) => void;
+  acharyaMedia?: AcharyaUploads;
 }) {
   const t = useTranslations("panchangam");
   const { days, entries } = useYearCalendar(year, location);
@@ -216,6 +212,13 @@ export function CalendarList({
         </div>
       ) : null}
 
+      {tab === "tirunakshatram" ? (
+        <p className="text-center text-xs text-fuchsia-100/70">
+          <Link href="/panchangam/acharya" className="underline-offset-2 hover:underline">
+            {t("acharya.all")} →
+          </Link>
+        </p>
+      ) : null}
       {tab === "tirumala" ? <p className="text-center text-xs text-emerald-100/60">{t("tirumalaNote")}</p> : null}
       {tab === "grahana" ? <p className="text-center text-xs text-rose-100/60">{t("grahanaNote", { place: placeName })}</p> : null}
 
@@ -227,6 +230,43 @@ export function CalendarList({
           <ul className="divide-y divide-white/5">
             {list.map((e, i) => {
               const d = dayOf.get(e.date);
+              const acharya = e.observance?.kind === "tirunakshatram" ? acharyaForTirunakshatram(e.observance.index) : undefined;
+              if (acharya) {
+                const name = label(acharya.name, locale);
+                return (
+                  <li key={`${e.date}-${i}`} className="flex items-center gap-2">
+                    <Link href={acharyaPath(acharya.slug)} className="flex w-full min-w-0 items-center gap-3 py-2.5 text-left transition hover:bg-white/5">
+                      <DateBadge iso={e.date} locale={locale} />
+                      <AcharyaPortrait name={name} imageUrl={mediaFor(acharya, acharyaMedia).imageUrl} size={40} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-white/95">{entryName(e, locale)}</span>
+                        <span className="line-clamp-1 text-xs text-fuchsia-100/70">{label(acharya.summary, locale)}</span>
+                        <span className="block text-[11px] font-semibold text-amber-200">{t("acharya.knowMore")} →</span>
+                      </span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => onPick(e.date)}
+                      aria-label={t("acharya.openDay")}
+                      title={t("acharya.openDay")}
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-amber-100 hover:bg-white/15"
+                    >
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                        <rect x="3" y="5" width="18" height="16" rx="2" />
+                        <path d="M3 10h18M8 3v4M16 3v4" />
+                      </svg>
+                    </button>
+                    <ShareButton
+                      compact
+                      tone="dark"
+                      title={`🙏 ${name}`}
+                      text={`${t("acharya.tirunakshatram")}: ${fmtDate(e.date, locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}\n${label(acharya.summary, locale)}`}
+                      path={acharyaPath(acharya.slug)}
+                      imageUrl={mediaFor(acharya, acharyaMedia).imageUrl ?? undefined}
+                    />
+                  </li>
+                );
+              }
               return (
                 <li key={`${e.date}-${i}`} className="flex items-center gap-2">
                   <button

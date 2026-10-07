@@ -4,7 +4,7 @@ import { useState, type CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import { isoFromDate, parseIso } from "@/lib/dates";
 
-export type DayStatus = "available" | "filling" | "full" | "closed";
+export type DayStatus = "available" | "filling" | "full" | "closed" | "blocked";
 
 // Inline colours (not utility classes) so the availability colours always
 // render, even when a stale stylesheet is cached during development.
@@ -13,6 +13,8 @@ export const statusColors: Record<DayStatus, CSSProperties> = {
   filling: { backgroundColor: "#fef3c7", borderColor: "#d97706", color: "#78350f" },
   full: { backgroundColor: "#fee2e2", borderColor: "#dc2626", color: "#991b1b" },
   closed: { backgroundColor: "rgba(42,27,18,0.04)", borderColor: "transparent", color: "rgba(42,27,18,0.3)" },
+  // Closed by the temple for a reason the devotee can tap to read.
+  blocked: { backgroundColor: "#fff1f2", borderColor: "#fda4af", color: "#9f1239", borderStyle: "dashed" },
 };
 
 export const selectedColors: CSSProperties = {
@@ -32,6 +34,7 @@ export default function AvailabilityCalendar({
   locale,
   dayStatus,
   onSelect,
+  showBlocked = false,
 }: {
   /** First/last bookable dates — month navigation stays within them. */
   firstMonth: string;
@@ -40,6 +43,8 @@ export default function AvailabilityCalendar({
   locale: string;
   dayStatus: (iso: string) => DayStatus;
   onSelect: (iso: string) => void;
+  /** Include the "closed — tap for reason" key in the legend. */
+  showBlocked?: boolean;
 }) {
   const t = useTranslations("booking");
   const intl = locale === "kn" ? "kn-IN" : "en-IN";
@@ -81,7 +86,7 @@ export default function AvailabilityCalendar({
           if (!iso) return <span key={`b${idx}`} />;
           const status = dayStatus(iso);
           const isSelected = iso === selected;
-          const clickable = status === "available" || status === "filling";
+          const clickable = status === "available" || status === "filling" || status === "blocked";
           return (
             <button
               key={iso}
@@ -96,29 +101,36 @@ export default function AvailabilityCalendar({
                 borderStyle: "solid",
                 borderRadius: 8,
                 ...(isSelected ? selectedColors : statusColors[status]),
+                position: "relative",
                 cursor: clickable ? "pointer" : "not-allowed",
               }}
               className="flex items-center justify-center text-sm font-semibold"
             >
               {parseIso(iso).getDate()}
+              {status === "blocked" ? (
+                <span aria-hidden style={{ position: "absolute", top: 2, right: 4, fontSize: 9, lineHeight: 1 }}>
+                  ⓘ
+                </span>
+              ) : null}
             </button>
           );
         })}
       </div>
 
-      <Legend />
+      <Legend showBlocked={showBlocked} />
     </div>
   );
 }
 
-function Legend() {
+function Legend({ showBlocked }: { showBlocked: boolean }) {
   const t = useTranslations("booking.legend");
+  const statuses: DayStatus[] = ["available", "filling", "full", "closed", ...(showBlocked ? (["blocked"] as const) : [])];
   return (
     <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-ink/70">
-      {(["available", "filling", "full", "closed"] as const).map((status) => (
+      {statuses.map((status) => (
         <span key={status} className="inline-flex items-center gap-1.5">
           <span
-            style={{ ...statusColors[status], width: 12, height: 12, borderRadius: 3, borderWidth: 1, borderStyle: "solid", display: "inline-block" }}
+            style={{ borderStyle: "solid", ...statusColors[status], width: 12, height: 12, borderRadius: 3, borderWidth: 1, display: "inline-block" }}
           />
           {t(status)}
         </span>

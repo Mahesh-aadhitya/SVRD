@@ -31,6 +31,7 @@ export default function LiveArchiveGrid({ items, folders }: { items: LiveArchive
           setSubfolderId(sub);
         }}
         allLabel={t("filterAll")}
+        count={(ids) => filterByFolder(items, ids).length}
       />
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {visible.map((item) => (

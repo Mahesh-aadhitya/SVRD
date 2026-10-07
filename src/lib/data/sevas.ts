@@ -23,11 +23,12 @@ type SevaRow = {
   schedule: { en: string; kn: string } | null;
   image_url: string | null;
   is_listed: boolean;
+  blocked_dates: Record<string, string> | null;
   seva_slots: { id: string; start_time: string; end_time: string | null; capacity: number; is_active: boolean }[] | null;
 };
 
 const SEVA_COLUMNS =
-  "id, name, description, price, capacity_per_slot, is_active, release_start_date, release_end_date, release_mode, release_weekdays, release_dates, folder_id, frequency, timing, schedule, image_url, is_listed, seva_slots(id, start_time, end_time, capacity, is_active)";
+  "id, name, description, price, capacity_per_slot, is_active, release_start_date, release_end_date, release_mode, release_weekdays, release_dates, folder_id, frequency, timing, schedule, image_url, is_listed, blocked_dates, seva_slots(id, start_time, end_time, capacity, is_active)";
 
 function mapRow(row: SevaRow): Seva {
   return {
@@ -48,6 +49,7 @@ function mapRow(row: SevaRow): Seva {
     schedule: row.schedule ?? { en: "", kn: "" },
     imageUrl: row.image_url,
     isListed: row.is_listed ?? true,
+    blockedDates: row.blocked_dates ?? {},
     slots: (row.seva_slots ?? [])
       .map((slot) => ({
         id: slot.id,

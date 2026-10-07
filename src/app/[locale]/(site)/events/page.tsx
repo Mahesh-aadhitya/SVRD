@@ -22,9 +22,12 @@ export default async function EventsPage({
   setRequestLocale(locale);
   const [{ cat, sub }, events, folders] = await Promise.all([searchParams, getEvents(), getFolders("events")]);
   const tree = buildFolderTree(folders);
+  const counts: Record<string, number> = { _all: events.length };
+  for (const e of events) if (e.folderId) counts[e.folderId] = (counts[e.folderId] ?? 0) + 1;
   return (
     <EventsContent
       events={filterByFolder(events, selectedFolderIds(tree, cat, sub))}
+      counts={counts}
       tree={tree}
       categoryId={cat}
       subfolderId={sub}
@@ -34,11 +37,13 @@ export default async function EventsPage({
 
 function EventsContent({
   events,
+  counts,
   tree,
   categoryId,
   subfolderId,
 }: {
   events: TempleEvent[];
+  counts: Record<string, number>;
   tree: FolderTree;
   categoryId?: string;
   subfolderId?: string;
@@ -57,6 +62,7 @@ function EventsContent({
         categoryId={categoryId}
         subfolderId={subfolderId}
         allLabel={t("filterAll")}
+        counts={counts}
       />
       {sorted.length === 0 ? <p className="mt-8 text-center text-sm text-ink/55">{t("empty")}</p> : null}
       <div className="mt-8 space-y-4">

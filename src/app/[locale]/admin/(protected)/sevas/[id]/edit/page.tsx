@@ -4,6 +4,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { Link } from "@/i18n/navigation";
 import { getFolders } from "@/lib/data/folders";
 import { buildFolderTree } from "@/lib/folders";
+import { getUpcomingImportantDays } from "@/lib/data/important-days";
 import { getSevaByIdForAdmin } from "@/lib/data/sevas";
 import SevaForm from "../../SevaForm";
 import DeleteSevaForm from "../../DeleteSevaForm";
@@ -25,8 +26,9 @@ export default async function EditSevaPage({
         ← All sevas
       </Link>
       <AdminPageHeader title={`Edit — ${seva.name.en}`} />
-      <SevaForm seva={seva} categories={buildFolderTree(await getFolders("sevas"))} />
+      <SevaForm seva={seva} categories={buildFolderTree(await getFolders("sevas"))} importantDays={await getUpcomingImportantDays()} />
       <DeleteSevaForm id={seva.id} name={seva.name.en} />
     </div>
   );
 }
+

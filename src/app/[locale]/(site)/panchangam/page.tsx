@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import PanchangamView from "@/components/panchangam/PanchangamView";
-import { computePanchang, isValidIsoDate, TEMPLE_LOCATION } from "@/lib/panchang/compute";
+import { computePanchang, isValidIsoDate, templeLocationFrom } from "@/lib/panchang/compute";
 import { todayInIndia } from "@/lib/dates";
 import { getTempleInfo } from "@/lib/data/temple-info";
+import { getVerseForDay } from "@/lib/data/verses";
+import { occasionFor } from "@/lib/panchang/verses";
+import { getAcharyaMedia } from "@/lib/data/acharya-media";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -23,17 +26,20 @@ export default async function PanchangamPage({
   const { date: requested } = await searchParams;
   const date = typeof requested === "string" && isValidIsoDate(requested) ? requested : todayInIndia();
   const [tMeta, info] = await Promise.all([getTranslations({ locale, namespace: "meta" }), getTempleInfo().catch(() => null)]);
-  // The temple's own pin from the admin's Temple info (Kolar until it's set).
-  const templeLocation =
-    info?.lat != null && info.lon != null ? { name: tMeta("siteTitle"), lat: info.lat, lon: info.lon, tzOffsetMin: 330 } : TEMPLE_LOCATION;
+  const templeLocation = templeLocationFrom(info, tMeta("siteTitle"));
+
+  const initialDay = computePanchang(date, templeLocation);
+  const [initialVerse, acharyaMedia] = await Promise.all([getVerseForDay(date, occasionFor(initialDay.observances)), getAcharyaMedia()]);
 
   return (
     <PanchangamView
       initialDate={date}
-      initialDay={computePanchang(date, templeLocation)}
+      initialDay={initialDay}
+      initialVerse={initialVerse}
       templeLocation={templeLocation}
       locale={locale}
       siteTitle={tMeta("siteTitle")}
+      acharyaMedia={acharyaMedia}
     />
   );
 }

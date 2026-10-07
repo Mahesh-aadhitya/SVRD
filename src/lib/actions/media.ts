@@ -10,7 +10,7 @@ const EXT_BY_MIME: Record<string, string> = {
   "image/webp": "webp",
 };
 
-const PREFIXES = ["sevas", "events"] as const;
+const PREFIXES = ["sevas", "events", "acharyas"] as const;
 export type ImagePrefix = (typeof PREFIXES)[number];
 
 // Seva/event cover images share the public "gallery" bucket under their own

@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { GalleryItem } from "@/lib/gallery-types";
-import type { Folder } from "@/lib/folders";
-import { buildFolderTree } from "@/lib/folders";
-import Chip from "@/components/ui/Chip";
+import { buildFolderTree, filterByFolder, selectedFolderIds, type Folder } from "@/lib/folders";
+import Chip, { ChipRow } from "@/components/ui/Chip";
+import CategoryFilterBar from "@/components/CategoryFilterBar";
 import ShareButton from "@/components/ShareButton";
 
 type TypeFilter = "all" | "photo" | "video";
@@ -21,12 +21,11 @@ export default function GalleryGrid({
   const t = useTranslations("gallery");
   const tree = useMemo(() => buildFolderTree(folders), [folders]);
 
-  const [categoryId, setCategoryId] = useState<string | "all">("all");
-  const [subfolderId, setSubfolderId] = useState<string | "all">("all");
+  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [subfolderId, setSubfolderId] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [active, setActive] = useState<GalleryItem | null>(null);
 
-  const selectedCategory = tree.find((c) => c.id === categoryId);
   const shareTitle = (item: GalleryItem) => (item.type === "video" ? t("shareVideo") : t("sharePhoto"));
 
   // A shared link (?item=…) opens that photo or video.
@@ -36,66 +35,37 @@ export default function GalleryGrid({
     if (item) setActive(item); // eslint-disable-line react-hooks/set-state-in-effect
   }, [items]);
 
-  const filtered = items.filter((item) => {
-    if (typeFilter !== "all" && item.type !== typeFilter) return false;
-    if (categoryId === "all") return true;
-    if (subfolderId !== "all") return item.folderId === subfolderId;
-    const folderIds = [categoryId, ...(selectedCategory?.subfolders.map((s) => s.id) ?? [])];
-    return folderIds.includes(item.folderId);
-  });
+  const ofType = items.filter((item) => typeFilter === "all" || item.type === typeFilter);
+  const filtered = filterByFolder(ofType, selectedFolderIds(tree, categoryId, subfolderId));
 
   return (
     <div className="mt-6">
-      <div className="flex flex-wrap gap-2">
-        <Chip active={categoryId === "all"} onClick={() => { setCategoryId("all"); setSubfolderId("all"); }}>
-          {t("filterAll")}
-        </Chip>
-        {tree.map((category) => (
-          <Chip
-            key={category.id}
-            active={categoryId === category.id}
-            onClick={() => { setCategoryId(category.id); setSubfolderId("all"); }}
-          >
-            {category.name}
-          </Chip>
-        ))}
-      </div>
+      <CategoryFilterBar
+        className=""
+        tree={tree}
+        categoryId={categoryId}
+        subfolderId={subfolderId}
+        onChange={(cat, sub) => {
+          setCategoryId(cat);
+          setSubfolderId(sub);
+        }}
+        allLabel={t("filterAll")}
+        count={(ids) => filterByFolder(ofType, ids).length}
+      />
 
-      {selectedCategory && selectedCategory.subfolders.length > 0 ? (
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Chip active={subfolderId === "all"} onClick={() => setSubfolderId("all")} small>
-            All
-          </Chip>
-          {selectedCategory.subfolders.map((sub) => (
-            <Chip key={sub.id} active={subfolderId === sub.id} onClick={() => setSubfolderId(sub.id)} small>
-              {sub.name}
-            </Chip>
-          ))}
-        </div>
-      ) : null}
-
-      <div className="mt-3 flex gap-2">
+      <ChipRow className="mt-3">
         {(
           [
-            ["all", t("filterAll")],
             ["photo", t("filterPhotos")],
             ["video", t("filterVideos")],
+            ["all", t("filterAll")],
           ] as const
         ).map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => setTypeFilter(value)}
-            className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
-              typeFilter === value
-                ? "border-maroon bg-maroon text-cream"
-                : "border-gold/40 text-ink/70 hover:border-maroon/50"
-            }`}
-          >
+          <Chip key={value} small active={typeFilter === value} onClick={() => setTypeFilter(value)}>
             {label}
-          </button>
+          </Chip>
         ))}
-      </div>
+      </ChipRow>
 
       {filtered.length === 0 ? <p className="mt-6 text-center text-sm text-ink/55">{t("empty")}</p> : null}
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

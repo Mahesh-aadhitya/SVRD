@@ -4,6 +4,8 @@ import { useTranslations } from "next-intl";
 import { label } from "@/lib/panchang/names";
 import type { Verse } from "@/lib/panchang/verses";
 import ShareButton from "@/components/ShareButton";
+import VerseAudio from "@/components/acharya/VerseAudio";
+import type { MediaCredit } from "@/lib/panchang/acharyas";
 
 const glass =
   "rounded-3xl border border-white/10 bg-[#0b0820]/70 shadow-[0_0_40px_rgba(90,70,220,0.18)] backdrop-blur-md";
@@ -11,7 +13,20 @@ const glass =
 // The day's verse: the original (Kannada script for Kannada readers,
 // romanised otherwise, plus the Alwars' Tamil), then its meaning in both
 // Kannada and English — the page's language first.
-export default function VerseCard({ verse, locale, date, className = "" }: { verse: Verse; locale: string; date: string; className?: string }) {
+export default function VerseCard({
+  verse,
+  locale,
+  date,
+  className = "",
+  audio,
+}: {
+  verse: Verse;
+  locale: string;
+  date: string;
+  className?: string;
+  /** A recording of the verse, when there is one (tirunakshatram compositions). */
+  audio?: { src: string; title?: MediaCredit["title"]; credit?: MediaCredit | null } | null;
+}) {
   const t = useTranslations("panchangam");
   const meanings: ["kn" | "en", string][] = locale === "kn" ? [["kn", verse.meaning.kn], ["en", verse.meaning.en]] : [["en", verse.meaning.en], ["kn", verse.meaning.kn]];
 
@@ -42,6 +57,15 @@ export default function VerseCard({ verse, locale, date, className = "" }: { ver
         <p lang="ta" className="mt-2 whitespace-pre-line pl-4 text-xs leading-relaxed text-indigo-100/55">
           {verse.tamil}
         </p>
+      ) : null}
+      {audio ? (
+        <VerseAudio
+          tone="dark"
+          className="relative z-10 mt-4"
+          src={audio.src}
+          title={audio.title ? label(audio.title, locale) : undefined}
+          credit={audio.credit ? { text: t("acharya.audioCredit", { author: audio.credit.author, license: audio.credit.license }), href: audio.credit.sourceUrl } : null}
+        />
       ) : null}
       <div className="mt-4 space-y-3">
         {meanings.map(([lang, text]) => (
