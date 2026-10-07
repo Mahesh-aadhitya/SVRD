@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import SectionHeading from "@/components/SectionHeading";
 import AcharyaPortrait from "@/components/acharya/AcharyaPortrait";
+import YouTubeRecordings from "@/components/acharya/YouTubeRecordings";
+import { PRABANDHAM_TANIANS, RECORDINGS } from "@/lib/panchang/recordings";
 import { ACHARYAS, acharyaPath, mediaFor, tirunakshatramOf, type Acharya } from "@/lib/panchang/acharyas";
 import { NAKSHATRA_NAMES, label } from "@/lib/panchang/names";
 import { nextTirunakshatram } from "@/lib/panchang/tirunakshatram-dates";
@@ -76,7 +78,7 @@ export default async function AcharyasPage({ params }: { params: Promise<{ local
                         <span className="block font-display text-lg leading-tight text-maroon">{label(a.name, locale)}</span>
                         <span className="mt-0.5 block text-xs text-ink/55">
                           {tn ? `${label(tn.month, locale)} · ${label(NAKSHATRA_NAMES[tn.nakshatra], locale)}` : t("acharya.tirunakshatramUnknown")}
-                          {media.audioUrl ? ` · 🎧 ${t("acharya.listenShort")}` : ""}
+                          {media.audioUrl || RECORDINGS[a.slug]?.length ? ` · 🎧 ${t("acharya.listenShort")}` : ""}
                         </span>
                         {isToday ? (
                           <span className="mt-1.5 inline-block rounded-full bg-maroon px-2 py-0.5 text-[11px] font-bold text-gold-light">
@@ -95,6 +97,11 @@ export default async function AcharyasPage({ params }: { params: Promise<{ local
             </ul>
           </section>
         ))}
+        <section className="max-w-2xl">
+          <h2 className="font-display text-2xl text-maroon">{t("acharya.tanians")}</h2>
+          <p className="mt-0.5 text-sm text-ink/60">{t("acharya.taniansNote")}</p>
+          <YouTubeRecordings className="mt-4" recordings={PRABANDHAM_TANIANS} locale={locale} title={t("acharya.tanians")} />
+        </section>
       </div>
     </div>
   );

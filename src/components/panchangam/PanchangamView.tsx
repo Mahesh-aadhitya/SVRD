@@ -17,6 +17,7 @@ import { TEMPLE_UTSAVAS } from "@/lib/panchang/names";
 import { occasionFor, type Verse } from "@/lib/panchang/verses";
 import { NO_UPLOADS, acharyaPath, acharyasOn, mediaFor, type AcharyaUploads } from "@/lib/panchang/acharyas";
 import TirunakshatramCard from "./TirunakshatramCard";
+import { RECORDINGS } from "@/lib/panchang/recordings";
 
 const TABS = ["day", "month", "festival", "important", "tirunakshatram", "tirumala", "grahana"] as const;
 type Tab = (typeof TABS)[number];
@@ -582,6 +583,7 @@ export default function PanchangamView({
               date={day.date}
               className="md:col-span-2"
               audio={verseMedia?.audioUrl ? { src: verseMedia.audioUrl, title: verseMedia.audioCredit?.title, credit: verseMedia.audioCredit } : null}
+              recordings={honoured.flatMap((a) => RECORDINGS[a.slug] ?? []).filter((r, i, all) => all.findIndex((x) => x.id === r.id) === i)}
             />
           ) : null}
 

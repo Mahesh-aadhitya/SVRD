@@ -5,6 +5,8 @@ import { label } from "@/lib/panchang/names";
 import type { Verse } from "@/lib/panchang/verses";
 import ShareButton from "@/components/ShareButton";
 import VerseAudio from "@/components/acharya/VerseAudio";
+import YouTubeRecordings from "@/components/acharya/YouTubeRecordings";
+import type { Recording } from "@/lib/panchang/recordings";
 import type { MediaCredit } from "@/lib/panchang/acharyas";
 
 const glass =
@@ -19,6 +21,7 @@ export default function VerseCard({
   date,
   className = "",
   audio,
+  recordings = [],
 }: {
   verse: Verse;
   locale: string;
@@ -26,6 +29,8 @@ export default function VerseCard({
   className?: string;
   /** A recording of the verse, when there is one (tirunakshatram compositions). */
   audio?: { src: string; title?: MediaCredit["title"]; credit?: MediaCredit | null } | null;
+  /** On a tirunakshatram, recitations of the Alwar's/Acharya's works. */
+  recordings?: Recording[];
 }) {
   const t = useTranslations("panchangam");
   const meanings: ["kn" | "en", string][] = locale === "kn" ? [["kn", verse.meaning.kn], ["en", verse.meaning.en]] : [["en", verse.meaning.en], ["kn", verse.meaning.kn]];
@@ -77,6 +82,7 @@ export default function VerseCard({
           </div>
         ))}
       </div>
+      {recordings.length ? <YouTubeRecordings className="relative z-10 mt-5" tone="dark" recordings={recordings} locale={locale} /> : null}
     </section>
   );
 }

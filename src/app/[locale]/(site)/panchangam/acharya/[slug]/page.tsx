@@ -5,6 +5,8 @@ import { Link } from "@/i18n/navigation";
 import ShareButton from "@/components/ShareButton";
 import AcharyaPortrait from "@/components/acharya/AcharyaPortrait";
 import VerseAudio from "@/components/acharya/VerseAudio";
+import YouTubeRecordings from "@/components/acharya/YouTubeRecordings";
+import { RECORDINGS } from "@/lib/panchang/recordings";
 import { ACHARYAS, acharyaBySlug, acharyaPath, mediaFor, tirunakshatramOf } from "@/lib/panchang/acharyas";
 import { NAKSHATRA_NAMES, label } from "@/lib/panchang/names";
 import { nextTirunakshatram } from "@/lib/panchang/tirunakshatram-dates";
@@ -155,6 +157,8 @@ export default async function AcharyaPage({ params }: { params: Params }) {
             <p className="mt-3 text-[11px] text-ink/45">{t("acharya.verseNote")}</p>
           </section>
           ) : null}
+
+          <YouTubeRecordings recordings={RECORDINGS[a.slug] ?? []} locale={locale} />
         </div>
 
         <aside className="space-y-5">

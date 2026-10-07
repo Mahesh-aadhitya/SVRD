@@ -133,8 +133,8 @@ export default function SiteAudio({ src }: { src?: string | null }) {
     // up ones that are gone or stopped.
     const sweep = setInterval(() => {
       for (const el of playing) {
-        const media = el as HTMLMediaElement;
-        if (!media.isConnected || media.paused) playing.delete(el);
+        if (!(el instanceof HTMLMediaElement)) continue;
+        if (!el.isConnected || el.paused) playing.delete(el);
       }
       update();
     }, 2000);
@@ -142,7 +142,24 @@ export default function SiteAudio({ src }: { src?: string | null }) {
     document.addEventListener("pause", onStop, true);
     document.addEventListener("ended", onStop, true);
     document.addEventListener("emptied", onStop, true);
+    // Embedded players (YouTube) can't be heard from here: they announce
+    // themselves with an "embedded-media" event while they're open.
+    const embeds = new Map<string, EventTarget>();
+    const onEmbed = (e: Event) => {
+      const { id, open } = (e as CustomEvent<{ id: string; open: boolean }>).detail;
+      if (open && !embeds.has(id)) {
+        const token = new EventTarget();
+        embeds.set(id, token);
+        playing.add(token);
+      } else if (!open && embeds.has(id)) {
+        playing.delete(embeds.get(id)!);
+        embeds.delete(id);
+      }
+      update();
+    };
+    window.addEventListener("embedded-media", onEmbed);
     return () => {
+      window.removeEventListener("embedded-media", onEmbed);
       clearInterval(sweep);
       document.removeEventListener("play", onPlay, true);
       document.removeEventListener("pause", onStop, true);

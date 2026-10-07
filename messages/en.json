@@ -779,7 +779,12 @@
       "tirunakshatramUnknown": "Tirunakshatram to be added",
       "pictureCredit": "Picture: {author} · {license}",
       "audioCredit": "Recording: {author} · {license}",
-      "listenShort": "Listen"
+      "listenShort": "Listen",
+      "recitations": "Listen to their works",
+      "recitationsCredit": "Recitations on YouTube, with thanks to",
+      "watchOnYouTube": "Watch on YouTube",
+      "tanians": "Tanians",
+      "taniansNote": "The tanians recited before the Divya Prabandham and the guruparampara."
     }
   },
   "share": {

@@ -39,18 +39,6 @@ export type Acharya = {
 const n = (en: string, kn: string): Named => ({ en, kn });
 
 const PICTURE_CREDITS: Record<string, Omit<MediaCredit, "src">> = {
-  "poigai-alwar": { author: "Chronikhiles", license: "CC BY-SA 4.0", sourceUrl: "https://commons.wikimedia.org/wiki/File:Poigai_Alvar_-_Sri_Appan_Venkatachalapati_Temple,_Cheranmahadevi.jpg" },
-  "bhoothathalwar": { author: "Sri PB Annangarachariar", license: "Public domain", sourceUrl: "https://commons.wikimedia.org/wiki/File:BhoothAlvar_cropped.jpg" },
-  "peyalwar": { author: "Sri PB Annangarachariar", license: "Public domain", sourceUrl: "https://commons.wikimedia.org/wiki/File:Pey_Alvar_PBA.jpg" },
-  "tirumazhisai-alwar": { author: "Sri PB Annangarachariar", license: "Public domain", sourceUrl: "https://commons.wikimedia.org/wiki/File:Thirumazhsai_Alvar_cropped.jpg" },
-  "nammalwar": { author: "Unknown artist", license: "Public domain", sourceUrl: "https://commons.wikimedia.org/wiki/File:Nammalvar.PNG" },
-  "madhurakavi-alwar": { author: "Sri PB Annangarachariar Swami", license: "Public domain", sourceUrl: "https://commons.wikimedia.org/wiki/File:Madurakavi_Alvar_PBA.jpg" },
-  "kulasekhara-alwar": { author: "P. Shungoonny Menon", license: "Public domain", sourceUrl: "https://commons.wikimedia.org/wiki/File:Kulasekhara_Alwar.png" },
-  "periyalwar": { author: "Ssriram mt", license: "CC BY-SA 4.0", sourceUrl: "https://commons.wikimedia.org/wiki/File:Periazhwar.jpg" },
-  "andal": { author: "Unknown artist", license: "Public domain", sourceUrl: "https://commons.wikimedia.org/wiki/File:Andal-painting.jpg" },
-  "thondaradippodi-alwar": { author: "Ssriram mt", license: "CC BY-SA 4.0", sourceUrl: "https://commons.wikimedia.org/wiki/File:Thondaradipodi_Azhwar.jpg" },
-  "tiruppanalwar": { author: "Chronikhiles", license: "CC0", sourceUrl: "https://commons.wikimedia.org/wiki/File:Tiruppan_Alvar_Sculpture.jpg" },
-  "tirumangai-alwar": { author: "Chronikhiles", license: "CC0", sourceUrl: "https://commons.wikimedia.org/wiki/File:Tirumangai_Alvar.jpg" },
   "alavandar": { author: "Komandur Elayavalli", license: "CC BY-SA 4.0", sourceUrl: "https://commons.wikimedia.org/wiki/File:Aalavandar.jpg" },
   "periya-nambi": { author: "Aparajitha Manivannan", license: "CC BY-SA 4.0", sourceUrl: "https://commons.wikimedia.org/wiki/File:Periya-nambi.jpg" },
   "ramanuja": { author: "Swarooppn", license: "Public domain", sourceUrl: "https://commons.wikimedia.org/wiki/File:Ramanuja-moolavar-today.jpg" },
@@ -1058,9 +1046,16 @@ const RECORDINGS: Record<string, MediaCredit> = {
   },
 };
 
+// The temple's own paintings of the twelve Alwars (also in the gallery's Alwars folder).
+const TEMPLE_PICTURES = new Set([
+  "poigai-alwar", "bhoothathalwar", "peyalwar", "tirumazhisai-alwar", "kulasekhara-alwar", "nammalwar",
+  "madhurakavi-alwar", "periyalwar", "thondaradippodi-alwar", "tiruppanalwar", "tirumangai-alwar", "andal",
+]);
+
 for (const a of ACHARYAS) {
   const picture = PICTURES[a.slug];
-  if (picture) a.picture = { src: `/images/acharyas/${a.slug}.jpg`, ...picture };
+  if (TEMPLE_PICTURES.has(a.slug)) a.picture = { src: `/images/alwars/${a.slug}.jpg`, author: "", license: "", sourceUrl: "" };
+  else if (picture) a.picture = { src: `/images/acharyas/${a.slug}.jpg`, ...picture };
   if (RECORDINGS[a.slug]) a.audio = RECORDINGS[a.slug];
 }
 
@@ -1070,7 +1065,8 @@ export function mediaFor(a: Acharya, uploads: AcharyaUploads) {
   const audio = uploads.audio[a.slug];
   return {
     imageUrl: image ?? a.picture?.src ?? null,
-    imageCredit: image ? null : (a.picture ?? null),
+    // Only borrowed (Commons) pictures carry a credit line.
+    imageCredit: image || !a.picture?.sourceUrl ? null : a.picture,
     audioUrl: audio ?? a.audio?.src ?? null,
     audioCredit: audio ? null : (a.audio ?? null),
   };

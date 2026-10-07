@@ -779,7 +779,12 @@
       "tirunakshatramUnknown": "ತಿರುನಕ್ಷತ್ರ ಶೀಘ್ರದಲ್ಲಿ",
       "pictureCredit": "ಚಿತ್ರ: {author} · {license}",
       "audioCredit": "ಧ್ವನಿಮುದ್ರಣ: {author} · {license}",
-      "listenShort": "ಆಲಿಸಿ"
+      "listenShort": "ಆಲಿಸಿ",
+      "recitations": "ಅವರ ಕೃತಿಗಳನ್ನು ಆಲಿಸಿ",
+      "recitationsCredit": "ಯೂಟ್ಯೂಬ್‌ನಲ್ಲಿನ ಪಠಣಗಳು, ಕೃತಜ್ಞತೆಗಳೊಂದಿಗೆ",
+      "watchOnYouTube": "ಯೂಟ್ಯೂಬ್‌ನಲ್ಲಿ ನೋಡಿ",
+      "tanians": "ತನಿಯನ್‌ಗಳು",
+      "taniansNote": "ದಿವ್ಯ ಪ್ರಬಂಧದ ಮೊದಲು ಮತ್ತು ಗುರುಪರಂಪರೆಯಲ್ಲಿ ಪಠಿಸುವ ತನಿಯನ್‌ಗಳು."
     }
   },
   "share": {
