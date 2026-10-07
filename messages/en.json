@@ -536,12 +536,17 @@
   },
   "sevas": {
     "pageTitle": "Sevas",
-    "pageSubtitle": "Nitya, monthly and annual sevas at the temple — book when tickets are open.",
+    "pageSubtitle": "Nitya, weekly, monthly and annual sevas at the temple — book when tickets are open.",
     "groups": {
       "nitya": {
         "title": "Nitya sevas",
         "subtitle": "Performed every day in the sanctum.",
         "badge": "Nitya"
+      },
+      "weekly": {
+        "title": "Weekly sevas",
+        "subtitle": "Performed once a week on a fixed day.",
+        "badge": "Weekly"
       },
       "monthly": {
         "title": "Monthly sevas",

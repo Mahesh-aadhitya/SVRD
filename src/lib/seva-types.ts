@@ -19,7 +19,7 @@ export type Seva = {
   folderId: string | null;
   /** Time slots sorted by start time. Empty = whole-day booking. */
   slots: SevaSlot[];
-  /** Nitya (daily), monthly, annual, or special (darshan tickets, one-offs). */
+  /** Nitya (daily), weekly, monthly, annual, or special (darshan tickets, one-offs). */
   frequency: SevaFrequency;
   /** Free text shown to devotees, e.g. "5:30 AM – 6:15 AM". */
   timing: string;
@@ -32,7 +32,7 @@ export type Seva = {
   blockedDates: Record<string, string>;
 };
 
-export const SEVA_FREQUENCIES = ["nitya", "monthly", "annual", "special"] as const;
+export const SEVA_FREQUENCIES = ["nitya", "weekly", "monthly", "annual", "special"] as const;
 export type SevaFrequency = (typeof SEVA_FREQUENCIES)[number];
 
 export type SevaSlot = {

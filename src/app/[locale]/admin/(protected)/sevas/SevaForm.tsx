@@ -5,7 +5,7 @@ import { useLocale } from "next-intl";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { saveSeva } from "@/lib/actions/sevas";
-import { formatSlot, isReleasedOn, SEVA_FREQUENCIES, type Seva, type SevaFrequency } from "@/lib/seva-types";
+import { formatSlot, isReleasedOn, SEVA_FREQUENCIES, weekdayName, type Seva, type SevaFrequency } from "@/lib/seva-types";
 import ImageUploadField from "@/components/admin/ImageUploadField";
 import type { FolderTree } from "@/lib/folders";
 import { formatIso, isoFromDate, localTodayIso, parseIso } from "@/lib/dates";
@@ -79,6 +79,7 @@ const short = (iso: string) => formatIso(iso, "en", { weekday: "short", day: "nu
 
 const FREQUENCY_CHOICES: Record<SevaFrequency, { title: string; hint: string; schedule: string }> = {
   nitya: { title: "Nitya seva", hint: "Performed every day", schedule: "e.g. Every day" },
+  weekly: { title: "Weekly seva", hint: "Once a week", schedule: "e.g. Every Saturday morning" },
   monthly: { title: "Monthly seva", hint: "Once a month", schedule: "e.g. Every month on Shravana nakshatra" },
   annual: { title: "Annual seva", hint: "Once a year / festival", schedule: "e.g. Once a year on Vaikunta Ekadashi" },
   special: { title: "Darshan & special", hint: "Darshan tickets, one-off sevas", schedule: "e.g. On selected dates" },
@@ -171,6 +172,13 @@ export default function SevaForm({
       label: "Weekends next month",
       dates: () => daysBetween(startOfMonth(today, 1), endOfMonth(today, 1), isWeekend),
     },
+    // A weekly seva: one weekday for the next three months.
+    ...(frequency === "weekly"
+      ? Array.from({ length: 7 }, (_, dow) => ({
+          label: `Every ${weekdayName(dow, "en")} (3 months)`,
+          dates: () => daysBetween(today, addDays(today, 90), (d) => d.getDay() === dow),
+        }))
+      : []),
   ];
 
   const slotsPayload = useSlots
