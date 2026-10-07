@@ -3,20 +3,42 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { computePanchang, TEMPLE_LOCATION, type PanchangDay, type PanchangLocation } from "@/lib/panchang/compute";
+import { computePanchang, type PanchangDay, type PanchangLocation } from "@/lib/panchang/compute";
 import { formatDegree, formatDuration, shiftIsoDate, todayAt } from "@/lib/panchang/format";
 import { AYANAS, GRAHAS, PAKSHAS, GRAHA_ORDER, GRAHA_SHORT, NAKSHATRA_NAMES, RASHIS, RASHI_GLYPHS, RITUS, SAMVATSARAS, label, type GrahaKey } from "@/lib/panchang/names";
 import type { SceneControl } from "./BrahmandaScene";
 import ShareCard from "./ShareCard";
 import ShareActions from "./ShareActions";
 import { useDayText } from "./dayText";
+import VerseCard from "./VerseCard";
+import DhanurmasaCard from "./DhanurmasaCard";
+import { CalendarList, MonthView, type ListTab } from "./CalendarViews";
+import { TEMPLE_UTSAVAS } from "@/lib/panchang/names";
+import { verseForDay } from "@/lib/panchang/verses";
+
+const TABS = ["day", "month", "festival", "important", "tirunakshatram", "tirumala", "grahana"] as const;
+type Tab = (typeof TABS)[number];
 
 // WebGL only exists in the browser; the page's text renders without it.
 const BrahmandaScene = dynamic(() => import("./BrahmandaScene"), { ssr: false });
 
 const LOCATION_KEY = "panchangam-location";
 
-type StoredLocation = PanchangLocation & { device?: boolean };
+// A device location carries its place name in both languages, looked up
+// once from OpenStreetMap so the page never shows bare coordinates.
+type StoredLocation = PanchangLocation & { device?: boolean; nameKn?: string };
+
+async function placeNames(lat: number, lon: number) {
+  const lookup = async (lang: string) => {
+    const params = new URLSearchParams({ lat: String(lat), lon: String(lon), format: "json", zoom: "12", "accept-language": lang });
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?${params}`, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return "";
+    const a = ((await res.json()) as { address?: Record<string, string> }).address ?? {};
+    return a.city || a.town || a.village || a.suburb || a.city_district || a.county || a.state_district || a.state || "";
+  };
+  const [en, kn] = await Promise.all([lookup("en"), lookup("kn")]);
+  return { en, kn: kn || en };
+}
 
 function readStoredLocation(): StoredLocation | null {
   try {
@@ -43,44 +65,78 @@ export default function PanchangamView({
   initialDay,
   locale,
   siteTitle,
+  templeLocation,
 }: {
   initialDate: string;
   initialDay: PanchangDay;
   locale: string;
   siteTitle: string;
+  // The temple's pin, as set in the admin's Temple info.
+  templeLocation: PanchangLocation;
 }) {
   const t = useTranslations("panchangam");
   const [date, setDate] = useState(initialDate);
-  const [location, setLocation] = useState<StoredLocation>(TEMPLE_LOCATION);
+  const [location, setLocation] = useState<StoredLocation>(templeLocation);
   const [locating, setLocating] = useState(false);
   const [locationFailed, setLocationFailed] = useState(false);
   const [selected, setSelected] = useState<GrahaKey | null>(null);
   const [hovered, setHovered] = useState<GrahaKey | null>(null);
   const [siteUrl, setSiteUrl] = useState("");
   const controlRef = useRef<SceneControl | null>(null);
+  const [tab, setTab] = useState<Tab>("day");
+  const [listYear, setListYear] = useState(() => Number(initialDate.slice(0, 4)));
+  const [month, setMonth] = useState(() => initialDate.slice(0, 7));
 
   // Restore a visitor's saved location after hydration.
   useEffect(() => {
     const stored = readStoredLocation();
     if (stored) setLocation(stored); // eslint-disable-line react-hooks/set-state-in-effect
+    // Locations saved before names were looked up held "13.12°, 78.14°".
+    if (stored?.device && (!stored.name || stored.name.includes("°"))) {
+      placeNames(stored.lat, stored.lon)
+        .then(({ en, kn }) => {
+          if (!en) return;
+          const named = { ...stored, name: en, nameKn: kn };
+          setLocation((cur) => (cur === stored ? named : cur));
+          storeLocation(named);
+        })
+        .catch(() => undefined);
+    }
     setSiteUrl(window.location.origin);
+    const wanted = new URL(window.location.href).searchParams.get("tab");
+    if (TABS.includes(wanted as Tab)) setTab(wanted as Tab);
   }, []);
 
   const day = useMemo(
-    () => (date === initialDate && location === TEMPLE_LOCATION ? initialDay : computePanchang(date, location)),
-    [date, location, initialDate, initialDay],
+    () => (date === initialDate && location === templeLocation ? initialDay : computePanchang(date, location)),
+    [date, location, initialDate, initialDay, templeLocation],
   );
   const text = useDayText(day, locale);
 
-  // Keep ?date= in the address bar so a link opens the same day.
+  // Keep ?date= (and ?tab=) in the address bar so a link opens the same view.
   useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.set("date", date);
+    if (tab === "day") url.searchParams.delete("tab");
+    else url.searchParams.set("tab", tab);
     window.history.replaceState(window.history.state, "", url);
-  }, [date]);
+  }, [date, tab]);
+
+  // A day picked from the month view or a list opens in the day view.
+  function openDay(iso: string) {
+    setDate(iso);
+    setTab("day");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function chooseTab(next: Tab) {
+    if (next === "month") setMonth(date.slice(0, 7));
+    if (next !== "day" && next !== "month") setListYear(Number(date.slice(0, 4)));
+    setTab(next);
+  }
 
   function chooseTemple() {
-    setLocation(TEMPLE_LOCATION);
+    setLocation(templeLocation);
     setLocationFailed(false);
     storeLocation(null);
   }
@@ -95,7 +151,7 @@ export default function PanchangamView({
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const loc: StoredLocation = {
-          name: `${pos.coords.latitude.toFixed(2)}°, ${pos.coords.longitude.toFixed(2)}°`,
+          name: "",
           lat: pos.coords.latitude,
           lon: pos.coords.longitude,
           tzOffsetMin: -new Date().getTimezoneOffset(),
@@ -104,11 +160,19 @@ export default function PanchangamView({
         setLocation(loc);
         storeLocation(loc);
         setLocating(false);
+        placeNames(loc.lat, loc.lon)
+          .then(({ en, kn }) => {
+            if (!en) return;
+            const named = { ...loc, name: en, nameKn: kn };
+            setLocation((cur) => (cur === loc ? named : cur));
+            storeLocation(named);
+          })
+          .catch(() => undefined);
       },
       () => {
         setLocating(false);
         setLocationFailed(true);
-        setLocation(TEMPLE_LOCATION);
+        setLocation(templeLocation);
       },
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 3_600_000 },
     );
@@ -144,12 +208,14 @@ export default function PanchangamView({
   const rashiLabels = useMemo(() => RASHIS.map((r, i) => ({ glyph: RASHI_GLYPHS[i], name: label(r, locale) })), [locale]);
   const selectedGraha = selected ? day.grahas.find((g) => g.key === selected) : null;
 
-  const loc = day.location;
   const { span, time, vara, longDate } = text;
-  const placeName = location.device ? t("myLocation") : t("templeLocation");
+  // Where the times are for: the temple, or the visitor's own town by name.
+  const deviceName = (locale === "kn" ? location.nameKn || location.name : location.name) || t("myLocation");
+  const placeName = location.device ? deviceName : siteTitle;
   const today = todayAt(location);
 
-  const whatsappText = text.message(siteTitle, placeName);
+  const verse = useMemo(() => verseForDay(day.date, day.observances), [day]);
+  const whatsappText = text.message(siteTitle, placeName, verse);
 
   return (
     <div className="relative isolate bg-[#03020a] text-white/90">
@@ -158,6 +224,8 @@ export default function PanchangamView({
       <div className="pointer-events-none sticky top-0 h-[100svh] w-full overflow-hidden" aria-hidden>
         <BrahmandaScene
           grahas={day.grahas}
+          earthLongitude={day.earthLongitude}
+          earthLabel={t("earth")}
           rashiLabels={rashiLabels}
           grahaLabels={grahaLabels}
           selected={selected}
@@ -176,7 +244,27 @@ export default function PanchangamView({
           </h1>
           <p className="mx-auto mt-2 max-w-xl text-sm text-indigo-100/70">{t("subtitle")}</p>
 
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+          <div role="tablist" className="mx-auto mt-5 flex max-w-full gap-1.5 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:justify-center">
+            {TABS.map((key) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={tab === key}
+                onClick={() => chooseTab(key)}
+                className={`shrink-0 rounded-full border px-4 py-1.5 text-sm backdrop-blur transition ${
+                  tab === key
+                    ? "border-amber-300/70 bg-gradient-to-r from-amber-300/25 to-orange-400/20 text-amber-50 shadow-[0_0_18px_rgba(255,190,90,0.25)]"
+                    : "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"
+                }`}
+              >
+                {t(`tabs.${key}`)}
+              </button>
+            ))}
+          </div>
+
+          {tab === "day" ? (
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <button type="button" onClick={() => setDate(shiftIsoDate(date, -1))} className={chip} aria-label={t("prevDay")}>
               ‹
             </button>
@@ -198,25 +286,49 @@ export default function PanchangamView({
               </button>
             ) : null}
           </div>
+          ) : null}
 
+          {/* Only the place actually in use is named; one button switches. */}
           <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs">
             <span className="text-indigo-100/60">{t("location")}:</span>
-            <button type="button" onClick={chooseTemple} className={`${pill} ${location.device ? "" : pillOn}`}>
-              {t("templeLocation")}
-            </button>
-            <button type="button" onClick={chooseDevice} disabled={locating} className={`${pill} ${location.device ? pillOn : ""}`}>
-              {locating ? t("locating") : location.device ? `${t("myLocation")} · ${location.name}` : t("useMyLocation")}
-            </button>
+            <span className={`${pill} ${pillOn} inline-flex items-center gap-1.5`}>
+              <PinIcon />
+              {locating ? t("locating") : placeName}
+            </span>
+            {location.device ? (
+              <button type="button" onClick={chooseTemple} className={`${pill} text-white/70`}>
+                {t("useTemple")}
+              </button>
+            ) : (
+              <button type="button" onClick={chooseDevice} disabled={locating} className={`${pill} text-white/70`}>
+                {t("useMyLocation")}
+              </button>
+            )}
           </div>
           {locationFailed ? <p className="mt-2 text-xs text-rose-300">{t("locationFailed")}</p> : null}
 
           {/* The day at a glance */}
+          {tab === "day" ? (
           <div className="mt-6">
             <p className="font-display text-2xl text-amber-100 sm:text-3xl">{longDate}</p>
             <p className="mt-1 text-indigo-100/80">
               {vara} · {text.pakshaShort} {text.tithi(day.tithi[0].index)} · {text.nakshatra(day.nakshatra[0].index)}
             </p>
             <p className="mx-auto mt-2 max-w-2xl text-sm italic text-amber-100/70">{text.sankalpa}</p>
+            {text.utsavas.length ? (
+              <div className="mx-auto mt-4 flex max-w-xl items-center gap-3 rounded-3xl border border-amber-300/60 bg-gradient-to-r from-amber-300/20 via-orange-400/15 to-amber-300/20 px-4 py-3 text-left shadow-[0_0_36px_rgba(255,190,90,0.35)]">
+                {/* eslint-disable-next-line @next/next/no-img-element -- small static emblem */}
+                <img src="/images/emblem-naamam.png" alt="" className="h-14 w-auto shrink-0" />
+                <div>
+                  <p className="text-[11px] uppercase tracking-widest text-amber-200/80">{t("atOurTemple")}</p>
+                  {text.utsavas.map((key) => (
+                    <p key={key} className="font-display text-lg leading-snug text-amber-50">
+                      {label(TEMPLE_UTSAVAS[key].name, locale)}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             {text.observances.length ? (
               <div className="mt-3 flex flex-wrap justify-center gap-2">
                 {text.observances.map((o) => (
@@ -227,7 +339,26 @@ export default function PanchangamView({
               </div>
             ) : null}
           </div>
+          ) : null}
         </header>
+
+        {tab === "month" ? (
+          <MonthView month={month} onMonth={setMonth} selected={date} today={today} location={location} locale={locale} onPick={openDay} />
+        ) : null}
+        {tab !== "day" && tab !== "month" ? (
+          <CalendarList
+            tab={tab as ListTab}
+            year={listYear}
+            onYear={setListYear}
+            location={location}
+            locale={locale}
+            placeName={placeName}
+            onPick={openDay}
+          />
+        ) : null}
+
+        {tab === "day" ? (
+        <>
 
         {/* Interactive stage: the open sky where the grahas can be turned
             and picked. Vertical swipes still scroll the page. */}
@@ -405,6 +536,10 @@ export default function PanchangamView({
             )}
           </Card>
 
+          {day.dhanurmasaDay ? <DhanurmasaCard day={day.dhanurmasaDay} date={day.date} locale={locale} className="md:col-span-2" /> : null}
+
+          <VerseCard verse={verse} locale={locale} date={day.date} className="md:col-span-2" />
+
           <Card title={t("share")} className="md:col-span-2">
             <ShareActions
               card={
@@ -414,6 +549,7 @@ export default function PanchangamView({
                   siteTitle={siteTitle}
                   siteUrl={siteUrl.replace(/^https?:\/\//, "")}
                   placeName={placeName}
+                  verse={verse}
                 />
               }
               fileBase={`panchangam-${day.date}`}
@@ -423,12 +559,23 @@ export default function PanchangamView({
           </Card>
 
           <p className="text-center text-xs leading-relaxed text-indigo-100/45 md:col-span-2">
-            {t("timesFor", { place: placeName })} · {loc.lat.toFixed(2)}°, {loc.lon.toFixed(2)}° · {t("footnote")}
+            {t("timesFor", { place: placeName })} · {t("footnote")}
           </p>
         </div>
+        </>
+        ) : null}
       </div>
 
     </div>
+  );
+}
+
+function PinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" />
+      <circle cx="12" cy="9.5" r="2.5" />
+    </svg>
   );
 }
 
@@ -437,7 +584,7 @@ const chip =
 const pill = "rounded-full border border-white/15 px-3 py-1.5 text-white/80 backdrop-blur hover:bg-white/10 disabled:opacity-60";
 const pillOn = "border-amber-300/60 bg-amber-300/15 text-amber-100";
 const glass =
-  "rounded-3xl border border-white/10 bg-[#0b0820]/90 shadow-[0_0_40px_rgba(90,70,220,0.18)] backdrop-blur-md";
+  "rounded-3xl border border-white/10 bg-[#0b0820]/70 shadow-[0_0_40px_rgba(90,70,220,0.18)] backdrop-blur-md";
 
 function Card({ title, className = "", children }: { title: string; className?: string; children: React.ReactNode }) {
   return (

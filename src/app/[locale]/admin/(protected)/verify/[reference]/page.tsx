@@ -47,7 +47,9 @@ export default async function VerifyTicketPage({ params }: { params: Promise<{ l
         ? `Paid ₹${ticket.amount}`
         : ticket.paymentStatus === "refunded"
           ? `Refunded ₹${ticket.amount}`
-          : `NOT PAID — ₹${ticket.amount} due`;
+          : ticket.paymentStatus === "submitted"
+            ? `UPI submitted ₹${ticket.amount}${ticket.paymentUtr ? ` · UTR ${ticket.paymentUtr}` : ""} — not yet verified`
+            : `NOT PAID — ₹${ticket.amount} due`;
   const paymentOk = ticket.amount === 0 || ticket.paymentStatus === "paid";
 
   const rows: [string, React.ReactNode][] = [

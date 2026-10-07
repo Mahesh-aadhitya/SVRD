@@ -138,6 +138,8 @@ export default async function TicketCard({
       ? { label: L("payment.free"), bg: "#dcfce7", fg: "#14532d" }
       : ticket.paymentStatus === "paid"
         ? { label: L("payment.paid", amount), bg: "#dcfce7", fg: "#14532d" }
+        : ticket.paymentStatus === "submitted"
+          ? { label: L("payment.submitted", amount), bg: "#e0f2fe", fg: "#075985" }
         : ticket.paymentStatus === "refunded"
           ? { label: L("payment.refunded"), bg: "#e0e7ff", fg: "#3730a3" }
           : { label: L("payment.unpaid", amount), bg: "#fef3c7", fg: "#78350f" };
@@ -165,6 +167,15 @@ export default async function TicketCard({
     [L("amount"), <strong key="a">{ticket.amount === 0 ? L("payment.free") : `₹${ticket.amount}`}</strong>],
     [L("paymentLabel"), badge(paymentBadge)],
     [L("statusLabel"), badge(bookingBadge)],
+    ...(ticket.paymentMethod === "upi" && ticket.paymentStatus !== "unpaid"
+      ? ([
+          [L("paymentMode"), "UPI"],
+          [L("utr"), <span key="utr" style={{ fontFamily: "ui-monospace, monospace", fontWeight: 700 }}>{ticket.paymentUtr ?? "—"}</span>],
+          ...(ticket.paymentSubmittedAt ? [[L("paymentSubmittedOn"), formatStamp(ticket.paymentSubmittedAt)]] : []),
+        ] as [ReactNode, ReactNode][])
+      : ticket.paymentMethod === "counter" && ticket.paymentStatus === "paid"
+        ? ([[L("paymentMode"), L("counter")]] as [ReactNode, ReactNode][])
+        : []),
     [L("phone"), maskPhone(ticket.phone)],
     [L("bookedOn"), formatStamp(ticket.createdAt)],
     [L("contactName"), ticket.devoteeName],
@@ -182,9 +193,11 @@ export default async function TicketCard({
     : darshanDone
       ? [["instructions.prasadam"]]
       : [
-          ...(ticket.amount > 0 && ticket.paymentStatus !== "paid"
+          ...(ticket.amount > 0 && ticket.paymentStatus === "unpaid"
             ? ([["instructions.pay", amount]] as [Key, Values][])
-            : []),
+            : ticket.paymentStatus === "submitted"
+              ? ([["instructions.upiPending"]] as [Key, Values?][])
+              : []),
           ["instructions.arrive"],
           ["instructions.id"],
           ["instructions.transfer"],

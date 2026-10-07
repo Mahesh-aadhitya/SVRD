@@ -70,19 +70,6 @@ html[lang="kn"] body {
     font-weight: 400;
   }
 
-  /* The temple's name in Kannada, in the wide Padyakke Expanded face. */
-  html[lang="kn"] .brand-title {
-    font-family: var(--font-temple-display-kn), var(--font-temple-kannada), serif;
-    font-weight: 400;
-    font-size: clamp(1.2rem, 5.7vw, 2.4rem);
-    line-height: 1.3;
-    /* Double bold: Padyakke has a single weight, so the strokes are
-       thickened with an outline in the text's own colour. */
-    -webkit-text-stroke: 0.055em currentColor;
-    paint-order: stroke fill;
-    letter-spacing: 0.02em;
-  }
-
   /* Bold Kannada. Hubballi has one weight and browser-synthesized bold
      smears Kannada strokes, so wherever the design asks for bold (headings,
      display text, semibold/bold labels and buttons) the letters are
@@ -95,6 +82,22 @@ html[lang="kn"] body {
   html[lang="kn"] :is(.font-bold, .font-extrabold) {
     -webkit-text-stroke: 0.032em currentColor;
     paint-order: stroke fill;
+  }
+
+  /* The temple's name in Kannada, in the wide Padyakke Expanded face.
+     Kept after the generic bold rules above: the header also carries
+     .font-display, whose thinner outline has the same specificity and
+     would otherwise win and undo the double bold. */
+  html[lang="kn"] .brand-title {
+    font-family: var(--font-temple-display-kn), var(--font-temple-kannada), serif;
+    font-weight: 400;
+    font-size: clamp(1.2rem, 5.7vw, 2.4rem);
+    line-height: 1.3;
+    /* Double bold: Padyakke has a single weight, so the strokes are
+       thickened with an outline in the text's own colour. */
+    -webkit-text-stroke: 0.055em currentColor;
+    paint-order: stroke fill;
+    letter-spacing: 0.02em;
   }
 
   .bg-divine-gradient {

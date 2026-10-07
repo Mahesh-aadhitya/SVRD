@@ -86,6 +86,18 @@ function DashboardContent({
         </Link>
       </div>
 
+      {stats.paymentsToVerify > 0 ? (
+        <Link
+          href="/admin/payments"
+          className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-amber-500/40 bg-amber-50 px-5 py-3 text-sm font-semibold text-amber-900 hover:bg-amber-100"
+        >
+          <span>
+            ₹ {stats.paymentsToVerify} UPI payment{stats.paymentsToVerify > 1 ? "s" : ""} to verify
+          </span>
+          <span aria-hidden>→</span>
+        </Link>
+      ) : null}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label={t("todayBookings")} value={stats.today} />
         <StatCard label={t("pendingBookings")} value={stats.pending} />

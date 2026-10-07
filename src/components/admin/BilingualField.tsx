@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { translateToKannada } from "@/lib/actions/translate";
+import { CheckButton, ProofreadNote, useProofread } from "./useProofread";
 
 const inputClass =
   "mt-1.5 w-full rounded-xl border border-ink/15 bg-black/[0.03] px-4 py-2.5 text-sm text-ink outline-none placeholder:text-ink/30 focus:border-gold";
@@ -12,6 +13,8 @@ const DEBOUNCE_MS = 900;
 // translation is fetched in the background: it fills the Kannada box
 // directly while that box is untouched, and once the admin has written or
 // edited Kannada themselves it's only offered as a suggestion to accept.
+// Both boxes are also spell/grammar-checked as the admin writes, with a
+// neater wording offered to replace theirs.
 export default function BilingualField({
   label,
   enName,
@@ -44,6 +47,8 @@ export default function BilingualField({
   const requestId = useRef(0);
   const lastTranslated = useRef(defaultEn ?? "");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const enProof = useProofread("en");
+  const knProof = useProofread("kn");
   // Read by the async translate callback, which would otherwise see a stale value.
   const knTouchedRef = useRef(knTouched);
   function markTouched(touched: boolean) {
@@ -81,6 +86,7 @@ export default function BilingualField({
 
   function onEnglishChange(value: string) {
     setEn(value);
+    enProof.onType(value);
     if (timer.current) clearTimeout(timer.current);
     if (status === "not_configured") return;
     timer.current = setTimeout(() => {
@@ -88,19 +94,31 @@ export default function BilingualField({
     }, DEBOUNCE_MS);
   }
 
+  // Only the admin's own Kannada is checked as they type; a machine
+  // translation can still be checked with "Check & polish".
+  function onKannadaChange(value: string) {
+    setKn(value);
+    markTouched(value.trim() !== "");
+    if (value.trim()) knProof.onType(value);
+  }
+
   const common = { required, maxLength, className: inputClass };
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <div>
-        <label className="text-sm font-medium text-ink/70" htmlFor={enName}>
-          {label} (English)
-        </label>
+        <div className="flex items-center justify-between gap-2">
+          <label className="text-sm font-medium text-ink/70" htmlFor={enName}>
+            {label} (English)
+          </label>
+          <CheckButton proof={enProof} text={en} />
+        </div>
         {multiline ? (
-          <textarea id={enName} name={enName} rows={rows} value={en} placeholder={placeholder} onChange={(e) => onEnglishChange(e.target.value)} {...common} />
+          <textarea id={enName} name={enName} rows={rows} value={en} placeholder={placeholder} onChange={(e) => onEnglishChange(e.target.value)} onBlur={() => void enProof.check(en)} {...common} />
         ) : (
-          <input id={enName} name={enName} value={en} placeholder={placeholder} onChange={(e) => onEnglishChange(e.target.value)} {...common} />
+          <input id={enName} name={enName} value={en} placeholder={placeholder} onChange={(e) => onEnglishChange(e.target.value)} onBlur={() => void enProof.check(en)} {...common} />
         )}
+        <ProofreadNote proof={enProof} current={en} onReplace={onEnglishChange} />
       </div>
 
       <div>
@@ -108,6 +126,8 @@ export default function BilingualField({
           <label className="text-sm font-medium text-ink/70" htmlFor={knName}>
             {label} (Kannada)
           </label>
+          <span className="flex items-center gap-3">
+          <CheckButton proof={knProof} text={kn} />
           <button
             type="button"
             onClick={() => void translate(en)}
@@ -116,6 +136,7 @@ export default function BilingualField({
           >
             {status === "loading" ? "Translating…" : "Translate from English"}
           </button>
+          </span>
         </div>
         {multiline ? (
           <textarea
@@ -123,10 +144,8 @@ export default function BilingualField({
             name={knName}
             rows={rows}
             value={kn}
-            onChange={(e) => {
-              setKn(e.target.value);
-              markTouched(e.target.value.trim() !== "");
-            }}
+            onChange={(e) => onKannadaChange(e.target.value)}
+            onBlur={() => knTouched && void knProof.check(kn)}
             {...common}
           />
         ) : (
@@ -134,14 +153,13 @@ export default function BilingualField({
             id={knName}
             name={knName}
             value={kn}
-            onChange={(e) => {
-              setKn(e.target.value);
-              markTouched(e.target.value.trim() !== "");
-            }}
+            onChange={(e) => onKannadaChange(e.target.value)}
+            onBlur={() => knTouched && void knProof.check(kn)}
             {...common}
           />
         )}
 
+        <ProofreadNote proof={knProof} current={kn} onReplace={onKannadaChange} />
         {suggestion && suggestion !== kn ? (
           <div className="mt-2 rounded-xl border border-gold/40 bg-gold/10 px-3 py-2 text-sm">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-ink/50">Suggested Kannada</p>

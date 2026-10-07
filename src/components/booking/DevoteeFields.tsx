@@ -17,8 +17,9 @@ export const fieldClass =
   "mt-1 block h-11 w-full rounded-xl border border-gold/30 bg-white px-3 text-sm text-ink outline-none focus:border-maroon";
 
 // One card per ticket: name (required), gotram and nakshatram (optional).
-// With "same gotram for everyone" on, only the first card asks for it —
-// families usually share one gotram.
+// Every card shows its gotram, so each devotee's sankalpam is complete on
+// the ticket. With "same gotram for everyone" on (families usually share
+// one), the first card's gotram fills the others and they're read-only.
 export default function DevoteeFields({
   devotees,
   count,
@@ -55,7 +56,7 @@ export default function DevoteeFields({
 
       <div className={wide && count > 1 ? "grid gap-3 md:grid-cols-2" : "space-y-3"}>
         {devotees.slice(0, count).map((devotee, i) => {
-          const showGotram = i === 0 || !sameGotram;
+          const sharedGotram = i > 0 && sameGotram && count > 1;
           return (
             <fieldset
               key={i}
@@ -82,29 +83,32 @@ export default function DevoteeFields({
                 className={fieldClass}
               />
 
-              <div
-                className={`mt-3 grid gap-3 ${showGotram ? "sm:grid-cols-2" : ""}`}
-              >
-                {showGotram ? (
-                  <div>
-                    <label
-                      className="block text-sm font-medium text-ink/70"
-                      htmlFor={`devotee-${i}-gotram`}
-                    >
-                      {t("gotram")}{" "}
-                      <span className="font-normal text-ink/40">
-                        ({t("optional")})
-                      </span>
-                    </label>
-                    <input
-                      id={`devotee-${i}-gotram`}
-                      maxLength={60}
-                      value={devotee.gotram}
-                      onChange={(e) => onChange(i, { gotram: e.target.value })}
-                      className={fieldClass}
-                    />
-                  </div>
-                ) : null}
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label
+                    className="block text-sm font-medium text-ink/70"
+                    htmlFor={`devotee-${i}-gotram`}
+                  >
+                    {t("gotram")}{" "}
+                    <span className="font-normal text-ink/40">
+                      ({t("optional")})
+                    </span>
+                  </label>
+                  <input
+                    id={`devotee-${i}-gotram`}
+                    maxLength={60}
+                    value={sharedGotram ? devotees[0].gotram : devotee.gotram}
+                    readOnly={sharedGotram}
+                    aria-describedby={sharedGotram ? `devotee-${i}-gotram-note` : undefined}
+                    onChange={(e) => onChange(i, { gotram: e.target.value })}
+                    className={sharedGotram ? fieldClass.replace("bg-white text-ink", "bg-cream/60 text-ink/60") : fieldClass}
+                  />
+                  {sharedGotram ? (
+                    <p id={`devotee-${i}-gotram-note`} className="mt-1 text-[11px] text-ink/50">
+                      {t("sameAsFirst")}
+                    </p>
+                  ) : null}
+                </div>
                 <div>
                   <label
                     className="block text-sm font-medium text-ink/70"

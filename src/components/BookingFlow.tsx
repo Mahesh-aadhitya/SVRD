@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
@@ -12,6 +13,7 @@ import CategoryFilterBar from "@/components/CategoryFilterBar";
 import AvailabilityCalendar, { selectedColors, statusColors, type DayStatus } from "@/components/booking/AvailabilityCalendar";
 import ChakraLoader from "@/components/ChakraLoader";
 import DevoteeFields, { emptyDevotee, fieldClass, type DevoteeDraft } from "@/components/booking/DevoteeFields";
+import UpiPaymentPanel, { type UpiDetails } from "@/components/payment/UpiPaymentPanel";
 import { formatIso, isoFromDate, localTodayIso, maxIso, parseIso } from "@/lib/dates";
 import type { DevoteeProfile } from "@/lib/devotee/types";
 import { buildFolderTree, filterByFolder, selectedFolderIds, type Folder } from "@/lib/folders";
@@ -41,14 +43,19 @@ export default function BookingFlow({
   sevas,
   folders,
   profile,
+  upi,
 }: {
   sevas: Seva[];
   folders: Folder[];
   /** Signed-in devotee's saved details, used to prefill the first devotee and phone. */
   profile?: DevoteeProfile | null;
+  /** The temple's UPI details; null when online payment isn't set up (pay at the counter). */
+  upi?: UpiDetails | null;
 }) {
   const t = useTranslations("booking");
   const tTicket = useTranslations("ticket");
+  const tMeta = useTranslations("meta");
+  const router = useRouter();
   const locale = useLocale() as Locale;
   const searchParams = useSearchParams();
   const today = localTodayIso();
@@ -206,13 +213,13 @@ export default function BookingFlow({
   if (confirmed && seva && date) {
     const isPending = confirmed.status === "pending";
     return (
-      <div className="mx-auto mt-8 max-w-xl rounded-2xl border border-gold/30 bg-white/70 p-8 text-center">
+      <div className="mx-auto mt-8 max-w-xl rounded-2xl border border-gold/30 bg-white/70 p-5 text-center sm:p-8">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-maroon text-cream">
           <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current">
             <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" />
           </svg>
         </div>
-        <p className="mt-4 font-display text-2xl text-maroon">{isPending ? t("pendingTitle") : t("confirmedTitle")}</p>
+        <p className="mt-4 font-display text-2xl text-maroon">{isPending ? (upi ? t("reservedPayTitle") : t("pendingTitle")) : t("confirmedTitle")}</p>
         <p className="mt-1 text-sm text-ink/70">
           {seva.name[locale]} &middot; {fmt(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           {slot ? <> &middot; {formatSlot(slot, locale)}</> : null}
@@ -226,9 +233,26 @@ export default function BookingFlow({
         </p>
         <p className="mt-5 text-xs uppercase tracking-wide text-ink/50">{t("referenceLabel")}</p>
         <p className="font-mono text-3xl font-semibold tracking-widest text-maroon-dark">{confirmed.reference}</p>
-        <p className="mt-5 rounded-xl bg-cream-dark px-4 py-3 text-sm text-ink/70">
-          {isPending ? t("payAtCounterNote", { amount: confirmed.amount }) : t("freeConfirmedNote")}
-        </p>
+        {isPending && upi ? (
+          <div className="mt-5">
+            <UpiPaymentPanel
+              mode="booking"
+              reference={confirmed.reference}
+              ticketToken={confirmed.ticketToken}
+              amount={confirmed.amount}
+              upi={upi}
+              fallbackPayee={tMeta("siteTitle")}
+              onSubmitted={() =>
+                router.push({ pathname: `/ticket/${confirmed.reference}`, query: { t: confirmed.ticketToken, paid: "1" } })
+              }
+            />
+            <p className="mt-3 text-xs text-ink/55">{t("payLaterNote", { amount: confirmed.amount })}</p>
+          </div>
+        ) : (
+          <p className="mt-5 rounded-xl bg-cream-dark px-4 py-3 text-sm text-ink/70">
+            {isPending ? t("payAtCounterNote", { amount: confirmed.amount }) : t("freeConfirmedNote")}
+          </p>
+        )}
         <Link
           href={{ pathname: `/ticket/${confirmed.reference}`, query: { t: confirmed.ticketToken } }}
           className="mt-5 inline-block rounded-full bg-maroon px-6 py-3 text-sm font-semibold text-cream hover:bg-maroon-dark"
@@ -430,7 +454,11 @@ export default function BookingFlow({
                     locale={locale}
                     wide
                     onChange={(index, patch) => setDevotees((all) => all.map((d, i) => (i === index ? { ...d, ...patch } : d)))}
-                    onSameGotramChange={setSameGotram}
+                    onSameGotramChange={(same) => {
+                      setSameGotram(same);
+                      // Turning it off: start each devotee from the shared gotram, ready to edit.
+                      if (!same) setDevotees((all) => all.map((d, i) => (i > 0 && !d.gotram ? { ...d, gotram: all[0].gotram } : d)));
+                    }}
                   />
                 </div>
               </div>

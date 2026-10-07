@@ -7,6 +7,7 @@ import type { Locale } from "@/i18n/routing";
 import { verifyAdminSession } from "@/lib/admin/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { todayInIndia } from "@/lib/dates";
+import { findDuplicateEntry } from "@/lib/admin/duplicates";
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
@@ -48,6 +49,17 @@ function parseForm(formData: FormData) {
   });
 }
 
+// Only notices still showing count — an expired one may be posted again.
+function checkDuplicate(supabase: ReturnType<typeof createAdminClient>, data: z.infer<typeof noticeSchema>, excludeId?: string) {
+  const today = todayInIndia();
+  return findDuplicateEntry(
+    supabase,
+    "notices",
+    { title: { en: data.titleEn, kn: data.titleKn }, body: { en: data.bodyEn ?? "", kn: data.bodyKn ?? "" } },
+    { excludeId, activeOnly: today },
+  );
+}
+
 function toRow(data: z.infer<typeof noticeSchema>) {
   return {
     kind: data.kind,
@@ -71,6 +83,8 @@ export async function createNotice(
   if (parsed.data.publishOn < todayInIndia()) return { error: "Publish date can't be in the past" };
 
   const supabase = createAdminClient();
+  const duplicate = await checkDuplicate(supabase, parsed.data);
+  if (duplicate) return { error: duplicate };
   const { error } = await supabase.from("notices").insert(toRow(parsed.data));
   if (error) return { error: error.message };
 
@@ -89,6 +103,8 @@ export async function updateNotice(
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "invalid" };
 
   const supabase = createAdminClient();
+  const duplicate = await checkDuplicate(supabase, parsed.data, id);
+  if (duplicate) return { error: duplicate };
   const { error } = await supabase.from("notices").update(toRow(parsed.data)).eq("id", id);
   if (error) return { error: error.message };
 

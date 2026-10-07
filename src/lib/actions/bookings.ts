@@ -126,7 +126,7 @@ export async function findTicket(locale: string, _prev: FindTicketState, formDat
 // ── Admin ────────────────────────────────────────────────────────────────
 
 const STATUSES: BookingStatus[] = ["pending", "confirmed", "cancelled"];
-const PAYMENT_STATUSES: PaymentStatus[] = ["unpaid", "paid", "refunded"];
+const PAYMENT_STATUSES: PaymentStatus[] = ["unpaid", "submitted", "paid", "refunded"];
 
 export async function setBookingStatus(id: string, status: BookingStatus): Promise<void> {
   await verifyAdminSession();
@@ -155,7 +155,9 @@ export type ScanState = { checkedInAt: string | null; prasadamClaimedAt: string 
 
 export type CheckInResult =
   | { ok: true; checkedInAt: string }
-  | ({ ok: false; error: "not_found" | "already_used" | "cancelled" | "refunded" | "unpaid" | "wrong_date" } & Partial<ScanState>);
+  | ({ ok: false; error: "not_found" | "already_used" | "cancelled" | "refunded" | "unpaid" | "wrong_date" } & Partial<ScanState>)
+  // The devotee uploaded a UPI screenshot the office hasn't verified yet.
+  | { ok: false; error: "upi_unverified"; utr: string | null };
 
 const refPattern = /^[A-F0-9]{8}$/;
 
@@ -165,7 +167,7 @@ async function readForScan(reference: string) {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("bookings")
-    .select("id, booking_date, amount, status, payment_status, checked_in_at, prasadam_claimed_at")
+    .select("id, booking_date, amount, status, payment_status, payment_utr, checked_in_at, prasadam_claimed_at")
     .eq("reference", ref)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -189,7 +191,11 @@ export async function checkInBooking(
   if (booking.status === "cancelled") return { ok: false, error: "cancelled" };
   if (booking.payment_status === "refunded") return { ok: false, error: "refunded" };
   const unpaid = booking.amount > 0 && booking.payment_status !== "paid";
-  if (unpaid && !opts.collectPayment) return { ok: false, error: "unpaid" };
+  if (unpaid && !opts.collectPayment) {
+    return booking.payment_status === "submitted"
+      ? { ok: false, error: "upi_unverified", utr: booking.payment_utr }
+      : { ok: false, error: "unpaid" };
+  }
   if (booking.booking_date !== todayInIndia() && !opts.anyDate) return { ok: false, error: "wrong_date" };
 
   const supabase = createAdminClient();
@@ -199,7 +205,14 @@ export async function checkInBooking(
       checked_in_at: new Date().toISOString(),
       checked_in_by: admin.id,
       status: "confirmed",
-      ...(unpaid ? { payment_status: "paid" } : {}),
+      ...(unpaid
+        ? {
+            payment_status: "paid",
+            ...(booking.payment_status === "submitted"
+              ? { payment_reviewed_at: new Date().toISOString(), payment_reviewed_by: admin.id }
+              : { payment_method: "counter" }),
+          }
+        : {}),
     })
     .eq("id", booking.id)
     .is("checked_in_at", null)
@@ -234,9 +247,9 @@ export async function collectPaymentHoldDarshan(reference: string): Promise<Coll
   const supabase = createAdminClient();
   const { error } = await supabase
     .from("bookings")
-    .update({ payment_status: "paid", status: "confirmed" })
+    .update({ payment_status: "paid", status: "confirmed", ...(booking.payment_status === "unpaid" ? { payment_method: "counter" } : {}) })
     .eq("id", booking.id)
-    .eq("payment_status", "unpaid");
+    .in("payment_status", ["unpaid", "submitted"]);
   if (error) throw new Error(error.message);
   revalidatePath("/[locale]/admin", "layout");
   return { ok: true };

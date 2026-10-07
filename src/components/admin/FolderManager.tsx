@@ -20,7 +20,7 @@ export default function FolderManager({
     <section>
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink/50">Categories</h2>
       <div className="mb-4 rounded-2xl border border-ink/10 p-4">
-        <FolderTree tree={tree} onDelete={(id) => deleteFolder.bind(null, section, basePath, id, locale)} />
+        <FolderTree section={section} tree={tree} onDelete={(id) => deleteFolder.bind(null, section, basePath, id, locale)} />
       </div>
       <FolderForm categories={tree} action={createFolder.bind(null, section, basePath, locale)} />
     </section>

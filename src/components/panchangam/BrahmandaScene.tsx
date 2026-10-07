@@ -16,8 +16,10 @@ export type SceneControl = {
 
 type Props = {
   grahas: GrahaPosition[];
+  earthLongitude: number;
   rashiLabels: { glyph: string; name: string }[];
   grahaLabels: Record<GrahaKey, string>;
+  earthLabel: string;
   selected: GrahaKey | null;
   hovered: GrahaKey | null;
   controlRef: RefObject<SceneControl | null>;
@@ -26,19 +28,25 @@ type Props = {
 // Seconds since the scene began — drives the Srishti (creation) sequence.
 type Clock = RefObject<number>;
 
-// Geocentric order by apparent speed, as in the Surya Siddhanta: Rahu and
-// Ketu share the outermost orbit, always opposite each other.
+// Sun-centred, as the solar system really is: Surya at the heart on the
+// lotus, the planets on their orbits at their true heliocentric longitudes,
+// and Bhumi carrying Chandra round her — with Rahu and Ketu, the Moon's
+// nodes, on the Moon's orbit. Orbits are spaced evenly, not to scale.
 const GRAHA_STYLE: Record<GrahaKey, { orbit: number; size: number; color: string; emissive?: string; glow?: string }> = {
-  moon: { orbit: 2.9, size: 0.28, color: "#dedad2" },
-  mercury: { orbit: 3.7, size: 0.22, color: "#a59a8a" },
-  venus: { orbit: 4.5, size: 0.33, color: "#f2e2b6", emissive: "#3a2f12" },
-  sun: { orbit: 5.4, size: 0.78, color: "#ffd56a", glow: "#ffb347" },
-  mars: { orbit: 6.4, size: 0.3, color: "#c4502e" },
-  jupiter: { orbit: 7.3, size: 0.6, color: "#d6b48a" },
-  saturn: { orbit: 8.2, size: 0.5, color: "#e3cf9a" },
-  rahu: { orbit: 9.1, size: 0.34, color: "#120c1c", emissive: "#2a1040", glow: "#8a4cff" },
-  ketu: { orbit: 9.1, size: 0.3, color: "#1c0f0a", emissive: "#3a1606", glow: "#ff6a2a" },
+  sun: { orbit: 0, size: 1.05, color: "#ffd56a", glow: "#ffb347" },
+  mercury: { orbit: 2.3, size: 0.2, color: "#a59a8a" },
+  venus: { orbit: 3.25, size: 0.3, color: "#f2e2b6", emissive: "#3a2f12" },
+  mars: { orbit: 5.85, size: 0.27, color: "#c4502e" },
+  jupiter: { orbit: 7.25, size: 0.58, color: "#d6b48a" },
+  saturn: { orbit: 8.6, size: 0.48, color: "#e3cf9a" },
+  // Around the Earth.
+  moon: { orbit: 0.85, size: 0.15, color: "#dedad2" },
+  rahu: { orbit: 1.15, size: 0.13, color: "#120c1c", emissive: "#2a1040", glow: "#8a4cff" },
+  ketu: { orbit: 1.15, size: 0.12, color: "#1c0f0a", emissive: "#3a1606", glow: "#ff6a2a" },
 };
+
+const EARTH_ORBIT = 4.45;
+const EARTH_BOUND: GrahaKey[] = ["moon", "rahu", "ketu"];
 
 const ZODIAC_INNER = 10.1;
 const ZODIAC_OUTER = 11.2;
@@ -92,7 +100,7 @@ export default function BrahmandaScene(props: Props) {
   );
 }
 
-function Cosmos({ grahas, rashiLabels, grahaLabels, selected, hovered, controlRef }: Props) {
+function Cosmos({ grahas, earthLongitude, rashiLabels, grahaLabels, earthLabel, selected, hovered, controlRef }: Props) {
   const { raycaster, gl, size, get } = useThree();
   const systemRef = useRef<THREE.Group>(null);
   const spinVelocity = useRef(0);
@@ -168,6 +176,7 @@ function Cosmos({ grahas, rashiLabels, grahaLabels, selected, hovered, controlRe
       <ambientLight intensity={0.18} />
       <hemisphereLight args={["#7a6ad8", "#1a0f05", 0.22]} />
 
+      <Galaxy clock={clock} />
       <GlowingStars clock={clock} />
       <MilkyWay clock={clock} />
       <ShootingStars still={still} />
@@ -177,22 +186,45 @@ function Cosmos({ grahas, rashiLabels, grahaLabels, selected, hovered, controlRe
       <group ref={systemRef} rotation={[0.08, 0, 0]}>
         <Bindu clock={clock} />
         <NabhiKamala clock={clock} still={still} />
-        <Earth still={still} />
         <ZodiacRing labels={rashiLabels} fontsReady={fontsReady} boost={boost} clock={clock} />
-        {grahas.map((g) => (
-          <Graha
-            key={g.key}
-            graha={g}
-            label={grahaLabels[g.key]}
-            boost={boost}
-            fontsReady={fontsReady}
-            active={selected === g.key || hovered === g.key}
-            selected={selected === g.key}
-            still={still}
-            clock={clock}
-            register={register}
-          />
-        ))}
+        {grahas
+          .filter((g) => !EARTH_BOUND.includes(g.key))
+          .map((g) => (
+            <Graha
+              key={g.key}
+              graha={g}
+              angle={g.helioLongitude ?? 0}
+              label={grahaLabels[g.key]}
+              boost={boost}
+              fontsReady={fontsReady}
+              active={selected === g.key || hovered === g.key}
+              selected={selected === g.key}
+              still={still}
+              clock={clock}
+              register={register}
+            />
+          ))}
+        <EarthSystem longitude={earthLongitude} still={still} clock={clock} boost={boost} fontsReady={fontsReady} label={earthLabel}>
+          {grahas
+            .filter((g) => EARTH_BOUND.includes(g.key))
+            .map((g) => (
+              <Graha
+                key={g.key}
+                graha={g}
+                angle={g.longitude}
+                label={grahaLabels[g.key]}
+                boost={boost}
+                fontsReady={fontsReady}
+                active={selected === g.key || hovered === g.key}
+                selected={selected === g.key}
+                still={still}
+                clock={clock}
+                register={register}
+                // Small bodies close together: named only when looked at.
+                quiet
+              />
+            ))}
+        </EarthSystem>
       </group>
     </>
   );
@@ -222,13 +254,20 @@ const STAR_VERTEX = /* glsl */ `
   varying vec3 vColor;
   varying float vTwinkle;
   varying float vSpike;
+  varying float vSharp;
   void main() {
     vec4 mv = modelViewMatrix * vec4(position, 1.0);
     // Each star breathes at its own pace.
     vTwinkle = 0.65 + 0.35 * sin(uTime * (0.8 + fract(aPhase * 7.13) * 2.4) + aPhase * 6.2831);
     vColor = aColor;
     vSpike = aSpike;
-    gl_PointSize = aSize * uPixelRatio * (0.85 + 0.25 * vTwinkle);
+    // Faint stars are only a few pixels across; never draw them smaller than
+    // ~3px or the sprite falls between pixel centres and vanishes.
+    float px = max(aSize * uPixelRatio * (0.85 + 0.25 * vTwinkle), 3.0);
+    // The core's falloff is in sprite space, so a tiny sprite needs a soft
+    // one — otherwise only the exact centre pixel (if any) lights up.
+    vSharp = clamp(px / 26.0, 0.07, 1.0);
+    gl_PointSize = px;
     gl_Position = projectionMatrix * mv;
   }
 `;
@@ -238,13 +277,14 @@ const STAR_FRAGMENT = /* glsl */ `
   varying vec3 vColor;
   varying float vTwinkle;
   varying float vSpike;
+  varying float vSharp;
   void main() {
     vec2 p = gl_PointCoord - 0.5;
     float d2 = dot(p, p);
     // A hot core, a soft halo and, for the brightest stars, the four-point
     // diffraction spikes a lens sees.
-    float core = exp(-d2 * 160.0);
-    float halo = exp(-d2 * 22.0) * 0.35;
+    float core = exp(-d2 * 160.0 * vSharp);
+    float halo = exp(-d2 * 22.0 * vSharp) * 0.35;
     float spikes = vSpike * (exp(-abs(p.x) * 90.0) * exp(-abs(p.y) * 7.0) + exp(-abs(p.y) * 90.0) * exp(-abs(p.x) * 7.0)) * 0.8;
     float a = (core + halo + spikes) * vTwinkle * uReveal;
     if (a < 0.003) discard;
@@ -294,13 +334,13 @@ function GlowingStars({ clock }: { clock: Clock }) {
   const ref = useRef<THREE.Points>(null);
   const { geometry, material } = useMemo(() => {
     const rand = seeded(11);
-    const stars: StarPoint[] = Array.from({ length: 3600 }, () => {
+    const stars: StarPoint[] = Array.from({ length: 7000 }, () => {
       // Uniform on a sphere.
       const u = rand() * 2 - 1;
       const th = rand() * Math.PI * 2;
       const r = 220 + rand() * 60;
       const s = Math.sqrt(1 - u * u);
-      const bright = rand() < 0.012;
+      const bright = rand() < 0.01;
       return {
         pos: new THREE.Vector3(s * Math.cos(th) * r, u * r, s * Math.sin(th) * r),
         // Mostly faint, with a long tail of brighter ones.
@@ -360,6 +400,109 @@ function cloudTexture(rand: () => number, tint: [number, number, number]) {
   return tex;
 }
 
+// The galaxy itself, painted on the far sky: the glowing band of the Milky
+// Way with its warm central bulge, dark dust lanes along its spine and
+// faint coloured nebulae — procedural, so it costs one draw call.
+// The galactic plane, chosen to arch diagonally across the camera's view.
+const GALACTIC_NORMAL = new THREE.Vector3(0.55, -0.92, 0.39).normalize();
+
+const GALAXY_VERTEX = /* glsl */ `
+  varying vec3 vDir;
+  void main() {
+    vDir = normalize(position);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const GALAXY_FRAGMENT = /* glsl */ `
+  uniform vec3 uNormal;
+  uniform vec3 uA;
+  uniform vec3 uB;
+  uniform float uReveal;
+  varying vec3 vDir;
+
+  float hash(vec3 p) {
+    p = fract(p * 0.3183099 + 0.1);
+    p *= 17.0;
+    return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+  }
+  float noise(vec3 x) {
+    vec3 i = floor(x);
+    vec3 f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(
+      mix(mix(hash(i), hash(i + vec3(1, 0, 0)), f.x), mix(hash(i + vec3(0, 1, 0)), hash(i + vec3(1, 1, 0)), f.x), f.y),
+      mix(mix(hash(i + vec3(0, 0, 1)), hash(i + vec3(1, 0, 1)), f.x), mix(hash(i + vec3(0, 1, 1)), hash(i + vec3(1, 1, 1)), f.x), f.y),
+      f.z);
+  }
+  float fbm(vec3 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 5; i++) {
+      v += a * noise(p);
+      p = p * 2.03 + 11.7;
+      a *= 0.5;
+    }
+    return v;
+  }
+
+  void main() {
+    vec3 d = normalize(vDir);
+    float lat = asin(clamp(dot(d, uNormal), -1.0, 1.0));
+    float lon = atan(dot(d, uB), dot(d, uA));
+
+    float clouds = fbm(d * 3.2);
+    float fine = fbm(d * 9.0 + 4.0);
+    // The band, wider and brighter towards the galactic centre (lon 0).
+    float toCore = 0.5 + 0.5 * cos(lon);
+    float width = 0.13 + 0.12 * toCore;
+    float band = exp(-pow(lat / width, 2.0)) * (0.25 + 0.6 * clouds);
+    float bulge = exp(-(lon * lon) / 0.22 - (lat * lat) / 0.03);
+    // Dust lanes splitting the band along its spine.
+    float dust = smoothstep(0.42, 0.7, fbm(d * 5.5 + 2.0)) * exp(-pow(lat / (0.05 + 0.04 * toCore), 2.0));
+
+    vec3 starlight = mix(vec3(0.55, 0.62, 0.95), vec3(1.0, 0.86, 0.66), toCore);
+    vec3 col = starlight * band * (0.55 + 0.6 * fine);
+    col += vec3(1.0, 0.72, 0.42) * bulge * 0.7;
+    col *= 1.0 - 0.85 * dust;
+    // Emission and reflection nebulae scattered along the band.
+    float neb = smoothstep(0.55, 0.85, fbm(d * 2.2 + 7.0)) * exp(-pow(lat / 0.35, 2.0));
+    col += mix(vec3(0.85, 0.25, 0.55), vec3(0.25, 0.45, 1.0), fbm(d * 1.5)) * neb * 0.35;
+    // A faint glow over the whole sky so it's never flat black.
+    col += vec3(0.03, 0.025, 0.07) * (0.6 + clouds);
+
+    gl_FragColor = vec4(col * 0.52 * uReveal, 1.0);
+  }
+`;
+
+function Galaxy({ clock }: { clock: Clock }) {
+  const ref = useRef<THREE.Mesh>(null);
+  const material = useMemo(() => {
+    // Same plane as the MilkyWay star band, with the bright core turned
+    // off to one side, framing the system rather than drowning it.
+    const normal = GALACTIC_NORMAL.clone();
+    const core = new THREE.Vector3(-0.62, -0.18, -0.76).normalize();
+    const coreA = core.clone().sub(normal.clone().multiplyScalar(core.dot(normal))).normalize();
+    const coreB = normal.clone().cross(coreA).normalize();
+    return new THREE.ShaderMaterial({
+      vertexShader: GALAXY_VERTEX,
+      fragmentShader: GALAXY_FRAGMENT,
+      uniforms: { uNormal: { value: normal }, uA: { value: coreA }, uB: { value: coreB }, uReveal: { value: 0 } },
+      side: THREE.BackSide,
+      depthWrite: false,
+    });
+  }, []);
+  useFrame(() => {
+    const m = ref.current?.material as THREE.ShaderMaterial | undefined;
+    if (m) m.uniforms.uReveal.value = phase(clock.current, SRISHTI.stars);
+  });
+  return (
+    <mesh ref={ref} material={material} renderOrder={-10}>
+      <sphereGeometry args={[400, 64, 32]} />
+    </mesh>
+  );
+}
+
 // The Akasha Ganga: a dense river of faint stars with glowing gas clouds,
 // arching across the sky.
 function MilkyWay({ clock }: { clock: Clock }) {
@@ -368,7 +511,7 @@ function MilkyWay({ clock }: { clock: Clock }) {
 
   const { geometry, material, clouds } = useMemo(() => {
     // The band's plane, tilted across the sky.
-    const normal = new THREE.Vector3(0.35, 1, 0.55).normalize();
+    const normal = GALACTIC_NORMAL.clone();
     const a = new THREE.Vector3(1, 0, 0).cross(normal).normalize();
     const b = normal.clone().cross(a).normalize();
     const rand = seeded(29);
@@ -381,7 +524,7 @@ function MilkyWay({ clock }: { clock: Clock }) {
         .add(normal.clone().multiplyScalar(spread))
         .normalize()
         .multiplyScalar(r);
-    const stars: StarPoint[] = Array.from({ length: 6500 }, () => ({
+    const stars: StarPoint[] = Array.from({ length: 14000 }, () => ({
       pos: along(rand() * Math.PI * 2, gauss() * 0.12, 230 + rand() * 40),
       size: 1.4 + Math.pow(rand(), 4) * 5,
       spike: 0,
@@ -407,7 +550,7 @@ function MilkyWay({ clock }: { clock: Clock }) {
     updateStars(ref.current, clock.current, gl.getPixelRatio(), 0.75);
     const reveal = phase(clock.current, SRISHTI.stars);
     cloudsRef.current?.children.forEach((c) => {
-      ((c as THREE.Sprite).material as THREE.SpriteMaterial).opacity = 0.32 * reveal;
+      ((c as THREE.Sprite).material as THREE.SpriteMaterial).opacity = 0.42 * reveal;
     });
   });
 
@@ -669,7 +812,7 @@ function petalGeometry(length: number, width: number) {
   const colors: number[] = [];
   const base = new THREE.Color("#ffc977");
   const mid = new THREE.Color("#f5a3bd");
-  const tip = new THREE.Color("#fff4f8");
+  const tip = new THREE.Color("#f7c9da");
   const c = new THREE.Color();
   for (let i = 0; i < pos.count; i++) {
     const u = pos.getX(i); // -0.5…0.5 across
@@ -690,7 +833,7 @@ function petalGeometry(length: number, width: number) {
 }
 
 // The lotus from Vishnu's navel (Nabhi Kamala), from which Brahma creates
-// the worlds — here it holds Bhu-mandala, the Earth, at its heart. Its
+// the worlds — here it holds Surya, the heart of the solar system. Its
 // petals open as creation begins.
 function NabhiKamala({ clock, still }: { clock: Clock; still: boolean }) {
   const pivots = useRef<(THREE.Group | null)[]>([]);
@@ -725,7 +868,7 @@ function NabhiKamala({ clock, still }: { clock: Clock; still: boolean }) {
         side: THREE.DoubleSide,
         roughness: 0.55,
         emissive: new THREE.Color("#ff9a6a"),
-        emissiveIntensity: 0.35,
+        emissiveIntensity: 0.18,
         transparent: true,
         opacity: 0.95,
       }),
@@ -747,7 +890,7 @@ function NabhiKamala({ clock, still }: { clock: Clock; still: boolean }) {
   });
 
   return (
-    <group position={[0, -1.05, 0]}>
+    <group position={[0, -1.75, 0]} scale={0.9}>
       {petals.map((p, i) => (
         <group
           key={i}
@@ -774,7 +917,7 @@ function NabhiKamala({ clock, still }: { clock: Clock; still: boolean }) {
   );
 }
 
-function Earth({ still }: { still: boolean }) {
+function Earth({ still, size }: { still: boolean; size: number }) {
   const ref = useRef<THREE.Mesh>(null);
   const texture = useMemo(() => {
     const rand = seeded(5);
@@ -805,13 +948,73 @@ function Earth({ still }: { still: boolean }) {
   return (
     <group>
       <mesh ref={ref}>
-        <sphereGeometry args={[0.8, 48, 48]} />
+        <sphereGeometry args={[size, 48, 48]} />
         <meshStandardMaterial map={texture} roughness={0.8} emissive="#0a1a33" />
       </mesh>
-      <sprite scale={[2.8, 2.8, 1]}>
+      <sprite scale={[size * 3.5, size * 3.5, 1]}>
         <spriteMaterial map={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
       </sprite>
     </group>
+  );
+}
+
+// Bhumi on her orbit round the Sun, carrying Chandra, Rahu and Ketu.
+function EarthSystem({
+  longitude,
+  still,
+  clock,
+  boost,
+  fontsReady,
+  label,
+  children,
+}: {
+  longitude: number;
+  still: boolean;
+  clock: Clock;
+  boost: number;
+  fontsReady: boolean;
+  label: string;
+  children: React.ReactNode;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const orbitRef = useRef<THREE.Line>(null);
+  const current = useRef(longitude);
+  const orbit = useMemo(() => {
+    const pts = Array.from({ length: 129 }, (_, i) => onEcliptic((i / 128) * 360, EARTH_ORBIT));
+    return new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({ color: "#7fb4ff", transparent: true, opacity: 0 }),
+    );
+  }, []);
+
+  useFrame((_, delta) => {
+    const group = groupRef.current;
+    if (!group) return;
+    const emerge = phase(clock.current, [SRISHTI.grahas[0] + EARTH_ORBIT * 0.08, SRISHTI.grahas[1]]);
+    const diff = ((longitude - current.current + 540) % 360) - 180;
+    current.current += still ? diff : diff * Math.min(1, delta * 3);
+    group.position.copy(onEcliptic(current.current, EARTH_ORBIT * emerge));
+    group.scale.setScalar(Math.max(emerge * boost, 0.0001));
+    (orbitRef.current?.material as THREE.LineBasicMaterial | undefined)?.setValues({ opacity: 0.22 * emerge });
+  });
+
+  return (
+    <>
+      <primitive ref={orbitRef} object={orbit} />
+      <group ref={groupRef} scale={0.0001}>
+        <Earth still={still} size={0.36} />
+        {boost === 1 ? (
+          <Label
+            parts={[{ text: label, font: bodyFont() }]}
+            color="#bcd6ff"
+            height={0.34}
+            position={new THREE.Vector3(0, -0.72, 0)}
+            fontsReady={fontsReady}
+          />
+        ) : null}
+        {children}
+      </group>
+    </>
   );
 }
 
@@ -991,8 +1194,56 @@ function bandedTexture(colors: string[]) {
   return tex;
 }
 
+// Mottled, limb-darkened photosphere.
+function sunTexture() {
+  const rand = seeded(11);
+  const c = document.createElement("canvas");
+  c.width = 512;
+  c.height = 256;
+  const ctx = c.getContext("2d")!;
+  const base = ctx.createLinearGradient(0, 0, 0, 256);
+  base.addColorStop(0, "#ff9a1f");
+  base.addColorStop(0.5, "#ffd24a");
+  base.addColorStop(1, "#ff9a1f");
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, 512, 256);
+  // Granulation and a few bright faculae.
+  for (let i = 0; i < 2600; i++) {
+    const hot = rand() > 0.5;
+    ctx.fillStyle = hot ? `rgba(255,246,190,${0.08 + rand() * 0.18})` : `rgba(214,96,10,${0.06 + rand() * 0.16})`;
+    ctx.beginPath();
+    ctx.arc(rand() * 512, rand() * 256, 1 + rand() * 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// Layered glow round the Sun, breathing slowly.
+function SunCorona({ size, still }: { size: number; still: boolean }) {
+  const inner = useMemo(() => radialTexture("rgba(255,236,170,0.95)"), []);
+  const outer = useMemo(() => radialTexture("rgba(255,140,40,0.55)"), []);
+  const ref = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => {
+    if (ref.current && !still) ref.current.scale.setScalar(1 + Math.sin(clock.elapsedTime * 0.9) * 0.04);
+  });
+  return (
+    <group ref={ref}>
+      <sprite scale={[size * 3.4, size * 3.4, 1]}>
+        <spriteMaterial map={inner} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      </sprite>
+      <sprite scale={[size * 9, size * 9, 1]}>
+        <spriteMaterial map={outer} transparent opacity={0.8} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </sprite>
+    </group>
+  );
+}
+
 function Graha({
   graha,
+  angle,
+  quiet = false,
   label,
   boost,
   fontsReady,
@@ -1003,6 +1254,10 @@ function Graha({
   register,
 }: {
   graha: GrahaPosition;
+  // Where it's drawn on its orbit: heliocentric for planets, geocentric
+  // round the Earth for Chandra, Rahu and Ketu.
+  angle: number;
+  quiet?: boolean;
   label: string;
   boost: number;
   fontsReady: boolean;
@@ -1019,18 +1274,19 @@ function Graha({
   const orbitRef = useRef<THREE.Line>(null);
   const scaleTarget = useRef(new THREE.Vector3());
   // Animated longitude: glides to the new position when the date changes.
-  const current = useRef(graha.longitude);
+  const current = useRef(angle);
 
   const map = useMemo(() => {
+    if (graha.key === "sun") return sunTexture();
     if (graha.key === "jupiter") return bandedTexture(["#d9b98f", "#b98d62", "#efd9b5", "#a8754d"]);
     if (graha.key === "saturn") return bandedTexture(["#e8d6a4", "#cdb57d", "#f2e4bd"]);
     return null;
   }, [graha.key]);
-  const glow = useMemo(() => (style.glow ? radialTexture(style.glow) : null), [style.glow]);
+  const glow = useMemo(() => (style.glow && graha.key !== "sun" ? radialTexture(style.glow) : null), [style.glow, graha.key]);
   const orbit = useMemo(() => {
     const pts = Array.from({ length: 129 }, (_, i) => onEcliptic((i / 128) * 360, style.orbit));
     const material = new THREE.LineBasicMaterial({
-      color: graha.key === "rahu" ? "#9a6cff" : "#8fa6d8",
+      color: graha.key === "rahu" ? "#9a6cff" : graha.key === "moon" ? "#cfd6ea" : "#8fa6d8",
       transparent: true,
       opacity: 0,
     });
@@ -1050,7 +1306,7 @@ function Graha({
     // Srishti: each graha emerges from the lotus and travels out to its
     // orbit, the inner ones first.
     const emerge = phase(clock.current, [SRISHTI.grahas[0] + style.orbit * 0.08, SRISHTI.grahas[1]]);
-    const diff = ((graha.longitude - current.current + 540) % 360) - 180;
+    const diff = ((angle - current.current + 540) % 360) - 180;
     current.current += still ? diff : diff * Math.min(1, delta * 3);
     group.position.copy(onEcliptic(current.current, style.orbit * emerge));
     if (bodyRef.current && !still) bodyRef.current.rotation.y += delta * 0.4;
@@ -1062,12 +1318,13 @@ function Graha({
 
   return (
     <>
-      {graha.key !== "ketu" ? <primitive ref={orbitRef} object={orbit} /> : null}
+      {graha.key !== "ketu" && style.orbit > 0 ? <primitive ref={orbitRef} object={orbit} /> : null}
       <group ref={groupRef} scale={0.0001}>
         <mesh ref={bodyRef}>
           <sphereGeometry args={[style.size, 40, 40]} />
           {graha.key === "sun" ? (
-            <meshBasicMaterial color={style.color} />
+            // Unlit and outside tone mapping, so it burns rather than greys.
+            <meshBasicMaterial map={map} toneMapped={false} />
           ) : (
             <meshStandardMaterial
               color={map ? "#ffffff" : style.color}
@@ -1089,7 +1346,8 @@ function Graha({
             <spriteMaterial map={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
           </sprite>
         ) : null}
-        {graha.key === "sun" ? <pointLight intensity={60} distance={0} decay={1.6} color="#ffe2b0" /> : null}
+        {graha.key === "sun" ? <SunCorona size={style.size} still={still} /> : null}
+        {graha.key === "sun" ? <pointLight intensity={38} distance={0} decay={1.5} color="#ffe2b0" /> : null}
         {selected ? (
           <mesh ref={haloRef} rotation={[-Math.PI / 2, 0, 0]}>
             <torusGeometry args={[style.size * 1.9, 0.025, 8, 64]} />
@@ -1098,11 +1356,11 @@ function Graha({
         ) : null}
         {/* On phones the grahas sit close together, so only the one being
             looked at is named. */}
-        {boost === 1 || active ? (
+        {(boost === 1 && !quiet) || active ? (
           <Label
             parts={[{ text: label, font: bodyFont() }]}
-          color={active ? "#ffe9b0" : "#d6d9f2"}
-            height={0.4}
+            color={active ? "#ffe9b0" : "#d6d9f2"}
+            height={quiet ? 0.3 : 0.4}
             position={new THREE.Vector3(0, style.size + 0.42, 0)}
             fontsReady={fontsReady}
           />

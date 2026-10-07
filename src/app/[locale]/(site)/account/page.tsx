@@ -176,14 +176,17 @@ function BookingList({
                 ? "darshanDone"
                 : b.status === "cancelled"
                   ? "cancelled"
-                  : b.amount > 0 && b.paymentStatus !== "paid"
-                    ? "payAtCounter"
-                    : "confirmed";
+                  : b.amount > 0 && b.paymentStatus === "submitted"
+                    ? "paymentSubmitted"
+                    : b.amount > 0 && b.paymentStatus !== "paid"
+                      ? "payAtCounter"
+                      : "confirmed";
             const tone = {
               completed: "bg-green-600/15 text-green-800",
               darshanDone: "bg-sky-600/15 text-sky-800",
               cancelled: "bg-red-600/15 text-red-700",
               payAtCounter: "bg-amber-500/20 text-amber-900",
+              paymentSubmitted: "bg-sky-600/15 text-sky-800",
               confirmed: "bg-gold/25 text-maroon",
             }[status];
             return (
@@ -207,6 +210,15 @@ function BookingList({
                     className="text-sm font-semibold text-maroon hover:underline"
                   >
                     {t("viewTicket")} →
+                  </Link>
+                ) : null}
+                {b.reference && status === "payAtCounter" ? (
+                  // Pay by UPI / upload the screenshot on the ticket page.
+                  <Link
+                    href={{ pathname: `/ticket/${b.reference}`, query: { t: signTicket(b.reference) }, hash: "pay" }}
+                    className="w-full rounded-full bg-maroon px-4 py-2.5 text-center text-sm font-semibold text-cream hover:bg-maroon-dark sm:w-auto"
+                  >
+                    {t("payOrUpload")}
                   </Link>
                 ) : null}
               </li>

@@ -6,6 +6,9 @@ import type { Locale } from "@/i18n/routing";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { requireAdmin } from "@/lib/admin/dal";
 import { logout } from "../login/actions";
+import FestivalAlerts from "@/components/admin/FestivalAlerts";
+import { getTempleInfo } from "@/lib/data/temple-info";
+import { TEMPLE_LOCATION } from "@/lib/panchang/compute";
 
 export default async function AdminLayout({
   children,
@@ -17,6 +20,8 @@ export default async function AdminLayout({
   const { locale } = await params;
   setRequestLocale(locale);
   const admin = await requireAdmin(locale as Locale);
+  const info = await getTempleInfo().catch(() => null);
+  const location = info?.lat != null && info.lon != null ? { ...TEMPLE_LOCATION, lat: info.lat, lon: info.lon } : TEMPLE_LOCATION;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-cream text-ink">
@@ -29,6 +34,7 @@ export default async function AdminLayout({
         aria-hidden
       />
       <AdminHeader email={admin.email} locale={locale as Locale} />
+      <FestivalAlerts location={location} />
       <div className="relative mx-auto flex max-w-6xl flex-col lg:flex-row">
         <AdminSidebar />
         <div className="min-w-0 flex-1 px-4 py-6 sm:px-6">{children}</div>

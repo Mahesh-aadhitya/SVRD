@@ -9,6 +9,7 @@ import { verifyAdminSession } from "@/lib/admin/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveFolderId } from "@/lib/admin/folder-field";
 import { todayInIndia } from "@/lib/dates";
+import { findDuplicateEntry } from "@/lib/admin/duplicates";
 
 const eventSchema = z.object({
   titleEn: z.string().trim().min(1),
@@ -44,6 +45,13 @@ export async function createEvent(
   if (eventDate < todayInIndia()) return { error: "Event date can't be in the past" };
 
   const supabase = createAdminClient();
+  const duplicate = await findDuplicateEntry(
+    supabase,
+    "events",
+    { title: { en: titleEn, kn: titleKn }, body: { en: descriptionEn ?? "", kn: descriptionKn ?? "" } },
+    { sameDate: eventDate },
+  );
+  if (duplicate) return { error: `${duplicate} on this date.` };
   const folder = await resolveFolderId(supabase, "events", formData);
   if ("error" in folder) return folder;
   const { error } = await supabase.from("events").insert({
@@ -72,6 +80,13 @@ export async function updateEvent(
   const { titleEn, titleKn, descriptionEn, descriptionKn, eventDate, image } = parsed.data;
 
   const supabase = createAdminClient();
+  const duplicate = await findDuplicateEntry(
+    supabase,
+    "events",
+    { title: { en: titleEn, kn: titleKn }, body: { en: descriptionEn ?? "", kn: descriptionKn ?? "" } },
+    { excludeId: id, sameDate: eventDate },
+  );
+  if (duplicate) return { error: `${duplicate} on this date.` };
   const folder = await resolveFolderId(supabase, "events", formData);
   if ("error" in folder) return folder;
   const { error } = await supabase

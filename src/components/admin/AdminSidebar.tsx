@@ -11,10 +11,12 @@ const items = [
   { href: "/admin/songs", key: "songs" },
   { href: "/admin/sevas", key: "sevas" },
   { href: "/admin/bookings", key: "bookings" },
+  { href: "/admin/payments", key: "payments" },
   { href: "/admin/darshan", key: "darshan" },
   { href: "/admin/donations", key: "donations" },
   { href: "/admin/live", key: "live" },
   { href: "/admin/comments", key: "comments" },
+  { href: "/admin/kundali", key: "kundali" },
   { href: "/admin/temple", key: "temple" },
 ] as const;
 

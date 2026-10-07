@@ -9,6 +9,9 @@ import { getBookingForTicket } from "@/lib/data/bookings";
 import { getTempleInfo } from "@/lib/data/temple-info";
 import { signTicket, verifyTicket } from "@/lib/ticket-token";
 import { getCurrentAdmin } from "@/lib/admin/dal";
+import { getSiteSettings } from "@/lib/data/site-settings";
+import { upiReady } from "@/lib/content-types";
+import TicketPayment from "@/components/payment/TicketPayment";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
@@ -17,9 +20,9 @@ export default async function TicketPage({
   searchParams,
 }: {
   params: Promise<{ locale: string; reference: string }>;
-  searchParams: Promise<{ t?: string; scan?: string }>;
+  searchParams: Promise<{ t?: string; scan?: string; paid?: string }>;
 }) {
-  const [{ locale, reference }, { t: token, scan }] = await Promise.all([params, searchParams]);
+  const [{ locale, reference }, { t: token, scan, paid }] = await Promise.all([params, searchParams]);
   setRequestLocale(locale);
   const t = await getTranslations("ticket");
 
@@ -46,7 +49,10 @@ export default async function TicketPage({
     redirect({ href: `/admin/verify/${ref}`, locale });
   }
 
-  const temple = await getTempleInfo().catch(() => null);
+  const [temple, settings] = await Promise.all([getTempleInfo().catch(() => null), getSiteSettings().catch(() => null)]);
+  const awaitingPayment = ticket.amount > 0 && ticket.status !== "cancelled" && ticket.paymentStatus === "unpaid";
+  const tMeta = await getTranslations("meta");
+  const tPay = await getTranslations("payment");
 
   // The QR encodes this ticket's own signed link, so scanning it at the
   // counter shows the live booking and payment status.
@@ -66,6 +72,20 @@ export default async function TicketPage({
             Verify / check in this ticket →
           </Link>
         </div>
+      ) : null}
+      {awaitingPayment && settings && upiReady(settings) ? (
+        <TicketPayment
+          reference={ref}
+          ticketToken={signTicket(ref)}
+          amount={ticket.amount}
+          upi={{ upiId: settings.upiId, upiNumber: settings.upiNumber, upiPayeeName: settings.upiPayeeName, upiQrUrl: settings.upiQrUrl }}
+          fallbackPayee={tMeta("siteTitle")}
+          rejectedNote={ticket.paymentReviewedAt ? ticket.paymentNote : null}
+        />
+      ) : paid === "1" && ticket.paymentStatus === "submitted" ? (
+        <p className="mx-auto mb-6 max-w-[794px] rounded-2xl border border-green-600/30 bg-green-50 px-4 py-3 text-center text-sm font-semibold text-green-800">
+          {tPay("submittedBanner")}
+        </p>
       ) : null}
       <TicketCard ticket={ticket} temple={temple} qrSvg={qrSvg} locale={locale === "kn" ? "kn" : "en"} />
       <TicketActions reference={ticket.reference ?? ref} />

@@ -10,6 +10,9 @@ import { ensureProfile, getDevotee } from "@/lib/devotee/auth";
 import type { DevoteeProfile } from "@/lib/devotee/types";
 import { getFolders } from "@/lib/data/folders";
 import type { Folder } from "@/lib/folders";
+import { getSiteSettings } from "@/lib/data/site-settings";
+import { upiReady } from "@/lib/content-types";
+import type { UpiDetails } from "@/components/payment/UpiPaymentPanel";
 
 export default async function BookingPage({
   params,
@@ -18,13 +21,22 @@ export default async function BookingPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [sevas, folders, devotee] = await Promise.all([getActiveSevas(), getFolders("sevas"), getDevotee()]);
+  const [sevas, folders, devotee, settings] = await Promise.all([
+    getActiveSevas(),
+    getFolders("sevas"),
+    getDevotee(),
+    getSiteSettings().catch(() => null),
+  ]);
+  const upi: UpiDetails | null =
+    settings && upiReady(settings)
+      ? { upiId: settings.upiId, upiNumber: settings.upiNumber, upiPayeeName: settings.upiPayeeName, upiQrUrl: settings.upiQrUrl }
+      : null;
   // Booking needs a devotee account, so every booking shows up in their history.
   const profile = devotee ? await ensureProfile(devotee).catch(() => null) : null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <BookingContent sevas={sevas} folders={folders} signedIn={!!devotee} profile={profile} />
+      <BookingContent sevas={sevas} folders={folders} signedIn={!!devotee} profile={profile} upi={upi} />
     </div>
   );
 }
@@ -34,11 +46,13 @@ function BookingContent({
   folders,
   signedIn,
   profile,
+  upi,
 }: {
   sevas: Awaited<ReturnType<typeof getActiveSevas>>;
   folders: Folder[];
   signedIn: boolean;
   profile: DevoteeProfile | null;
+  upi: UpiDetails | null;
 }) {
   const t = useTranslations("booking");
   const tTicket = useTranslations("ticket");
@@ -51,7 +65,7 @@ function BookingContent({
       </Link>
       {signedIn ? (
         <Suspense fallback={null}>
-          <BookingFlow sevas={sevas} folders={folders} profile={profile} />
+          <BookingFlow sevas={sevas} folders={folders} profile={profile} upi={upi} />
         </Suspense>
       ) : (
         <div className="mx-auto mt-8 max-w-md rounded-3xl border border-gold/30 bg-white/80 p-8 text-center shadow-sm">

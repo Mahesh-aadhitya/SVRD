@@ -1,7 +1,7 @@
 "use server";
 
-import Anthropic from "@anthropic-ai/sdk";
 import { verifyAdminSession } from "@/lib/admin/dal";
+import { llmProviders } from "@/lib/ai/llm";
 
 // English → Kannada suggestions for the admin forms. Providers, best first:
 //   1. Google Gemini   — free tier, needs GEMINI_API_KEY (aistudio.google.com)
@@ -22,9 +22,10 @@ export async function translateToKannada(english: string): Promise<TranslateResu
   const text = english.trim().slice(0, 3000);
   if (!text) return { ok: true, text: "" };
 
-  const providers: [string, (t: string) => Promise<string>][] = [];
-  if (process.env.GEMINI_API_KEY) providers.push(["gemini", translateWithGemini]);
-  if (process.env.ANTHROPIC_API_KEY) providers.push(["claude", translateWithClaude]);
+  const providers: [string, (t: string) => Promise<string>][] = llmProviders().map(([name, ask]) => [
+    name,
+    (t: string) => ask({ system: INSTRUCTIONS, text: t }),
+  ]);
   providers.push(["mymemory", translateWithMyMemory]);
 
   for (const [name, translate] of providers) {
@@ -36,70 +37,6 @@ export async function translateToKannada(english: string): Promise<TranslateResu
     }
   }
   return { ok: false, error: "failed" };
-}
-
-// ── Google Gemini (free tier) ────────────────────────────────────────────
-
-// Flash-Lite answers short translations in ~1s with the same quality as
-// Flash (~10s). The free tier sometimes returns 503 "high demand" or a 429
-// rate limit for one model while the other is fine, so try them in turn.
-const GEMINI_MODELS = ["gemini-flash-lite-latest", "gemini-flash-latest"];
-
-async function translateWithGemini(text: string) {
-  const models = process.env.GEMINI_MODEL ? [process.env.GEMINI_MODEL, ...GEMINI_MODELS] : GEMINI_MODELS;
-  let lastError: Error | null = null;
-  for (const model of [...new Set(models)]) {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY! },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: INSTRUCTIONS }] },
-          contents: [{ role: "user", parts: [{ text }] }],
-          generationConfig: { temperature: 0.2 },
-        }),
-        signal: AbortSignal.timeout(20_000),
-      },
-    );
-    if (!response.ok) {
-      lastError = new Error(`Gemini ${model} ${response.status}: ${(await response.text()).slice(0, 200)}`);
-      if (response.status === 429 || response.status >= 500) continue;
-      throw lastError;
-    }
-    const data = (await response.json()) as {
-      candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[];
-    };
-    return (data.candidates?.[0]?.content?.parts ?? [])
-      .filter((part) => !part.thought)
-      .map((part) => part.text ?? "")
-      .join("");
-  }
-  throw lastError ?? new Error("Gemini: no model available");
-}
-
-// ── Claude (optional, paid) ──────────────────────────────────────────────
-
-let anthropic: Anthropic | null = null;
-
-async function translateWithClaude(text: string) {
-  anthropic ??= new Anthropic();
-  const response = await anthropic.beta.messages.create({
-    model: "claude-opus-5",
-    max_tokens: 4000,
-    // Short, well-specified task: low effort keeps suggestions fast.
-    output_config: { effort: "low" },
-    // A declined request is retried on a fallback model within the same call.
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
-    system: INSTRUCTIONS,
-    messages: [{ role: "user", content: text }],
-  });
-  if (response.stop_reason === "refusal") throw new Error("Claude declined the request");
-  return response.content
-    .filter((block) => block.type === "text")
-    .map((block) => block.text)
-    .join("");
 }
 
 // ── MyMemory (free, no key) ──────────────────────────────────────────────

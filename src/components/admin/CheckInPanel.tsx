@@ -15,6 +15,7 @@ type View =
   | { kind: "prasadam_given"; darshanAt: string; at: string; justNow: boolean }
   | { kind: "held" }
   | { kind: "unpaid" }
+  | { kind: "upi_unverified"; utr: string | null }
   | { kind: "wrong_date" }
   | { kind: "blocked"; title: string; body: string };
 
@@ -27,6 +28,8 @@ function viewFromCheckIn(r: CheckInResult): View {
         : { kind: "darshan_done", at: r.checkedInAt ?? "", justNow: false };
     case "unpaid":
       return { kind: "unpaid" };
+    case "upi_unverified":
+      return { kind: "upi_unverified", utr: r.utr };
     case "wrong_date":
       return { kind: "wrong_date" };
     case "cancelled":
@@ -165,6 +168,31 @@ export default function CheckInPanel({
             }
           >
             {pending ? "Saving…" : `Collected ₹${amount}: hold darshan for later`}
+          </ActionButton>
+        </Banner>
+      );
+
+    case "upi_unverified":
+      return (
+        <Banner tone="amber" icon="₹" title="UPI payment not yet verified">
+          The devotee uploaded a UPI payment screenshot for ₹{amount}
+          {view.utr ? ` (UTR ${view.utr})` : ""}. Check it in the Payments log or the devotee&apos;s phone, then:
+          <ActionButton disabled={pending} onClick={() => checkIn({ collectPayment: true })}>
+            {pending ? "Saving…" : "Payment verified: darshan now"}
+          </ActionButton>
+          <ActionButton
+            variant="outline"
+            disabled={pending}
+            onClick={() =>
+              act(async () => {
+                const r = await collectPaymentHoldDarshan(reference);
+                if (r.ok) return { kind: "held" };
+                if (r.error === "already_paid") return viewFromCheckIn(await checkInBooking(reference, opts.current));
+                return viewFromCheckIn({ ok: false, error: r.error });
+              })
+            }
+          >
+            {pending ? "Saving…" : "Payment verified: hold darshan for later"}
           </ActionButton>
         </Banner>
       );

@@ -14,6 +14,7 @@ const statusStyles: Record<Booking["status"], string> = {
 const paymentStyles: Record<Booking["paymentStatus"], string> = {
   paid: "bg-green-600/15 text-green-700",
   unpaid: "bg-black/5 text-ink/60",
+  submitted: "bg-amber-500/15 text-amber-800",
   refunded: "bg-blue-600/10 text-blue-700",
 };
 
@@ -87,9 +88,10 @@ export default function BookingTable({ bookings, sevas }: { bookings: Booking[];
                   {isPaidSeva ? `₹${booking.amount}` : "Free"}
                   {isPaidSeva ? (
                     <span className={`ml-2 rounded-full px-2 py-0.5 text-[11px] capitalize ${paymentStyles[booking.paymentStatus]}`}>
-                      {booking.paymentStatus}
+                      {booking.paymentStatus === "submitted" ? "UPI · verify" : booking.paymentStatus}
                     </span>
                   ) : null}
+                  {booking.paymentUtr ? <p className="mt-1 font-mono text-[11px] text-ink/50">UTR {booking.paymentUtr}</p> : null}
                 </td>
                 <td className="px-4 py-3">
                   <span className={`rounded-full px-2.5 py-1 text-xs capitalize ${statusStyles[booking.status]}`}>
@@ -109,7 +111,7 @@ export default function BookingTable({ bookings, sevas }: { bookings: Booking[];
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap justify-end gap-3">
-                    {booking.status !== "cancelled" && isPaidSeva && booking.paymentStatus === "unpaid" ? (
+                    {booking.status !== "cancelled" && isPaidSeva && (booking.paymentStatus === "unpaid" || booking.paymentStatus === "submitted") ? (
                       <form action={setBookingPaymentStatus.bind(null, booking.id, "paid")}>
                         <button className={actionClass}>Mark paid</button>
                       </form>

@@ -6,6 +6,7 @@ import { verifyAdminSession } from "@/lib/admin/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveFolderId } from "@/lib/admin/folder-field";
 import { extractYoutubeId } from "@/lib/youtube";
+import { findDuplicateArchive } from "@/lib/admin/duplicates";
 
 const liveConfigSchema = z
   .object({
@@ -91,6 +92,8 @@ export async function addLiveArchiveItem(
   if (!youtubeId) return { error: "Couldn't read a video ID from that YouTube link." };
 
   const supabase = createAdminClient();
+  const existing = await findDuplicateArchive(supabase, youtubeId);
+  if (existing) return { error: `This video is already in past darshans as "${existing}".` };
   const folder = await resolveFolderId(supabase, "live", formData);
   if ("error" in folder) return folder;
   const { error } = await supabase.from("live_archive").insert({
@@ -110,4 +113,38 @@ export async function deleteLiveArchiveItem(id: string): Promise<void> {
   const { error } = await supabase.from("live_archive").delete().eq("id", id);
   if (error) throw new Error(error.message);
   updateTag("live-archive");
+}
+
+export async function updateLiveArchiveItem(
+  id: string,
+  _prevState: ArchiveFormState,
+  formData: FormData,
+): Promise<ArchiveFormState> {
+  await verifyAdminSession();
+  const parsed = archiveSchema.safeParse({
+    titleEn: formData.get("titleEn"),
+    titleKn: formData.get("titleKn"),
+    youtube: formData.get("youtube"),
+  });
+  if (!parsed.success) return { error: "Fill in both titles and the YouTube link." };
+  const youtubeId = extractYoutubeId(parsed.data.youtube);
+  if (!youtubeId) return { error: "Couldn't read a video ID from that YouTube link." };
+
+  const supabase = createAdminClient();
+  const existing = await findDuplicateArchive(supabase, youtubeId, id);
+  if (existing) return { error: `This video is already in past darshans as "${existing}".` };
+  const folder = await resolveFolderId(supabase, "live", formData);
+  if ("error" in folder) return folder;
+  const { error } = await supabase
+    .from("live_archive")
+    .update({
+      folder_id: folder.folderId,
+      title: { en: parsed.data.titleEn, kn: parsed.data.titleKn },
+      youtube_id: youtubeId,
+    })
+    .eq("id", id);
+  if (error) return { error: error.message };
+
+  updateTag("live-archive");
+  return { success: true };
 }

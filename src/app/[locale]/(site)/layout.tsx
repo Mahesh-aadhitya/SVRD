@@ -7,6 +7,7 @@ import SareeBorderDivider from "@/components/SareeBorderDivider";
 import SiteAudio from "@/components/SiteAudio";
 import WhatsNewPopup from "@/components/highlights/WhatsNewPopup";
 import { getTempleInfo } from "@/lib/data/temple-info";
+import { getSiteSettings } from "@/lib/data/site-settings";
 
 export default async function SiteLayout({
   children,
@@ -17,11 +18,11 @@ export default async function SiteLayout({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const templeInfo = await getTempleInfo();
+  const [templeInfo, settings] = await Promise.all([getTempleInfo(), getSiteSettings().catch(() => null)]);
 
   return (
     <>
-      <SiteAudio />
+      <SiteAudio src={settings?.backgroundAudioUrl} />
       <PageWatermark />
       <Header />
       <SareeBorderDivider flipped />

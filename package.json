@@ -9,7 +9,8 @@
     "lint": "eslint",
     "admin:create": "tsx --env-file=.env.local scripts/create-admin.ts",
     "buckets:create": "tsx --env-file=.env.local scripts/create-buckets.ts",
-    "db:migrate": "tsx --env-file=.env.local scripts/migrate.ts"
+    "db:migrate": "tsx --env-file=.env.local scripts/migrate.ts",
+    "media:backfill": "tsx --env-file=.env.local scripts/backfill-media-hashes.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

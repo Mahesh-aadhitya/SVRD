@@ -4,6 +4,8 @@ import SectionHeading from "@/components/SectionHeading";
 import Card from "@/components/ui/Card";
 import { getTempleInfo } from "@/lib/data/temple-info";
 import type { Locale } from "@/i18n/routing";
+import { timingDay, timingHours } from "@/lib/temple-timings";
+import { mapDirectionsHref, mapEmbedSrc } from "@/lib/temple-map";
 import type { TempleInfo } from "@/lib/content-types";
 
 export default async function AboutPage({
@@ -21,7 +23,10 @@ function AboutContent({ info }: { info: TempleInfo }) {
   const t = useTranslations("about");
   const locale = useLocale() as Locale;
   const about = info.about[locale] || info.about.en;
-  const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(info.mapsQuery)}`;
+  const hasPin = info.lat != null && info.lon != null;
+  // Straight into the route from the visitor's location to this temple.
+  const mapsHref = hasPin ? mapDirectionsHref(info) : info.mapsUrl;
+  const hasMap = hasPin;
   const hasAddress = !!(info.addressLine1 || info.addressLine2);
   const hasContact = !!(info.phone || info.email);
 
@@ -45,7 +50,7 @@ function AboutContent({ info }: { info: TempleInfo }) {
               {info.addressLine1 && info.addressLine2 ? <br /> : null}
               {info.addressLine2}
             </p>
-            {info.mapsQuery ? (
+            {hasMap || info.mapsUrl ? (
               <a
                 href={mapsHref}
                 target="_blank"
@@ -81,24 +86,24 @@ function AboutContent({ info }: { info: TempleInfo }) {
               {info.timings.map((slot) => (
                 <div
                   key={slot.day}
-                  className="flex items-center justify-between border-b border-gold/15 pb-2 text-sm last:border-0"
+                  className="flex flex-wrap items-center justify-between gap-x-4 border-b border-gold/15 pb-2 text-sm last:border-0"
                 >
-                  <span className="text-ink/70">{slot.day}</span>
-                  <span className="font-medium text-maroon-dark">{slot.hours}</span>
+                  <span className="text-ink/70">{timingDay(slot, locale)}</span>
+                  <span className="font-medium text-maroon-dark">{timingHours(slot, locale)}</span>
                 </div>
               ))}
             </div>
           </Card>
         ) : null}
 
-        {info.mapsQuery ? (
+        {hasMap ? (
           <Card className="overflow-hidden sm:col-span-2">
             <div className="aspect-[16/7] w-full">
               <iframe
                 title="Temple location map"
                 className="h-full w-full"
                 loading="lazy"
-                src={`https://www.google.com/maps?q=${encodeURIComponent(info.mapsQuery)}&output=embed`}
+                src={mapEmbedSrc(info.mapsPlace, info.lat!, info.lon!)}
               />
             </div>
           </Card>

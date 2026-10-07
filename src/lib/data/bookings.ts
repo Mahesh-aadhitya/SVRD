@@ -24,10 +24,15 @@ type BookingRow = {
   created_at: string;
   checked_in_at: string | null;
   prasadam_claimed_at: string | null;
+  payment_method: Booking["paymentMethod"];
+  payment_utr: string | null;
+  payment_submitted_at: string | null;
+  payment_reviewed_at: string | null;
+  payment_note: string | null;
 };
 
 const BOOKING_COLUMNS =
-  "id, reference, seva_id, booking_date, seva_slots(start_time, end_time), devotee_name, phone, quantity, devotees, amount, status, payment_status, created_at, checked_in_at, prasadam_claimed_at";
+  "id, reference, seva_id, booking_date, seva_slots(start_time, end_time), devotee_name, phone, quantity, devotees, amount, status, payment_status, created_at, checked_in_at, prasadam_claimed_at, payment_method, payment_utr, payment_submitted_at, payment_reviewed_at, payment_note";
 
 function mapRow(row: BookingRow): Booking {
   const slot = Array.isArray(row.seva_slots) ? (row.seva_slots[0] ?? null) : row.seva_slots;
@@ -48,6 +53,11 @@ function mapRow(row: BookingRow): Booking {
     createdAt: row.created_at,
     checkedInAt: row.checked_in_at,
     prasadamClaimedAt: row.prasadam_claimed_at,
+    paymentMethod: row.payment_method ?? null,
+    paymentUtr: row.payment_utr ?? null,
+    paymentSubmittedAt: row.payment_submitted_at ?? null,
+    paymentReviewedAt: row.payment_reviewed_at ?? null,
+    paymentNote: row.payment_note ?? null,
   };
 }
 
@@ -110,7 +120,7 @@ export async function getDarshanLogForAdmin(date: string): Promise<{ bookings: B
   return { bookings: (darshan.data ?? []).map(mapRow), prasadamGiven: prasadam.count ?? 0 };
 }
 
-export type BookingStats = { total: number; today: number; pending: number; upcoming: number };
+export type BookingStats = { total: number; today: number; pending: number; upcoming: number; paymentsToVerify: number };
 
 export async function getBookingStatsForAdmin(): Promise<BookingStats> {
   await verifyAdminSession();
@@ -124,13 +134,14 @@ export async function getBookingStatsForAdmin(): Promise<BookingStats> {
   function base() {
     return supabase.from("bookings").select("id", { count: "exact", head: true });
   }
-  const [total, todayCount, pending, upcoming] = await Promise.all([
+  const [total, todayCount, pending, upcoming, paymentsToVerify] = await Promise.all([
     count((q) => q),
     count((q) => q.eq("booking_date", today).neq("status", "cancelled")),
     count((q) => q.eq("status", "pending")),
     count((q) => q.gte("booking_date", today).neq("status", "cancelled")),
+    count((q) => q.eq("payment_status", "submitted")),
   ]);
-  return { total, today: todayCount, pending, upcoming };
+  return { total, today: todayCount, pending, upcoming, paymentsToVerify };
 }
 
 // Public: non-cancelled booking counts for each upcoming date of a seva,
@@ -215,4 +226,119 @@ export async function findBookingReference(reference: string, phone: string): Pr
   if (error) throw new Error(`findBookingReference: ${error.message}`);
   const digits = (v: string) => v.replace(/\D/g, "").slice(-10);
   return data && digits(data.phone) === digits(phone) ? data.reference : null;
+}
+
+export type PaymentLogFilter = "submitted" | "paid" | "rejected" | "all";
+
+export type PaymentLogEntry = Ticket & { proofUrl: string | null };
+
+// The admin's UPI payment log: every booking with an uploaded payment
+// screenshot, newest first, with short-lived links to the (private)
+// screenshots.
+export async function getPaymentLogForAdmin(filter: PaymentLogFilter = "submitted"): Promise<{
+  entries: PaymentLogEntry[];
+  counts: Record<PaymentLogFilter, number>;
+}> {
+  await verifyAdminSession();
+  const supabase = createAdminClient();
+  let query = supabase
+    .from("bookings")
+    .select(`${BOOKING_COLUMNS}, payment_proof_path, sevas(name)`)
+    .not("payment_proof_path", "is", null)
+    .order("payment_submitted_at", { ascending: false })
+    .limit(300);
+  if (filter === "submitted") query = query.eq("payment_status", "submitted");
+  if (filter === "paid") query = query.eq("payment_status", "paid");
+  if (filter === "rejected") query = query.eq("payment_status", "unpaid");
+
+  const count = async (status?: string) => {
+    let q = supabase.from("bookings").select("id", { count: "exact", head: true }).not("payment_proof_path", "is", null);
+    if (status) q = q.eq("payment_status", status);
+    const { count, error } = await q;
+    if (error) throw new Error(`getPaymentLogForAdmin: ${error.message}`);
+    return count ?? 0;
+  };
+  const [{ data, error }, submitted, paid, rejected, all] = await Promise.all([
+    query,
+    count("submitted"),
+    count("paid"),
+    count("unpaid"),
+    count(),
+  ]);
+  if (error) throw new Error(`getPaymentLogForAdmin: ${error.message}`);
+
+  const rows = (data ?? []) as unknown as (BookingRow & {
+    payment_proof_path: string;
+    sevas: { name: Ticket["sevaName"] } | { name: Ticket["sevaName"] }[] | null;
+  })[];
+  const paths = rows.map((r) => r.payment_proof_path);
+  const signed = paths.length ? (await supabase.storage.from("payment-proofs").createSignedUrls(paths, 60 * 60)).data ?? [] : [];
+  const urlFor = new Map(signed.map((s) => [s.path, s.signedUrl]));
+
+  return {
+    entries: rows.map((row) => {
+      const seva = Array.isArray(row.sevas) ? row.sevas[0] : row.sevas;
+      return {
+        ...mapRow(row),
+        sevaName: seva?.name ?? { en: row.seva_id, kn: row.seva_id },
+        proofUrl: urlFor.get(row.payment_proof_path) ?? null,
+      };
+    }),
+    counts: { submitted, paid, rejected, all },
+  };
+}
+
+export type PaymentAttempt = {
+  id: string;
+  createdAt: string;
+  reason: string | null;
+  reading: Record<string, unknown> | null;
+  proofUrl: string | null;
+  reference: string | null;
+  amount: number;
+  devoteeName: string;
+  phone: string;
+};
+
+// Screenshots the automatic check refused (fake, unrelated, wrong amount,
+// outside the QR window…), newest first — so the office can follow up.
+export async function getRejectedPaymentAttemptsForAdmin(): Promise<{ attempts: PaymentAttempt[]; count: number }> {
+  await verifyAdminSession();
+  const supabase = createAdminClient();
+  const { data, error, count } = await supabase
+    .from("payment_attempts")
+    .select("id, created_at, reason, reading, proof_path, bookings(reference, amount, devotee_name, phone)", { count: "exact" })
+    .eq("accepted", false)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (error) throw new Error(`getRejectedPaymentAttemptsForAdmin: ${error.message}`);
+  type Embed = { reference: string | null; amount: number; devotee_name: string; phone: string };
+  const rows = (data ?? []) as unknown as {
+    id: string;
+    created_at: string;
+    reason: string | null;
+    reading: Record<string, unknown> | null;
+    proof_path: string;
+    bookings: Embed | Embed[] | null;
+  }[];
+  const paths = rows.map((r) => r.proof_path);
+  const signed = paths.length ? (await supabase.storage.from("payment-proofs").createSignedUrls(paths, 60 * 60)).data ?? [] : [];
+  const urlFor = new Map(signed.map((x) => [x.path, x.signedUrl]));
+  return {
+    count: count ?? rows.length,
+    attempts: rows.map((r) => {
+      const b = Array.isArray(r.bookings) ? r.bookings[0] : r.bookings;
+      return {
+        id: r.id,
+        createdAt: r.created_at,
+        reason: r.reason,
+        reading: r.reading,
+        proofUrl: urlFor.get(r.proof_path) ?? null,
+        reference: b?.reference ?? null,
+        amount: b?.amount ?? 0,
+        devoteeName: b?.devotee_name ?? "",
+        phone: b?.phone ?? "",
+      };
+    }),
+  };
 }

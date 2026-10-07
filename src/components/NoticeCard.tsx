@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import type { Notice } from "@/lib/content-types";
 import { formatIso } from "@/lib/dates";
+import ShareButton from "@/components/ShareButton";
 
 const kindStyles: Record<Notice["kind"], string> = {
   update: "bg-gold/25 text-maroon-dark",
@@ -21,7 +22,8 @@ export default function NoticeCard({ notice, compact }: { notice: Notice; compac
 
   return (
     <article
-      className={`relative rounded-2xl border bg-white/75 p-5 ${
+      id={`notice-${notice.id}`}
+      className={`relative scroll-mt-24 rounded-2xl border bg-white/75 p-5 ${
         notice.isPinned ? "border-maroon/40 shadow-sm" : "border-gold/25"
       }`}
     >
@@ -31,6 +33,7 @@ export default function NoticeCard({ notice, compact }: { notice: Notice; compac
         <time dateTime={notice.publishOn} className="ml-auto font-medium normal-case tracking-normal text-ink/50">
           {formatIso(notice.publishOn, locale, { day: "numeric", month: "short", year: "numeric" })}
         </time>
+        <ShareButton compact title={title} text={body} path={`/notices#notice-${notice.id}`} />
       </div>
       <h3 className="mt-2.5 font-display text-lg leading-snug text-maroon">{title}</h3>
       <p className={`mt-1.5 whitespace-pre-line text-sm text-ink/75 ${compact ? "line-clamp-3" : ""}`}>{body}</p>

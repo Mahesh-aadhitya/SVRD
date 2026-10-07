@@ -7,6 +7,7 @@ import type { Locale } from "@/i18n/routing";
 import type { FolderSection } from "@/lib/folders";
 import { verifyAdminSession } from "@/lib/admin/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { findDuplicateFolder } from "@/lib/admin/duplicates";
 
 const folderSchema = z.object({
   name: z.string().trim().min(1),
@@ -30,6 +31,9 @@ export async function createFolder(
   if (!parsed.success) return { error: "invalid" };
 
   const supabase = createAdminClient();
+  if (await findDuplicateFolder(supabase, section, parsed.data.name, parsed.data.parentId ?? null)) {
+    return { error: `There's already a folder named "${parsed.data.name}" here.` };
+  }
   const { error } = await supabase.from("content_folders").insert({
     section,
     name: parsed.data.name,
@@ -58,4 +62,46 @@ export async function deleteFolder(
 
   updateTag(`content-folders-${section}`);
   redirect({ href: redirectPath, locale });
+}
+
+const renameSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().trim().min(1).max(120),
+  parentId: z.string().uuid().nullable(),
+});
+
+// Rename a folder, or move a subfolder under another category (or make it
+// top-level). A category that still has subfolders stays top-level, since
+// the admin UI only nests one level deep.
+export async function updateFolder(
+  section: FolderSection,
+  input: { id: string; name: string; parentId: string | null },
+): Promise<{ error?: string }> {
+  await verifyAdminSession();
+  const parsed = renameSchema.safeParse(input);
+  if (!parsed.success) return { error: "Enter a folder name" };
+  const { id, name, parentId } = parsed.data;
+  if (parentId === id) return { error: "A folder can't sit inside itself" };
+
+  const supabase = createAdminClient();
+  if (parentId) {
+    const [{ data: parent }, { count }] = await Promise.all([
+      supabase.from("content_folders").select("id, parent_id").eq("id", parentId).eq("section", section).maybeSingle(),
+      supabase.from("content_folders").select("id", { count: "exact", head: true }).eq("parent_id", id),
+    ]);
+    if (!parent || parent.parent_id) return { error: "Pick a top-level category" };
+    if (count) return { error: "This category has subfolders — it must stay top-level" };
+  }
+  if (await findDuplicateFolder(supabase, section, name, parentId, id)) {
+    return { error: `There's already a folder named "${name}" here.` };
+  }
+  const { error } = await supabase
+    .from("content_folders")
+    .update({ name, parent_id: parentId })
+    .eq("id", id)
+    .eq("section", section);
+  if (error) return { error: error.message };
+
+  updateTag(`content-folders-${section}`);
+  return {};
 }

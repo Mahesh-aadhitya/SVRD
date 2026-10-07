@@ -43,6 +43,8 @@ export default function ShareActions({
     await document.fonts?.ready;
     const node = hostRef.current?.firstElementChild as HTMLElement | null;
     if (!node) throw new Error("no card");
+    // The emblem and watermark images must be decoded before capture.
+    await Promise.all([...node.querySelectorAll("img")].map((img) => img.decode().catch(() => undefined)));
     const { toPng, toJpeg } = await import("html-to-image");
     const options = { pixelRatio: 1.5, cacheBust: true, backgroundColor: "#05030f", quality: 0.9 };
     const capture = kind === "image" ? toPng : toJpeg;

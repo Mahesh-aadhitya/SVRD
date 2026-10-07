@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { GalleryItem } from "@/lib/gallery-types";
 import type { Folder } from "@/lib/folders";
 import { buildFolderTree } from "@/lib/folders";
 import Chip from "@/components/ui/Chip";
+import ShareButton from "@/components/ShareButton";
 
 type TypeFilter = "all" | "photo" | "video";
 
@@ -26,6 +27,14 @@ export default function GalleryGrid({
   const [active, setActive] = useState<GalleryItem | null>(null);
 
   const selectedCategory = tree.find((c) => c.id === categoryId);
+  const shareTitle = (item: GalleryItem) => (item.type === "video" ? t("shareVideo") : t("sharePhoto"));
+
+  // A shared link (?item=…) opens that photo or video.
+  useEffect(() => {
+    const id = new URL(window.location.href).searchParams.get("item");
+    const item = id ? items.find((i) => i.id === id) : undefined;
+    if (item) setActive(item); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [items]);
 
   const filtered = items.filter((item) => {
     if (typeFilter !== "all" && item.type !== typeFilter) return false;
@@ -91,11 +100,11 @@ export default function GalleryGrid({
       {filtered.length === 0 ? <p className="mt-6 text-center text-sm text-ink/55">{t("empty")}</p> : null}
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {filtered.map((item) => (
+          <div key={item.id} className="relative">
           <button
-            key={item.id}
             type="button"
             onClick={() => setActive(item)}
-            className="group relative aspect-square overflow-hidden rounded-xl"
+            className="group relative block aspect-square w-full overflow-hidden rounded-xl"
           >
             <Image
               src={item.image}
@@ -114,6 +123,14 @@ export default function GalleryGrid({
               </span>
             ) : null}
           </button>
+          <ShareButton
+            compact
+            title={shareTitle(item)}
+            path={`/gallery?item=${item.id}`}
+            imageUrl={item.type === "photo" ? item.image : undefined}
+            className="absolute right-1.5 top-1.5"
+          />
+          </div>
         ))}
       </div>
 
@@ -128,6 +145,17 @@ export default function GalleryGrid({
             className="w-full max-w-3xl overflow-hidden rounded-2xl bg-black"
             onClick={(event) => event.stopPropagation()}
           >
+            <div className="flex justify-end gap-2 bg-black/60 px-3 py-2">
+              <ShareButton
+                tone="dark"
+                title={shareTitle(active)}
+                path={`/gallery?item=${active.id}`}
+                imageUrl={active.type === "photo" ? active.image : undefined}
+              />
+              <button type="button" onClick={() => setActive(null)} className="rounded-full px-3 text-lg text-white/70 hover:text-white" aria-label="Close">
+                ×
+              </button>
+            </div>
             {active.type === "video" && active.youtubeId ? (
               <div className="aspect-video w-full">
                 <iframe

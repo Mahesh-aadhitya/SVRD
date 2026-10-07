@@ -3,8 +3,11 @@
 // South Indian convention of what prevails at local sunrise, with every
 // change up to the next sunrise listed. Runs on the server and in the
 // browser alike (the page recomputes when a visitor changes date/place).
-import { Body, EclipticGeoMoon, Ecliptic, GeoVector, Observer, SearchMoonPhase, SearchRiseSet, SunPosition } from "astronomy-engine";
-import { FESTIVALS, type GrahaKey } from "./names";
+import { Body, EclipticGeoMoon, Ecliptic, GeoVector, HelioVector, Observer, SearchMoonPhase, SearchRiseSet, SunPosition } from "astronomy-engine";
+import type { GrahaKey } from "./names";
+import { observancesFor, type Observance } from "./rules";
+
+export type { Observance } from "./rules";
 
 export type PanchangLocation = {
   name: string;
@@ -34,12 +37,10 @@ export type GrahaPosition = {
   nakshatra: number;
   pada: number; // 1–4
   retrograde: boolean;
+  // Sidereal longitude seen from the Sun (Mercury–Saturn only), for the
+  // Sun-centred model of the sky; the panchanga itself is geocentric.
+  helioLongitude?: number;
 };
-
-export type Observance =
-  | { kind: "festival"; masa: number; tithi: number }
-  | { kind: "ekadashi" | "vaikunthaEkadashi" | "pradosha" | "sankashti" | "purnima" | "amavasya" }
-  | { kind: "sankranti"; rashi: number; at: number };
 
 export type PanchangDay = {
   date: string; // yyyy-mm-dd at the location
@@ -72,17 +73,20 @@ export type PanchangDay = {
   durmuhurtham: Span[];
   brahmaMuhurta: Span;
   grahas: GrahaPosition[];
+  dhanurmasaDay: number | null;
+  // Sidereal longitude of the Earth seen from the Sun.
+  earthLongitude: number;
   observances: Observance[];
 };
 
 const DAY = 86_400_000;
 const HOUR = 3_600_000;
-const NAK = 360 / 27;
+export const NAK = 360 / 27;
 
-const mod360 = (x: number) => ((x % 360) + 360) % 360;
+export const mod360 = (x: number) => ((x % 360) + 360) % 360;
 
 // Lahiri (Chitrapaksha) ayanamsa: 23°51′25.5″ at J2000 plus precession.
-function ayanamsa(t: Date) {
+export function ayanamsa(t: Date) {
   const T = (t.getTime() - Date.UTC(2000, 0, 1, 12)) / (36525 * DAY);
   return 23.857092 + 1.396971 * T + 0.000308 * T * T;
 }
@@ -90,8 +94,8 @@ function ayanamsa(t: Date) {
 const sunTropical = (t: Date) => SunPosition(t).elon;
 const moonTropical = (t: Date) => EclipticGeoMoon(t).lon;
 const sidereal = (tropical: number, t: Date) => mod360(tropical - ayanamsa(t));
-const sunSidereal = (t: Date) => sidereal(sunTropical(t), t);
-const moonSidereal = (t: Date) => sidereal(moonTropical(t), t);
+export const sunSidereal = (t: Date) => sidereal(sunTropical(t), t);
+export const moonSidereal = (t: Date) => sidereal(moonTropical(t), t);
 const elongation = (t: Date) => mod360(moonTropical(t) - sunTropical(t));
 
 // Mean ascending lunar node (Rahu), tropical.
@@ -108,7 +112,7 @@ const PLANET_BODIES: Partial<Record<GrahaKey, Body>> = {
   saturn: Body.Saturn,
 };
 
-function grahaSidereal(key: GrahaKey, t: Date) {
+export function grahaSidereal(key: GrahaKey, t: Date) {
   switch (key) {
     case "sun":
       return sunSidereal(t);
@@ -123,12 +127,17 @@ function grahaSidereal(key: GrahaKey, t: Date) {
   }
 }
 
-const tithiAt = (t: Date) => Math.floor(elongation(t) / 12);
-const karanaAt = (t: Date) => Math.floor(elongation(t) / 6);
-const nakshatraAt = (t: Date) => Math.floor(moonSidereal(t) / NAK);
-const yogaAt = (t: Date) => Math.floor(mod360(sunSidereal(t) + moonSidereal(t)) / NAK);
+function helioSidereal(key: GrahaKey, t: Date) {
+  const body = PLANET_BODIES[key];
+  return body ? sidereal(Ecliptic(HelioVector(body, t)).elon, t) : undefined;
+}
+
+export const tithiAt = (t: Date) => Math.floor(elongation(t) / 12);
+export const karanaAt = (t: Date) => Math.floor(elongation(t) / 6);
+export const nakshatraAt = (t: Date) => Math.floor(moonSidereal(t) / NAK);
+export const yogaAt = (t: Date) => Math.floor(mod360(sunSidereal(t) + moonSidereal(t)) / NAK);
 const moonRashiAt = (t: Date) => Math.floor(moonSidereal(t) / 30);
-const sunRashiAt = (t: Date) => Math.floor(sunSidereal(t) / 30);
+export const sunRashiAt = (t: Date) => Math.floor(sunSidereal(t) / 30);
 
 // First moment (within 30s) at which `fn` has changed value in (lo, hi].
 function bisect(fn: (t: Date) => number, lo: number, hi: number) {
@@ -141,10 +150,10 @@ function bisect(fn: (t: Date) => number, lo: number, hi: number) {
   return hi;
 }
 
-const toMinute = (t: number) => Math.round(t / 60_000) * 60_000;
+export const toMinute = (t: number) => Math.round(t / 60_000) * 60_000;
 
 // The time `fn`'s current value at `t` began (searching back) or ends.
-function edge(fn: (t: Date) => number, t: number, dir: 1 | -1, stepMs: number, limitMs: number) {
+export function edge(fn: (t: Date) => number, t: number, dir: 1 | -1, stepMs: number, limitMs: number) {
   const value = fn(new Date(t));
   for (let s = stepMs; s <= limitMs; s += stepMs) {
     const probe = t + dir * s;
@@ -170,13 +179,13 @@ function segments(fn: (t: Date) => number, from: number, to: number, stepMs = HO
   return out;
 }
 
-function riseSet(body: Body, observer: Observer, direction: 1 | -1, from: number, limitDays: number) {
+export function riseSet(body: Body, observer: Observer, direction: 1 | -1, from: number, limitDays: number) {
   const t = SearchRiseSet(body, observer, direction, new Date(from), limitDays);
   return t ? t.date.getTime() : null;
 }
 
 // Most recent new moon at or before `t`.
-function previousNewMoon(t: number) {
+export function previousNewMoon(t: number) {
   let found = SearchMoonPhase(0, new Date(t - 32 * DAY), 32)!.date.getTime();
   for (;;) {
     const next = SearchMoonPhase(0, new Date(found + DAY), 32)!.date.getTime();
@@ -208,6 +217,46 @@ function mergeSpans(spans: Span[]) {
     else out.push({ ...s });
     return out;
   }, []);
+}
+
+// Sidereal positions of the nine grahas at a moment (epoch ms).
+export function grahaPositionsAt(t: number): GrahaPosition[] {
+  const at = new Date(t);
+  return (["sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn", "rahu", "ketu"] as GrahaKey[]).map((key) => {
+    const longitude = grahaSidereal(key, at);
+    const later = grahaSidereal(key, new Date(t + 12 * HOUR));
+    const motion = ((later - longitude + 540) % 360) - 180;
+    const nakFloat = longitude / NAK;
+    return {
+      key,
+      longitude,
+      rashi: Math.floor(longitude / 30),
+      degreeInRashi: longitude % 30,
+      nakshatra: Math.floor(nakFloat),
+      pada: Math.floor((nakFloat % 1) * 4) + 1,
+      retrograde: key === "rahu" || key === "ketu" ? true : motion < 0,
+      helioLongitude: helioSidereal(key, at),
+    };
+  });
+}
+
+// Day of Dhanurmasa at a sunrise: counted from the first sunrise with the
+// Sun in Dhanu. Null outside the month.
+export function dhanurmasaDayAt(sunrise: number) {
+  if (sunRashiAt(new Date(sunrise)) !== 8) return null;
+  let k = 1;
+  while (k < 32 && sunRashiAt(new Date(sunrise - k * DAY)) === 8) k++;
+  return k;
+}
+
+// Tithi at madhyahna, aparahna, pradosha and nishita of one day.
+export function momentTithis(sunrise: number, sunset: number, nextSunrise: number) {
+  return {
+    noon: tithiAt(new Date((sunrise + sunset) / 2)),
+    aparahna: tithiAt(new Date(sunrise + 0.7 * (sunset - sunrise))),
+    sunset: tithiAt(new Date(sunset)),
+    midnight: tithiAt(new Date((sunset + nextSunrise) / 2)),
+  };
 }
 
 export function isValidIsoDate(iso: string) {
@@ -258,41 +307,36 @@ export function computePanchang(date: string, location: PanchangLocation): Panch
   const nightMuhurta = nightLen / 15;
   const [dayDur, nightDur] = DURMUHURTA[weekday];
 
-  const grahas: GrahaPosition[] = (["sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn", "rahu", "ketu"] as GrahaKey[]).map(
-    (key) => {
-      const longitude = grahaSidereal(key, sr);
-      const later = grahaSidereal(key, new Date(sunrise + 12 * HOUR));
-      const motion = ((later - longitude + 540) % 360) - 180;
-      const nakFloat = longitude / NAK;
-      return {
-        key,
-        longitude,
-        rashi: Math.floor(longitude / 30),
-        degreeInRashi: longitude % 30,
-        nakshatra: Math.floor(nakFloat),
-        pada: Math.floor((nakFloat % 1) * 4) + 1,
-        retrograde: key === "rahu" || key === "ketu" ? true : motion < 0,
-      };
-    },
-  );
+  const grahas = grahaPositionsAt(sunrise);
 
-  const observances: Observance[] = [];
-  if (!adhikaMasa) {
-    for (const f of FESTIVALS) {
-      if (f.masa === masa && f.tithi === tithiAtSunrise) observances.push({ kind: "festival", masa, tithi: f.tithi });
-    }
-  }
-  if (tithiAtSunrise === 10 && sunRashi === 8) observances.push({ kind: "vaikunthaEkadashi" });
-  else if (tithiAtSunrise === 10 || tithiAtSunrise === 25) observances.push({ kind: "ekadashi" });
-  const tithiAtSunset = tithiAt(new Date(sunset));
-  if (tithiAtSunset === 12 || tithiAtSunset === 27) observances.push({ kind: "pradosha" });
-  if (moonriseT && tithiAt(new Date(moonriseT)) === 18) observances.push({ kind: "sankashti" });
-  if (tithi.some((s) => s.index === 14)) observances.push({ kind: "purnima" });
-  if (tithi.some((s) => s.index === 29)) observances.push({ kind: "amavasya" });
   const nextRashi = sunRashiAt(new Date(nextSunrise));
-  if (nextRashi !== sunRashi) {
-    observances.push({ kind: "sankranti", rashi: nextRashi, at: toMinute(edge(sunRashiAt, sunrise, 1, 6 * HOUR, DAY + 6 * HOUR)) });
-  }
+  const dhanurmasaDay = dhanurmasaDayAt(sunrise);
+  // Yesterday's sunrise is close enough to 24h earlier for these checks.
+  const prevSunrise = new Date(sunrise - DAY);
+  const observances: Observance[] = observancesFor({
+    masa,
+    adhikaMasa,
+    tithis: tithi.map((s) => s.index),
+    kshayaMasa: { masa: (sunRashiAt(new Date(nextNm)) + 1) % 12, adhikaMasa: false },
+    prevTithi: tithiAt(prevSunrise),
+    tithiAt: momentTithis(sunrise, sunset, nextSunrise),
+    prevTithiAt: (() => {
+      const prevRise = riseSet(Body.Sun, observer, 1, midnight - DAY, 1) ?? sunrise - DAY;
+      return momentTithis(prevRise, riseSet(Body.Sun, observer, -1, prevRise, 1) ?? sunset - DAY, sunrise);
+    })(),
+    nextTithiAt: (() => {
+      const nextSet = riseSet(Body.Sun, observer, -1, nextSunrise, 1) ?? sunset + DAY;
+      return momentTithis(nextSunrise, nextSet, riseSet(Body.Sun, observer, 1, nextSet, 1) ?? nextSunrise + DAY);
+    })(),
+    tithiAtMoonrise: moonriseT ? tithiAt(new Date(moonriseT)) : null,
+    nakshatraAtSunrise: nakshatraAt(sr),
+    prevNakshatra: nakshatraAt(prevSunrise),
+    sunRashi,
+    sankranti:
+      nextRashi !== sunRashi ? { rashi: nextRashi, at: toMinute(edge(sunRashiAt, sunrise, 1, 6 * HOUR, DAY + 6 * HOUR)) } : null,
+    dhanurmasaDay,
+    makaraTomorrow: nextRashi === 8 && sunRashiAt(new Date(nextSunrise + DAY)) === 9,
+  });
 
   return {
     date,
@@ -329,6 +373,8 @@ export function computePanchang(date: string, location: PanchangLocation): Panch
     ]),
     brahmaMuhurta: { start: sunrise - 96 * 60_000, end: sunrise - 48 * 60_000 },
     grahas,
+    dhanurmasaDay,
+    earthLongitude: mod360(sunSidereal(sr) + 180),
     observances,
   };
 }

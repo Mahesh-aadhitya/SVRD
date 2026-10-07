@@ -47,14 +47,17 @@
     "filterAll": "All",
     "filterPhotos": "Photos",
     "filterVideos": "Videos",
-    "empty": "No photos or videos here yet."
+    "empty": "No photos or videos here yet.",
+    "sharePhoto": "A photo from Sri Varadaraja Swamy Devasthaanam",
+    "shareVideo": "A video from Sri Varadaraja Swamy Devasthaanam"
   },
   "songs": {
     "pageTitle": "Devotional Songs",
     "pageSubtitle": "Bhajans and aartis to keep the divine close to your heart.",
     "playCta": "Play",
     "empty": "No songs here yet.",
-    "filterAll": "All"
+    "filterAll": "All",
+    "shareText": "Listen at Sri Varadaraja Swamy Devasthaanam"
   },
   "live": {
     "pageTitle": "Live Darshan",
@@ -76,7 +79,7 @@
   },
   "booking": {
     "pageTitle": "Book a Seva",
-    "pageSubtitle": "Pick a seva and a date on the calendar. Free sevas are confirmed instantly; for paid sevas, pay at the temple counter with your booking reference.",
+    "pageSubtitle": "Pick a seva and a date on the calendar. Free sevas are confirmed instantly; for paid sevas, pay by UPI and upload the payment screenshot to get your ticket at once — or pay at the temple counter.",
     "step1": "Choose a Seva",
     "priceFree": "Free",
     "priceLabel": "Price",
@@ -129,12 +132,15 @@
       "gotram": "Gotram",
       "nakshatram": "Nakshatram",
       "optional": "optional",
-      "sameGotram": "Same gotram for everyone"
+      "sameGotram": "Same gotram for everyone",
+      "sameAsFirst": "Same as devotee 1"
     },
     "wholeDay": "Full day",
     "signInTitle": "Sign in to book a seva",
     "signInBody": "Sign in with Google to book — your tickets, darshan and prasadam history stay in your account.",
-    "myBookings": "My bookings"
+    "myBookings": "My bookings",
+    "reservedPayTitle": "Seva reserved — complete payment",
+    "payLaterNote": "Can't pay now? Your seat is held — pay ₹{amount} later from your ticket page, or at the temple counter with this reference."
   },
   "about": {
     "pageTitle": "Temple & Contact",
@@ -179,7 +185,9 @@
       "temple": "Temple Info",
       "notices": "Notice Board",
       "darshan": "Darshan Log",
-      "donations": "Donations"
+      "donations": "Donations",
+      "kundali": "Kundali / Jataka",
+      "payments": "Payments"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -241,7 +249,8 @@
       "free": "Free seva",
       "paid": "Paid ₹{amount}",
       "unpaid": "Pay ₹{amount} at counter",
-      "refunded": "Refunded"
+      "refunded": "Refunded",
+      "submitted": "UPI ₹{amount} · verification pending"
     },
     "footer": "Please show this ticket at the temple counter on the day of your seva. May Sri Varadaraja Swamy bless you.",
     "footerPay": "Please pay ₹{amount} at the temple counter with this ticket to confirm your seva.",
@@ -272,7 +281,8 @@
       "id": "Carry this ticket (printed or on your phone) and a photo ID for each devotee.",
       "transfer": "This ticket is valid only for the devotees, date and time shown above. It cannot be transferred.",
       "dress": "Traditional attire is requested inside the temple.",
-      "prasadam": "Darshan is done. Show this same QR at the prasadam counter to collect prasadam — today or on a later day."
+      "prasadam": "Darshan is done. Show this same QR at the prasadam counter to collect prasadam — today or on a later day.",
+      "upiPending": "Your UPI payment screenshot has been received; the temple office will verify it. Show this ticket at the counter — keep the payment screenshot on your phone too."
     },
     "scanToVerify": "Scan to verify",
     "usedStamp": "Fully used",
@@ -282,7 +292,11 @@
     "prasadamLabel": "Prasadam",
     "prasadamPending": "Pending — show this QR to collect",
     "scanForPrasadam": "Scan for prasadam",
-    "footerDarshanDone": "Darshan completed. Show this same QR at the prasadam counter — today or later."
+    "footerDarshanDone": "Darshan completed. Show this same QR at the prasadam counter — today or later.",
+    "paymentMode": "Payment mode",
+    "counter": "Temple counter",
+    "utr": "UPI transaction ID (UTR)",
+    "paymentSubmittedOn": "Paid on"
   },
   "auth": {
     "signIn": "Sign in",
@@ -374,7 +388,8 @@
       "darshanDone": "Darshan done",
       "cancelled": "Cancelled",
       "payAtCounter": "Pay at counter",
-      "confirmed": "Confirmed"
+      "confirmed": "Confirmed",
+      "paymentSubmitted": "Payment submitted"
     },
     "claimTitle": "Booked before signing in?",
     "claimBody": "Add an earlier booking with its reference and the mobile number used to book.",
@@ -407,7 +422,8 @@
     "errors": {
       "invalid": "Please check the details — name needs at least 2 letters and mobile 10 digits.",
       "login": "Please sign in again."
-    }
+    },
+    "payOrUpload": "Pay by UPI / upload screenshot"
   },
   "donate": {
     "title": "Donate",
@@ -554,7 +570,7 @@
     "nextDay": "Next day",
     "pickDate": "Pick a date",
     "location": "Calculated for",
-    "templeLocation": "Temple · Kolar",
+    "templeLocation": "Temple",
     "myLocation": "My location",
     "useMyLocation": "Use my location",
     "locating": "Finding you…",
@@ -618,6 +634,174 @@
     "saved": "Saved to your device.",
     "shareText": "Panchangam · {date}",
     "sankalpa": "Sri {samvatsara} nama samvatsare, {ayana}, {ritu} ritau, {masa} mase, {paksha} pakshe",
-    "footnote": "Calculated for local sunrise by Drik Ganita with the Lahiri (Chitrapaksha) ayanamsa. Festival days follow the tithi prevailing at sunrise and may differ by a day from your family or matha panchanga."
+    "footnote": "Calculated for local sunrise by Drik Ganita with the Lahiri (Chitrapaksha) ayanamsa. Festival days follow the tithi prevailing at sunrise and may differ by a day from your family or matha panchanga.",
+    "earth": "Bhumi (Earth)",
+    "tabs": {
+      "day": "Day",
+      "month": "Month",
+      "festival": "Festivals",
+      "important": "Important days",
+      "tirumala": "Tirumala",
+      "grahana": "Grahanas",
+      "tirunakshatram": "Alwars & Acharyas"
+    },
+    "atOurTemple": "At our temple today",
+    "ourTemple": "Sri Varadaraja Swamy Devasthaanam",
+    "templeUtsavas": "Our temple's annual utsavas",
+    "verseOfDay": "Verse of the day",
+    "meaningIn": {
+      "en": "Meaning",
+      "kn": "ಅರ್ಥ (Kannada)"
+    },
+    "prevYear": "Previous year",
+    "nextYear": "Next year",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "filter": {
+      "all": "All",
+      "ekadashi": "Ekadashi",
+      "moon": "Purnima & Amavasya",
+      "pradosha": "Pradosha",
+      "sankashti": "Sankashti",
+      "shravana": "Shravana",
+      "tirunakshatram": "Alwar & Acharya tirunakshatrams",
+      "sankranti": "Sankranti"
+    },
+    "tirumalaNote": "Sri Venkateswara Swamy's utsavas at Tirumala, worked out from their traditional tithi and nakshatra rules — please confirm with TTD's official calendar before travelling.",
+    "grahanaNote": "Eclipse times are for {place}. Penumbral lunar eclipses are not observed as grahanas.",
+    "nothingThisYear": "Nothing to show for this year.",
+    "visibleHere": "Visible from {place}",
+    "notVisibleHere": "Not visible from {place}",
+    "grahanaTimes": "Begins {start} · peak {peak} · ends {end}",
+    "grahanaPeak": "Peak {peak}",
+    "obscuration": "{pct}% of the Sun covered",
+    "penumbralNote": "penumbral — not observed",
+    "adhikaShort": "Adhika",
+    "tithiPurnima": "Purnima",
+    "tithiAmavasya": "Amavasya",
+    "category": {
+      "temple": "Our temple",
+      "festival": "Festival",
+      "important": "Vrata & important day",
+      "tirumala": "Tirumala",
+      "grahana": "Grahana",
+      "tirunakshatram": "Tirunakshatram"
+    },
+    "kundali": {
+      "title": "Janma Kundali",
+      "intro": "Birth chart with rashi and navamsa charts, the birth panchanga and Vimshottari dasha — drik-ganita with the Chitrapaksha (Lahiri) ayanamsa.",
+      "name": "Name (optional)",
+      "date": "Date of birth",
+      "time": "Time of birth",
+      "place": "Place of birth",
+      "otherPlace": "Other place (enter coordinates)",
+      "lat": "Latitude (° N)",
+      "lon": "Longitude (° E)",
+      "tz": "Time zone (hours from UTC)",
+      "make": "Make kundali",
+      "needDateTime": "Enter the date and time of birth.",
+      "needPlace": "Enter the latitude, longitude and time zone of the birthplace.",
+      "rashiChart": "Rashi",
+      "navamsaChart": "Navamsa",
+      "birthPanchanga": "Janma panchanga",
+      "lagna": "Lagna",
+      "lagnaShort": "Asc",
+      "house": "Bhava",
+      "navamsa": "Navamsa",
+      "dasha": "Vimshottari dasha",
+      "now": "now",
+      "footnote": "Whole-sign bhavas from the lagna · Chitrapaksha (Lahiri) ayanamsa · mean Rahu/Ketu · dasha years of 365.25 days. For important decisions, have the chart read by a qualified jyotishi.",
+      "antardasha": "antardasha",
+      "printTitle": "Print or save as PDF",
+      "paper": "Paper size",
+      "orientation": "Orientation",
+      "portrait": "Portrait",
+      "landscape": "Landscape",
+      "downloadPdf": "Download PDF",
+      "print": "Print",
+      "retroShort": "R",
+      "chartStyle": "Chart style",
+      "south": "South Indian",
+      "north": "North Indian",
+      "latLon": "Latitude / Longitude",
+      "ayanamsa": "Ayanamsa",
+      "sphuta": "Graha sphuta (planetary positions)",
+      "padaShort": "Pada",
+      "mahadasha": "Mahadasha",
+      "from": "From",
+      "to": "To"
+    },
+    "dhanurmasa": {
+      "day": "Day {day} of 30",
+      "pasuram": "Tiruppavai pasuram {n}"
+    },
+    "useTemple": "Use temple location"
+  },
+  "share": {
+    "share": "Share",
+    "whatsapp": "WhatsApp",
+    "copyLink": "Copy link",
+    "copyText": "Copy text",
+    "copied": "Copied ✓"
+  },
+  "payment": {
+    "title": "Pay ₹{amount} by UPI",
+    "subtitle": "Pay from any UPI app (Google Pay, PhonePe, Paytm, BHIM) within 10 minutes, then upload the payment screenshot — your ticket is issued as soon as it's checked.",
+    "step1": "Pay to the temple",
+    "step2": "Upload the payment screenshot",
+    "openApp": "Pay ₹{amount} in a UPI app",
+    "qrAlt": "Temple UPI QR code",
+    "scanQr": "Scan from any UPI app",
+    "payee": "Pay to",
+    "upiId": "UPI ID",
+    "upiNumber": "UPI mobile number",
+    "amount": "Amount",
+    "note": "Payment note",
+    "copy": "Copy",
+    "copied": "Copied ✓",
+    "uploadCta": "Choose payment screenshot",
+    "uploadHint": "Screenshot of the “Payment successful” screen showing amount, date & time, receiver and transaction ID",
+    "changeFile": "Choose a different screenshot",
+    "utrLabel": "UPI transaction ID / UTR",
+    "optional": "optional",
+    "utrHint": "We read it from the screenshot automatically — type it only if you have it handy.",
+    "submit": "Submit & get my ticket",
+    "uploading": "Uploading screenshot…",
+    "reading": "Checking payment details…",
+    "submittedBanner": "🙏 Payment screenshot received — your ticket below is your receipt. The temple office will verify the payment.",
+    "rejectedNote": "Your earlier payment screenshot couldn't be verified: {note} Please pay and upload again, or pay at the temple counter.",
+    "errors": {
+      "bad_file": "Please choose a photo or screenshot (JPG, PNG, WebP or HEIC, up to 10 MB).",
+      "failed": "Couldn't upload. Check your connection and try again.",
+      "already_paid": "This booking is already paid.",
+      "cancelled": "This booking was cancelled.",
+      "not_found": "Booking not found. Please open your ticket again.",
+      "read_failed": "We couldn't read the screenshot just now. Please try again in a moment.",
+      "duplicate_utr": "Invalid payment details — this transaction has already been used for another booking."
+    },
+    "preparingQr": "Preparing payment QR…",
+    "tryAgain": "Try again",
+    "showQr": "Pay ₹{amount} by UPI — show QR",
+    "validFor": "QR valid for {time}",
+    "windowRule": "Pay the exact amount within this window. Payments made before the QR was shown or after it expires can't be accepted.",
+    "expiredTitle": "This payment QR has expired",
+    "expiredBodyBooking": "Already paid? Upload the screenshot from your ticket or My bookings. Not paid yet? Show the QR again and pay within 10 minutes.",
+    "expiredBodyTicket": "Already paid? Upload the screenshot below. Not paid yet? Show the QR again and pay within 10 minutes.",
+    "restart": "Show QR again",
+    "uploadMoved": "The QR window has closed. Upload your payment screenshot from your ticket — your seat stays reserved and you can download the ticket there.",
+    "uploadOnTicket": "Upload on my ticket",
+    "invalidTitle": "Invalid payment details",
+    "invalid": {
+      "not_payment": "This isn't a UPI payment screenshot. Please upload the screenshot of the “Payment successful” screen.",
+      "not_successful": "The screenshot doesn't show a successful payment. If money was deducted, wait for it to complete and upload the final screen.",
+      "wrong_receiver": "This payment wasn't made to the temple's UPI account. The screenshot must show the temple's name, UPI ID or number as the receiver.",
+      "amount_mismatch": "The screenshot shows ₹{paid}, but your tickets total ₹{expected}. Please pay the exact total, or contact the temple office.",
+      "missing_time": "The screenshot must show the payment date and time.",
+      "date_mismatch": "The payment date ({date}) doesn't match the day the payment QR was shown.",
+      "time_mismatch": "The payment time ({time}) is outside the QR's 10-minute window ({from}–{to}). Show the QR again, pay within the window, and upload that screenshot.",
+      "other_booking": "The payment note belongs to a different booking.",
+      "utr_mismatch": "The transaction ID you typed doesn't match the screenshot.",
+      "missing_utr": "The transaction ID (UTR) isn't visible. Upload a screenshot that shows it, or type it in the box above."
+    }
   }
 }

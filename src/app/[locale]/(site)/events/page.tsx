@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import SectionHeading from "@/components/SectionHeading";
 import Card from "@/components/ui/Card";
 import ContentImage from "@/components/ContentImage";
+import ShareButton from "@/components/ShareButton";
 import CategoryLinks from "@/components/CategoryLinks";
 import { getFolders } from "@/lib/data/folders";
 import { buildFolderTree, filterByFolder, selectedFolderIds, type FolderTree } from "@/lib/folders";
@@ -62,7 +63,15 @@ function EventsContent({
         {sorted.map((event) => {
           const date = new Date(`${event.date}T00:00:00`);
           return (
-            <Card key={event.id} className="flex flex-col gap-4 overflow-hidden sm:flex-row">
+            <Card key={event.id} id={`event-${event.id}`} className="relative flex scroll-mt-24 flex-col gap-4 overflow-hidden sm:flex-row">
+              <ShareButton
+                compact
+                title={event.title[locale]}
+                text={`${date.toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" })}\n${event.description[locale]}`}
+                path={`/events#event-${event.id}`}
+                imageUrl={event.image ?? undefined}
+                className="absolute right-3 top-3 z-10"
+              />
               <div className="relative h-40 w-full sm:h-auto sm:w-56 sm:shrink-0">
                 <ContentImage src={event.image} alt={event.title[locale]} sizes="(min-width: 640px) 224px, 100vw" />
               </div>

@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Locale } from "@/i18n/routing";
 import type { Song } from "@/lib/song-types";
 import type { Folder } from "@/lib/folders";
 import { buildFolderTree } from "@/lib/folders";
 import Chip from "@/components/ui/Chip";
+import ShareButton from "@/components/ShareButton";
 
 export default function SongList({ songs, folders }: { songs: Song[]; folders: Folder[] }) {
   const locale = useLocale() as Locale;
@@ -18,6 +19,15 @@ export default function SongList({ songs, folders }: { songs: Song[]; folders: F
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const selectedCategory = tree.find((c) => c.id === categoryId);
+
+  // A shared link (?song=…) opens that track, ready to play.
+  useEffect(() => {
+    const id = new URL(window.location.href).searchParams.get("song");
+    if (id && songs.some((s) => s.id === id)) {
+      setActiveId(id); // eslint-disable-line react-hooks/set-state-in-effect
+      requestAnimationFrame(() => document.getElementById(`song-${id}`)?.scrollIntoView({ block: "center" }));
+    }
+  }, [songs]);
   const filtered = songs.filter((song) => {
     if (categoryId === "all") return true;
     if (subfolderId !== "all") return song.folderId === subfolderId;
@@ -64,7 +74,7 @@ export default function SongList({ songs, folders }: { songs: Song[]; folders: F
         {filtered.map((song, index) => {
           const isActive = activeId === song.id;
           return (
-            <div key={song.id}>
+            <div key={song.id} id={`song-${song.id}`} className="relative">
               <button
                 type="button"
                 onClick={() => setActiveId(isActive ? null : song.id)}
@@ -92,8 +102,15 @@ export default function SongList({ songs, folders }: { songs: Song[]; folders: F
                     {song.title[locale]}
                   </span>
                 </span>
-                <span className="shrink-0 text-xs text-ink/50">{song.duration}</span>
+                <span className="shrink-0 pr-10 text-xs text-ink/50">{song.duration}</span>
               </button>
+              <ShareButton
+                compact
+                title={song.title[locale]}
+                text={t("shareText")}
+                path={`/songs?song=${song.id}`}
+                className="absolute right-3 top-2.5"
+              />
               {isActive && song.audioUrl ? (
                 <div className="border-t border-gold/15 bg-cream-dark px-4 py-3">
                   {/* preload="none": nothing downloads until the visitor

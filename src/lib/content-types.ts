@@ -14,7 +14,9 @@ export type TempleEvent = {
 };
 
 export type BookingStatus = "pending" | "confirmed" | "cancelled";
-export type PaymentStatus = "unpaid" | "paid" | "refunded";
+// "submitted": the devotee uploaded a UPI payment screenshot that the
+// temple office hasn't verified yet.
+export type PaymentStatus = "unpaid" | "submitted" | "paid" | "refunded";
 
 // One person on a booking — one per ticket. Gotram and nakshatram are
 // optional (used for the sankalpam).
@@ -39,6 +41,14 @@ export type Booking = {
   checkedInAt: string | null;
   /** Set when prasadam was handed over (same QR, after darshan) — the QR is then fully spent. */
   prasadamClaimedAt: string | null;
+  /** How it was paid ("upi" = devotee uploaded a payment screenshot). */
+  paymentMethod: "upi" | "counter" | null;
+  /** UPI transaction reference (UTR), typed by the devotee or read from the screenshot. */
+  paymentUtr: string | null;
+  paymentSubmittedAt: string | null;
+  paymentReviewedAt: string | null;
+  /** Office note on the payment, e.g. why a screenshot was rejected. */
+  paymentNote: string | null;
 };
 
 // Devotees can book up to this many tickets in one booking (also enforced
@@ -62,7 +72,13 @@ export type AdminComment = PublicComment & {
   status: CommentStatus;
 };
 
-export type TempleTiming = { day: string; hours: string };
+export type TempleTiming = {
+  day: string;
+  dayKn?: string;
+  // "HH:MM" 24-hour; `hours` is the English text kept for older readers.
+  sessions?: { open: string; close: string }[];
+  hours: string;
+};
 
 export type TempleInfo = {
   addressLine1: string;
@@ -70,9 +86,32 @@ export type TempleInfo = {
   phone: string;
   email: string;
   mapsQuery: string;
+  mapsUrl: string;
+  // The temple's name and address as listed on Google Maps, and its
+  // unique Google place ID.
+  mapsPlace: string;
+  mapsPlaceId: string;
+  lat: number | null;
+  lon: number | null;
   about: LocalizedText;
   timings: TempleTiming[];
 };
+
+// Admin-controlled site-wide settings (one row).
+export type SiteSettings = {
+  /** Background song for the website; null = the built-in chant. */
+  backgroundAudioUrl: string | null;
+  backgroundAudioTitle: string;
+  upiId: string;
+  upiNumber: string;
+  upiPayeeName: string;
+  upiQrUrl: string | null;
+};
+
+export const DEFAULT_BACKGROUND_AUDIO = "/audio/om-namo-narayanaya.mp3";
+
+/** UPI details are complete enough to show devotees a way to pay. */
+export const upiReady = (s: SiteSettings) => !!(s.upiId || s.upiNumber || s.upiQrUrl);
 
 export type NoticeKind = "update" | "ticket_release" | "event_reminder" | "alert";
 

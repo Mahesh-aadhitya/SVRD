@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import TempleInfoForm from "@/components/admin/TempleInfoForm";
-import { getTempleInfo } from "@/lib/data/temple-info";
+import { fetchTempleInfo } from "@/lib/data/temple-info";
 import type { TempleInfo } from "@/lib/content-types";
 
 export default async function AdminTemplePage({
@@ -12,7 +12,7 @@ export default async function AdminTemplePage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const info = await getTempleInfo();
+  const info = await fetchTempleInfo();
   return <Content info={info} />;
 }
 

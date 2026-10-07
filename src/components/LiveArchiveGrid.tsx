@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import type { Locale } from "@/i18n/routing";
 import type { LiveArchiveItem } from "@/lib/data/live";
 import { youtubeThumbnail } from "@/lib/youtube";
+import ShareButton from "@/components/ShareButton";
 import Card from "@/components/ui/Card";
 import CategoryFilterBar from "@/components/CategoryFilterBar";
 import { buildFolderTree, filterByFolder, selectedFolderIds, type Folder } from "@/lib/folders";
@@ -33,7 +34,7 @@ export default function LiveArchiveGrid({ items, folders }: { items: LiveArchive
       />
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {visible.map((item) => (
-          <Card key={item.id} className="overflow-hidden">
+          <Card key={item.id} id={`archive-${item.id}`} className="scroll-mt-24 overflow-hidden">
             <div className="relative aspect-video w-full bg-black">
               {playing === item.id ? (
                 <iframe
@@ -62,7 +63,10 @@ export default function LiveArchiveGrid({ items, folders }: { items: LiveArchive
                 </button>
               )}
             </div>
-            <p className="p-3 text-sm font-medium text-ink/80">{item.title[locale]}</p>
+            <div className="flex items-center justify-between gap-2 p-3">
+              <p className="text-sm font-medium text-ink/80">{item.title[locale]}</p>
+              <ShareButton compact title={item.title[locale]} text={`https://youtu.be/${item.youtubeId}`} path={`/live#archive-${item.id}`} />
+            </div>
           </Card>
         ))}
       </div>

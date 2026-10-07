@@ -3,13 +3,14 @@
 import { useTranslations } from "next-intl";
 import type { PanchangDay, Segment } from "@/lib/panchang/compute";
 import { formatClock, formatLongDate, formatSpan, formatTime } from "@/lib/panchang/format";
+import { observanceName } from "@/lib/panchang/observance-text";
+import type { Verse } from "@/lib/panchang/verses";
+import { DHANURMASA } from "@/lib/panchang/dhanurmasa";
 import {
   ADHIKA,
   AYANAS,
-  FESTIVALS,
   MASAS,
   NAKSHATRA_NAMES,
-  OBSERVANCES,
   PAKSHAS,
   RASHIS,
   RITUS,
@@ -60,22 +61,24 @@ export function useDayText(day: PanchangDay, locale: string) {
     paksha: pakshaShort,
   });
 
-  const observances = day.observances.map((o) => {
-    switch (o.kind) {
-      case "festival":
-        return L(FESTIVALS.find((f) => f.masa === o.masa && f.tithi === o.tithi)!.name);
-      case "sankranti":
-        return t("sankrantiAt", { rashi: rashi(o.rashi), time: at(o.at) });
-      default:
-        return L(OBSERVANCES[o.kind]);
-    }
-  });
+  // Our temple's own utsavas first.
+  const observances = [...day.observances]
+    .sort((a, b) => Number(b.kind === "utsava") - Number(a.kind === "utsava"))
+    .map((o) =>
+      o.kind === "sankranti" && o.rashi !== 9
+        ? t("sankrantiAt", { rashi: rashi(o.rashi), time: at(o.at) })
+        : observanceName(o, locale),
+    );
+  const utsavas = day.observances.flatMap((o) => (o.kind === "utsava" ? [o.key] : []));
 
   const vara = L(VARAS[day.weekday]);
+  const dhanurmasaLine = day.dhanurmasaDay
+    ? `${L(DHANURMASA.name)} · ${t("dhanurmasa.day", { day: day.dhanurmasaDay })} · ${t("dhanurmasa.pasuram", { n: Math.min(day.dhanurmasaDay, 30) })}`
+    : "";
   const longDate = formatLongDate(day.date, locale);
 
   // The full panchanga as a WhatsApp message (WhatsApp renders *bold*).
-  const message = (siteTitle: string, placeName: string) =>
+  const message = (siteTitle: string, placeName: string, verse?: Verse) =>
     [
       `🙏 *${siteTitle}*`,
       `*${t("pageTitle")} · ${longDate}, ${vara}*`,
@@ -96,9 +99,21 @@ export function useDayText(day: PanchangDay, locale: string) {
       `⛔ *${t("yamagandam")}:* ${span(day.yamagandam)}`,
       `⛔ *${t("gulikaKalam")}:* ${span(day.gulikaKalam)}`,
       ...(observances.length ? ["", ...observances.map((o) => `🪔 *${o}*`)] : []),
+      ...(day.dhanurmasaDay ? ["", `🌅 *${dhanurmasaLine}*`] : []),
+      ...(verse
+        ? [
+            "",
+            `📿 *${t("verseOfDay")} · ${L(verse.source)}*`,
+            // WhatsApp italics only span one line, so mark each line.
+            ...(locale === "kn" ? verse.kn : verse.roman).split("\n").map((line) => `_${line}_`),
+            "",
+            `${t("meaningIn.kn")}: ${verse.meaning.kn}`,
+            `${t("meaningIn.en")}: ${verse.meaning.en}`,
+          ]
+        : []),
       "",
       `📍 ${t("timesFor", { place: placeName })}`,
     ].join("\n");
 
-  return { tithi, nakshatra, yoga, karana, rashi, segments, at, span, time, masaName, pakshaShort, sankalpa, observances, vara, longDate, message };
+  return { tithi, nakshatra, yoga, karana, rashi, segments, at, span, time, masaName, pakshaShort, sankalpa, observances, utsavas, vara, longDate, dhanurmasaLine, message };
 }

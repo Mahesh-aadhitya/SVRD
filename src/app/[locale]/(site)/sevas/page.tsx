@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import SectionHeading from "@/components/SectionHeading";
 import ContentImage from "@/components/ContentImage";
+import ShareButton from "@/components/ShareButton";
 import { getListedSevas } from "@/lib/data/sevas";
 import { formatIso, todayInIndia } from "@/lib/dates";
 import { isReleasedOn, SEVA_FREQUENCIES, type Seva, type SevaFrequency } from "@/lib/seva-types";
@@ -79,7 +80,7 @@ function SevaCard({ seva, frequency, nextDate }: { seva: Seva; frequency: SevaFr
   const schedule = seva.schedule[locale] || seva.schedule.en;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl border border-gold/25 bg-white/85 shadow-sm">
+    <article id={`seva-${seva.id}`} className="flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-gold/25 bg-white/85 shadow-sm">
       <div className="relative h-40 w-full">
         <ContentImage src={seva.imageUrl} alt={seva.name[locale]} />
         <span className="absolute left-3 top-3 rounded-full bg-cream/95 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-maroon shadow-sm">
@@ -92,7 +93,15 @@ function SevaCard({ seva, frequency, nextDate }: { seva: Seva; frequency: SevaFr
         ) : null}
       </div>
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="font-display text-xl text-maroon">{seva.name[locale]}</h3>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-display text-xl text-maroon">{seva.name[locale]}</h3>
+          <ShareButton
+            compact
+            title={seva.name[locale]}
+            text={[schedule, seva.timing, seva.description[locale]].filter(Boolean).join("\n")}
+            path={`/sevas#seva-${seva.id}`}
+          />
+        </div>
         <dl className="mt-2 space-y-1 text-sm">
           {schedule ? (
             <div className="flex gap-2">

@@ -6,6 +6,7 @@ import { redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { verifyAdminSession } from "@/lib/admin/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { findDuplicateEntry } from "@/lib/admin/duplicates";
 import { resolveFolderId } from "@/lib/admin/folder-field";
 import { todayInIndia } from "@/lib/dates";
 import { describeRelease, SEVA_FREQUENCIES } from "@/lib/seva-types";
@@ -105,6 +106,13 @@ export async function saveSeva(
   }
 
   const supabase = createAdminClient();
+  const duplicate = await findDuplicateEntry(
+    supabase,
+    "sevas",
+    { title: { en: input.nameEn, kn: input.nameKn }, body: { en: input.descriptionEn ?? "", kn: input.descriptionKn ?? "" } },
+    { excludeId: existingId },
+  );
+  if (duplicate) return { error: duplicate };
   const folder = await resolveFolderId(supabase, "sevas", formData);
   if ("error" in folder) return folder;
 
