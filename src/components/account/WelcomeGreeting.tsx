@@ -54,39 +54,58 @@ const PETALS: { left: string; size: number; duration: number; delay: number; dri
 
 // Feather sparks thrown off as the wings open: [side, x%, y%, drift x, drift y, delay s].
 const SPARKS: ["l" | "r", number, number, number, number, number][] = [
-  ["l", 6, 14, -60, -30, 0.55],
-  ["l", 2, 24, -80, 10, 0.7],
-  ["l", 10, 32, -50, 40, 0.9],
-  ["l", 4, 18, -70, -60, 1.6],
-  ["r", 94, 14, 60, -30, 0.6],
-  ["r", 98, 24, 80, 10, 0.75],
-  ["r", 90, 32, 50, 40, 0.95],
-  ["r", 96, 18, 70, -60, 1.7],
+  ["l", 6, 42, -60, -30, 1.1],
+  ["l", 2, 56, -80, 10, 1.25],
+  ["l", 10, 70, -50, 40, 1.45],
+  ["l", 4, 48, -70, -60, 2.1],
+  ["r", 94, 42, 60, -30, 1.15],
+  ["r", 98, 56, 80, 10, 1.3],
+  ["r", 90, 70, 50, 40, 1.5],
+  ["r", 96, 48, 70, -60, 2.2],
 ];
 
-// Garuda, Periya Thiruvadi, welcoming the devotee: he flies down, spreads
-// his wings wide and bows with hands joined in anjali. Built from a Belur
-// stone Garuda, recast in gold, with the wings as separate layers.
+// Embers drifting up around him: [x%, delay s, duration s, size px].
+const EMBERS: [number, number, number, number][] = [
+  [12, 0.2, 3.2, 4], [24, 1.4, 3.6, 3], [36, 0.8, 3.0, 5], [64, 0.5, 3.4, 4],
+  [76, 1.8, 3.1, 3], [88, 1.1, 3.8, 5], [18, 2.4, 3.3, 3], [82, 2.9, 3.5, 4],
+];
+
+// Garuda, Periya Thiruvadi, welcoming the devotee (shown to the navel,
+// rising out of light): a point of light blooms into an orb, he takes form
+// within it as rays burst out, a halo rises behind his head, his wings
+// unfold wide and he bows with hands joined in anjali — a shine sweeping
+// over the gold, embers rising. From the Belur stone Garuda: cut free of
+// its arch, upscaled, cast in gold, with the wings as separate layers.
 function Garuda() {
   return (
     <div className="wg-deity relative" aria-hidden>
       <span className="wg-aura" />
+      <span className="wg-orb" />
       <div className="wg-garuda">
+        <span className="wg-halo" />
         <div className="wg-garuda-bow">
-          <Image src="/images/garuda/garuda-wing-l.webp" alt="" width={633} height={1248} priority unoptimized className="wg-wing wg-wing-l" />
-          <Image src="/images/garuda/garuda-wing-r.webp" alt="" width={633} height={1248} priority unoptimized className="wg-wing wg-wing-r" />
-          <Image src="/images/garuda/garuda-body.webp" alt="" width={633} height={1248} priority unoptimized className="wg-garuda-body" />
+          <Image src="/images/garuda/wing-left.webp?v=2" alt="" width={816} height={812} priority unoptimized className="wg-wing wg-wing-l" />
+          <Image src="/images/garuda/wing-right.webp?v=2" alt="" width={816} height={812} priority unoptimized className="wg-wing wg-wing-r" />
+          <Image src="/images/garuda/body.webp?v=2" alt="" width={816} height={812} priority unoptimized className="wg-garuda-body" />
+          <span className="wg-shine" />
           <span className="wg-anjali" />
         </div>
-        {SPARKS.map(([side, x, y, dx, dy, delay], i) => (
+        <span className="wg-base" />
+        {SPARKS.map(([, x, y, dx, dy, delay], i) => (
           <span
             key={i}
             className="wg-spark"
             style={{ left: `${x}%`, top: `${y}%`, animationDelay: after(delay), ["--dx" as string]: `${dx}px`, ["--dy" as string]: `${dy}px` }}
-            data-side={side}
           />
         ))}
       </div>
+      {EMBERS.map(([x, delay, duration, size], i) => (
+        <span
+          key={i}
+          className="wg-ember"
+          style={{ left: `${x}%`, width: size, height: size, animationDelay: after(delay), animationDuration: `${duration}s` }}
+        />
+      ))}
     </div>
   );
 }

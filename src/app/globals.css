@@ -499,8 +499,8 @@ html[lang="kn"] body {
     linear-gradient(to bottom, rgba(2, 1, 10, 0.1) 0%, rgba(2, 1, 10, 0.25) 45%, rgba(2, 1, 10, 0.72) 100%);
 }
 @keyframes wg-arrive {
-  0% { opacity: 0; transform: scale(1.5); filter: blur(10px) brightness(1.4); }
-  12% { opacity: 0.6; }
+  0% { opacity: 0.6; transform: scale(1.3); filter: blur(3px) brightness(0.55); }
+  12% { opacity: 0.8; filter: blur(8px) brightness(1.3); }
   20% { opacity: 1; transform: scale(1.12); filter: none; }
   100% { opacity: 1; transform: scale(1.02); filter: none; }
 }
@@ -537,22 +537,55 @@ html[lang="kn"] body {
    and keep beating slowly, then he bows in anjali as "Namaskaram" comes. */
 .wg-deity {
   --wg-w: clamp(110px, min(36vw, 24vh), 230px);
-  height: min(calc(var(--wg-w) * 2.3), 44vh);
-  height: min(calc(var(--wg-w) * 2.3), 44svh);
-  aspect-ratio: 633 / 1248;
+  height: min(calc(var(--wg-w) * 1.9), 38vh);
+  height: min(calc(var(--wg-w) * 1.9), 38svh);
+  aspect-ratio: 816 / 812;
   margin-block: calc(var(--wg-w) * 0.05);
 }
 .wg-garuda {
   position: absolute;
   inset: 0;
   animation:
-    wg-garuda-arrive 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--wg-o) + 0.05s) both,
-    wg-hover 3.4s ease-in-out calc(var(--wg-o) + 1.45s) infinite;
+    wg-manifest 1.7s cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--wg-o) + 0.3s) both,
+    wg-hover 3.4s ease-in-out calc(var(--wg-o) + 2s) infinite;
 }
-@keyframes wg-garuda-arrive {
-  from { opacity: 0; transform: translateY(-55%) scale(0.55); filter: blur(6px) brightness(1.6); }
-  60% { opacity: 1; filter: none; }
-  to { opacity: 1; transform: none; filter: none; }
+/* He takes form out of light: white-hot and formless, then solid gold. */
+@keyframes wg-manifest {
+  0% { opacity: 0; transform: scale(0.86) translateY(4%); filter: brightness(3.6) blur(16px) saturate(0.3); }
+  35% { opacity: 1; filter: brightness(2.4) blur(6px) saturate(0.6); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+/* The point of light that blooms into an orb before he appears. */
+.wg-orb {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 90%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffdf4 0 10%, rgba(255, 236, 180, 0.85) 26%, rgba(255, 205, 120, 0.35) 48%, transparent 70%);
+  opacity: 0;
+  animation: wg-orb 2s cubic-bezier(0.3, 0.6, 0.3, 1) calc(var(--wg-o) - 0.15s) both;
+}
+@keyframes wg-orb {
+  0% { opacity: 0; scale: 0.02; }
+  18% { opacity: 1; scale: 0.18; }
+  45% { opacity: 1; scale: 1.1; }
+  100% { opacity: 0; scale: 2.1; }
+}
+/* Luminous cloud he rises out of. */
+.wg-base {
+  position: absolute;
+  left: 50%;
+  bottom: -6%;
+  width: 120%;
+  height: 30%;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255, 238, 196, 0.75) 0%, rgba(255, 206, 120, 0.3) 40%, transparent 70%);
+  filter: blur(6px);
+  animation: wg-fade 1.2s ease-out calc(var(--wg-o) + 0.5s) both, wg-breathe 3.2s ease-in-out calc(var(--wg-o) + 1.7s) infinite;
 }
 @keyframes wg-hover {
   50% { transform: translateY(-2.5%); }
@@ -561,7 +594,7 @@ html[lang="kn"] body {
   position: absolute;
   inset: 0;
   transform-origin: 50% 95%;
-  animation: wg-bow 1.5s ease-in-out calc(var(--wg-o) + 1.1s) both;
+  animation: wg-bow 1.5s ease-in-out calc(var(--wg-o) + 1.7s) both;
 }
 @keyframes wg-bow {
   45% { transform: perspective(600px) rotateX(9deg) translateY(2%) scale(0.98); }
@@ -574,18 +607,18 @@ html[lang="kn"] body {
   height: 100%;
   filter: drop-shadow(0 0 0.6rem rgba(255, 196, 90, 0.35));
 }
-/* Hinged at the shoulders (22.3% / 77.3% across, 36.8% down). */
+/* Hinged at the wing roots (22.5% / 79.4% across, 72.4% down). */
 .wg-wing-l {
-  transform-origin: 22.3% 36.8%;
+  transform-origin: 22.5% 72.4%;
   animation:
-    wg-wing-open-l 1.5s cubic-bezier(0.3, 0.7, 0.3, 1) calc(var(--wg-o) + 0.35s) both,
-    wg-wing-beat-l 1.7s ease-in-out calc(var(--wg-o) + 1.85s) infinite alternate;
+    wg-wing-open-l 1.5s cubic-bezier(0.3, 0.7, 0.3, 1) calc(var(--wg-o) + 0.9s) both,
+    wg-wing-beat-l 1.7s ease-in-out calc(var(--wg-o) + 2.4s) infinite alternate;
 }
 .wg-wing-r {
-  transform-origin: 77.3% 36.8%;
+  transform-origin: 79.4% 72.4%;
   animation:
-    wg-wing-open-r 1.5s cubic-bezier(0.3, 0.7, 0.3, 1) calc(var(--wg-o) + 0.35s) both,
-    wg-wing-beat-r 1.7s ease-in-out calc(var(--wg-o) + 1.85s) infinite alternate;
+    wg-wing-open-r 1.5s cubic-bezier(0.3, 0.7, 0.3, 1) calc(var(--wg-o) + 0.9s) both,
+    wg-wing-beat-r 1.7s ease-in-out calc(var(--wg-o) + 2.4s) infinite alternate;
 }
 @keyframes wg-wing-open-l {
   from { transform: rotate(34deg) scale(0.7); opacity: 0; }
@@ -610,16 +643,16 @@ html[lang="kn"] body {
 /* Light gathering at the joined hands as he greets. */
 .wg-anjali {
   position: absolute;
-  left: 50%;
-  top: 39%;
-  width: 34%;
+  left: 51%;
+  top: 78%;
+  width: 30%;
   aspect-ratio: 1;
   translate: -50% -50%;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 250, 225, 0.7) 0 5%, rgba(255, 214, 130, 0.35) 25%, rgba(255, 190, 90, 0) 70%);
   mix-blend-mode: screen;
   opacity: 0;
-  animation: wg-anjali 2.4s ease-in-out calc(var(--wg-o) + 1.3s) infinite;
+  animation: wg-anjali 2.4s ease-in-out calc(var(--wg-o) + 1.8s) infinite;
 }
 @keyframes wg-anjali {
   0%, 100% { opacity: 0.25; scale: 0.8; }
@@ -629,8 +662,8 @@ html[lang="kn"] body {
 .wg-aura {
   position: absolute;
   left: 50%;
-  top: 36%;
-  width: 260%;
+  top: 44%;
+  width: 230%;
   aspect-ratio: 1;
   translate: -50% -50%;
   border-radius: 50%;
@@ -639,7 +672,63 @@ html[lang="kn"] body {
     repeating-conic-gradient(rgba(255, 224, 160, 0.16) 0deg 5deg, transparent 5deg 15deg);
   -webkit-mask-image: radial-gradient(circle, #000 20%, transparent 62%);
   mask-image: radial-gradient(circle, #000 20%, transparent 62%);
-  animation: wg-fade 1.2s ease-out calc(var(--wg-o) + 0.4s) both, wg-spin 40s linear calc(var(--wg-o) + 0.4s) infinite;
+  animation: wg-rays-burst 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--wg-o) + 0.35s) both, wg-spin 60s linear calc(var(--wg-o) + 0.35s) infinite;
+}
+@keyframes wg-rays-burst {
+  0% { opacity: 0; scale: 0.15; }
+  40% { opacity: 1; scale: 1.12; }
+  100% { opacity: 0.75; scale: 1; }
+}
+/* A ring of light behind his head. */
+.wg-halo {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  width: 54%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 240, 200, 0.55) 0%, rgba(255, 210, 120, 0.2) 45%, transparent 62%),
+    radial-gradient(circle, transparent 60%, rgba(255, 225, 150, 0.9) 63%, rgba(255, 225, 150, 0) 68%);
+  box-shadow: 0 0 2.5rem rgba(255, 200, 100, 0.45);
+  animation: wg-halo-in 1s ease-out calc(var(--wg-o) + 0.9s) both, wg-breathe 3s ease-in-out calc(var(--wg-o) + 1.9s) infinite;
+}
+@keyframes wg-halo-in {
+  from { opacity: 0; scale: 0.3; }
+  to { opacity: 1; scale: 1; }
+}
+/* A band of light sweeping over the gold, clipped to his figure. */
+.wg-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 252, 235, 0.85) 50%, transparent 62%) 0 0 / 250% 100% no-repeat;
+  -webkit-mask: url("/images/garuda/body.webp?v=2") center / 100% 100% no-repeat;
+  mask: url("/images/garuda/body.webp?v=2") center / 100% 100% no-repeat;
+  mix-blend-mode: overlay;
+  animation: wg-shine 3.6s ease-in-out calc(var(--wg-o) + 2.2s) infinite;
+  opacity: 0;
+}
+@keyframes wg-shine {
+  0% { background-position: 120% 0; opacity: 1; }
+  45%, 100% { background-position: -40% 0; opacity: 1; }
+}
+.wg-ember {
+  position: absolute;
+  bottom: 8%;
+  border-radius: 50%;
+  background: #fff1c2;
+  box-shadow: 0 0 6px 2px rgba(255, 200, 110, 0.85);
+  opacity: 0;
+  animation-name: wg-ember;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+@keyframes wg-ember {
+  0% { opacity: 0; transform: translateY(0) scale(1); }
+  15% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-260%) translateY(-18vh) translateX(6px) scale(0.4); }
 }
 .wg-spark {
   position: absolute;
@@ -744,8 +833,9 @@ html[lang="kn"] body {
 @media (prefers-reduced-motion: reduce) {
   .wg-root { --wg-open: 0s; --wg-o: 0s; }
   .wg-space, .wg-glow, .wg-name, .wg-root .petal, .wg-garuda, .wg-aura { animation: wg-fade 0.6s ease-out both; }
-  .wg-wing, .wg-garuda-bow, .wg-anjali { animation: none; }
-  .wg-spark { display: none; }
+  .wg-wing, .wg-garuda-bow, .wg-anjali, .wg-shine { animation: none; }
+  .wg-spark, .wg-ember, .wg-orb { display: none; }
+  .wg-halo { animation: wg-fade 0.6s ease-out both; }
   .wg-shooting { display: none; }
   .wg-deity, .wg-letter, .wg-divider, .wg-step { animation: wg-fade 0.6s ease-out both; animation-delay: 0s; }
   .wg-root .petal { display: none; }
@@ -825,7 +915,7 @@ html[lang="kn"] body {
   right: 23.4%;
   top: 20.7%;
   bottom: 0;
-  box-shadow: 0 0 9vmax 2vmax rgba(255, 186, 90, 0.2), 0 0 0 150vmax #0b0503;
+  box-shadow: 0 0 9vmax 2vmax rgba(255, 186, 90, 0.22);
 }
 .wg-gate-flood {
   position: absolute;

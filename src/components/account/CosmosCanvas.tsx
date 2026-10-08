@@ -78,25 +78,21 @@ export default function CosmosCanvas({ focusY = 0.38, startDelayMs = 0 }: { focu
     const stars = Array.from({ length: STAR_COUNT }, () => spawn());
 
     let raf = 0;
-    // The warp waits for the doors to open (nothing is drawn until then).
+    // The warp waits for the doors to open; until then the stars just drift.
     const t0 = performance.now() + (still ? 0 : startDelayMs);
     let last = performance.now();
 
     const frame = (now: number) => {
       const t = (now - t0) / 1000;
-      if (t < 0) {
-        last = now;
-        raf = requestAnimationFrame(frame);
-        return;
-      }
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
-      const speed = still ? 0 : DRIFT + (WARP - DRIFT) * Math.exp(-t / 0.32);
+      // Before the warp: a slow drift (stars around the closed doors).
+      const speed = still ? 0 : t < 0 ? DRIFT : DRIFT + (WARP - DRIFT) * Math.exp(-t / 0.32);
       const cx = w / 2;
       const cy = h * focusY;
       const scale = Math.max(w, h) * 0.55;
       // Settled stars are quieter than the warp: the photo is the sky.
-      const calm = Math.min(1, Math.max(0.45, 1 - (t - 0.6) * 0.6));
+      const calm = t < 0 ? 0.75 : Math.min(1, Math.max(0.45, 1 - (t - 0.6) * 0.6));
 
       ctx.clearRect(0, 0, w, h);
       ctx.globalCompositeOperation = "lighter";
