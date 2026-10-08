@@ -440,12 +440,18 @@ html[lang="kn"] body {
 }
 
 /* ── Welcome greeting after sign-in (WelcomeGreeting.tsx) ─────────────
-   One ~8s sequence: backdrop and rays → the Lord rises in a golden arch
+   One ~9s sequence: the Vaikuntha Dwaram (temple doors in the makara
+   thoranam) glows at the seam and swings open in a flood of light, we pass
+   through into the nebula → the Lord rises in a golden arch
    with the chakra turning behind → "Namaskaram" letter by letter → the
    devotee's name in shimmering gold → divider, "Adiyen Ramanuja Dasan",
    blessing → the whole scene lifts away (.wg-leave). Sizes use clamp()
    and viewport units so it fits any phone, tablet or desktop. */
 .wg-root {
+  /* --wg-open: the doors start to open; --wg-o: everything behind them
+     waits this long (the scene's own timings are added to it). */
+  --wg-open: 1s;
+  --wg-o: 1.5s;
   /* Black space until the nebula photograph fades up. */
   background: #02010a;
   animation: wg-in 0.45s ease-out both;
@@ -470,7 +476,7 @@ html[lang="kn"] body {
   translate: -50% -50%;
   border-radius: 9999px;
   background: radial-gradient(circle, rgba(255, 214, 140, 0.32) 0%, rgba(255, 190, 120, 0.08) 40%, transparent 66%);
-  animation: wg-breathe 3.2s ease-in-out infinite, wg-fade 1s ease-out both;
+  animation: wg-breathe 3.2s ease-in-out infinite, wg-fade 1s ease-out var(--wg-o) both;
 }
 /* The nebula photograph: arrives out of the warp (close and soft, pulling
    back into focus), then a slow cinematic zoom. A vignette and a darker
@@ -479,7 +485,7 @@ html[lang="kn"] body {
   position: absolute;
   inset: 0;
   background: url("/images/cosmos/carina-portrait.webp") 50% 22% / cover no-repeat;
-  animation: wg-arrive 9s cubic-bezier(0.16, 0.8, 0.3, 1) both;
+  animation: wg-arrive 9s cubic-bezier(0.16, 0.8, 0.3, 1) calc(var(--wg-open) + 0.3s) both;
 }
 @media (orientation: landscape) {
   .wg-space { background-image: url("/images/cosmos/carina-landscape.webp"); background-position: 50% 30%; }
@@ -532,13 +538,13 @@ html[lang="kn"] body {
   width: var(--wg-w);
   /* The halo reaches ~0.3× the arch width past the arch; keep text clear of it. */
   margin-block: calc(var(--wg-w) * 0.3);
-  animation: wg-rise 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
+  animation: wg-rise 1s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--wg-o) + 0.2s) both;
 }
 .wg-arch {
   aspect-ratio: 4 / 5;
 }
 .wg-chakra {
-  animation: wg-chakra-in 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both, wg-spin 18s linear 1.35s infinite;
+  animation: wg-chakra-in 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--wg-o) + 0.15s) both, wg-spin 18s linear calc(var(--wg-o) + 1.35s) infinite;
 }
 @keyframes wg-rise {
   from { opacity: 0; transform: translateY(28px) scale(0.82); filter: blur(8px); }
@@ -566,7 +572,7 @@ html[lang="kn"] body {
   font-size: clamp(1.55rem, min(7.4vw, 5.6vh), 3.4rem);
   color: #f8e6ad;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6), 0 0 22px rgba(232, 201, 122, 0.3);
-  animation: wg-name-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 1.5s both, wg-name-glow 2.4s ease-in-out 2.2s infinite;
+  animation: wg-name-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--wg-o) + 1.5s) both, wg-name-glow 2.4s ease-in-out calc(var(--wg-o) + 2.2s) infinite;
 }
 @keyframes wg-name-in {
   from { opacity: 0; transform: translateY(10px) scale(1.08); }
@@ -577,7 +583,7 @@ html[lang="kn"] body {
 }
 
 .wg-divider {
-  animation: wg-divider 0.6s ease-out 2.1s both;
+  animation: wg-divider 0.6s ease-out calc(var(--wg-o) + 2.1s) both;
 }
 @keyframes wg-divider {
   from { opacity: 0; transform: scaleX(0.2); }
@@ -634,6 +640,7 @@ html[lang="kn"] body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .wg-root { --wg-open: 0s; --wg-o: 0s; }
   .wg-space, .wg-chakra, .wg-glow, .wg-name, .wg-root .petal { animation: wg-fade 0.6s ease-out both; }
   .wg-shooting { display: none; }
   .wg-deity, .wg-letter, .wg-divider, .wg-step { animation: wg-fade 0.6s ease-out both; animation-delay: 0s; }
@@ -680,4 +687,229 @@ html[lang="kn"] body {
 }
 @media (prefers-reduced-motion: reduce) {
   .wg-bell-ringing, .wg-bell-still { animation: none; }
+}
+
+/* The Vaikuntha Dwaram: teak doors with brass studs, Shankha and Chakra
+   medallions, set in the golden makara thoranam on a dark sanctum wall.
+   Light glows through the seam, the doors swing inward in a flood of
+   light, and the gate rushes past as we go through into the scene. Sized
+   from the thoranam picture (679×947): its opening spans 23.6–76.6% across
+   and 20.7% down to the foot. */
+.wg-gate {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 20;
+  width: min(150vw, calc(92vh * 0.717));
+  width: min(150vw, calc(92svh * 0.717));
+  aspect-ratio: 679 / 947;
+  translate: -50% 0;
+  pointer-events: none;
+  transform-origin: 50% 64%;
+  animation: wg-gate-through 1.5s cubic-bezier(0.55, 0, 0.8, 0.45) calc(var(--wg-open) + 0.75s) forwards;
+}
+@keyframes wg-gate-through {
+  0% { transform: none; opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: scale(3.2); opacity: 0; visibility: hidden; }
+}
+/* The doorway itself: transparent, so once the doors part the scene shows
+   through; its shadow is the wall around it (with a warm lamp glow). */
+.wg-gate-hole {
+  position: absolute;
+  left: 23.6%;
+  right: 23.4%;
+  top: 20.7%;
+  bottom: 0;
+  box-shadow: 0 0 9vmax 2vmax rgba(255, 186, 90, 0.2), 0 0 0 150vmax #0b0503;
+}
+.wg-gate-flood {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 55%, #fffaf0 0%, #ffe6ad 32%, rgba(255, 200, 120, 0.55) 62%, rgba(255, 190, 90, 0) 100%);
+  opacity: 0;
+  animation: wg-flood 1.9s ease-out var(--wg-open) both;
+}
+@keyframes wg-flood {
+  0% { opacity: 0; }
+  28% { opacity: 1; }
+  55% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+.wg-thoranam {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 1.2vmax rgba(255, 200, 110, 0.35));
+}
+.wg-doors {
+  position: absolute;
+  left: 22.6%;
+  right: 22.4%;
+  top: 19.5%;
+  bottom: 0;
+  perspective: 1400px;
+  /* The leaves size their trim from the doorway's width (cqw here = 1% of
+     both doors; inside a leaf, 1% of that leaf). */
+  container-type: inline-size;
+}
+.wg-leaf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3cqw;
+  padding: 8cqw 5cqw 5cqw;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.1) 0 1px, transparent 1px 5px, rgba(255, 220, 170, 0.035) 5px 6px, transparent 6px 11px),
+    linear-gradient(90deg, #3b1a0b, #5a2b12 45%, #4a210d 75%, #321509);
+  box-shadow:
+    inset 0 0 0 1.2cqw #a07a32,
+    inset 0 0 0 1.7cqw #3a1a0a,
+    inset 0 0 0 2.1cqw #d6b061,
+    inset 0 0 3cqw 3cqw rgba(0, 0, 0, 0.45);
+  will-change: transform;
+}
+.wg-leaf-l {
+  left: 0;
+  transform-origin: left center;
+  animation: wg-door-l 1.6s cubic-bezier(0.6, 0.02, 0.3, 1) var(--wg-open) both;
+}
+.wg-leaf-r {
+  right: 0;
+  transform-origin: right center;
+  animation: wg-door-r 1.6s cubic-bezier(0.6, 0.02, 0.3, 1) var(--wg-open) both;
+}
+@keyframes wg-door-l {
+  to { transform: rotateY(100deg); }
+}
+@keyframes wg-door-r {
+  to { transform: rotateY(-100deg); }
+}
+/* The gold-clad meeting edge, and shade as each leaf turns from us. */
+.wg-leaf::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4cqw;
+  background: linear-gradient(90deg, #8a6424, #f1d488 50%, #8a6424);
+}
+.wg-leaf-l::before { right: 0; }
+.wg-leaf-r::before { left: 0; }
+.wg-leaf::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  animation: wg-fade-in 1.6s ease-in var(--wg-open) both;
+}
+@keyframes wg-fade-in {
+  to { opacity: 1; }
+}
+/* Recessed panels studded with brass bosses. */
+.wg-panel {
+  width: 100%;
+  flex: 1;
+  border: 1.6cqw solid #c79d48;
+  border-radius: 2cqw;
+  background:
+    radial-gradient(circle, #fff3c8 0 1.3cqw, #e3b85a 2cqw, #85591a 3cqw, rgba(0, 0, 0, 0) 3.6cqw) center / 17cqw 17cqw,
+    rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 4cqw rgba(0, 0, 0, 0.65), 0 0 0 1cqw #2a1206;
+}
+.wg-panel-low { flex: 1.3; }
+.wg-medallion {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 62cqw;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff4cf, #e7c16c 45%, #a8792c 80%, #6d4814);
+  box-shadow:
+    0 0 0 1.6cqw #3a1a0a,
+    0 0 0 2.6cqw #d6b061,
+    0 2cqw 5cqw rgba(0, 0, 0, 0.6),
+    inset 0 0 4cqw rgba(90, 50, 0, 0.6);
+}
+.wg-medallion img { position: absolute; inset: 0; margin: auto; width: auto; height: 78%; }
+.wg-medallion .wg-chakra-img { height: 88%; clip-path: circle(47%); }
+/* Ring handles near the meeting edge. */
+.wg-ring {
+  position: absolute;
+  top: 56%;
+  width: 16cqw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2.2cqw solid #d9b25c;
+  box-shadow: 0 1cqw 2cqw rgba(0, 0, 0, 0.6), inset 0 0 1cqw rgba(0, 0, 0, 0.5);
+}
+.wg-leaf-l .wg-ring { right: 8cqw; }
+.wg-leaf-r .wg-ring { left: 8cqw; }
+/* Light through the crack between the doors, before they open. */
+.wg-seam {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  translate: -50% 0;
+  background: linear-gradient(transparent, #fff6da 12%, #fff6da 88%, transparent);
+  box-shadow: 0 0 12px 3px rgba(255, 214, 140, 0.85), 0 0 40px 10px rgba(255, 190, 90, 0.45);
+  animation: wg-seam 1.15s ease-out 0.2s both;
+}
+@keyframes wg-seam {
+  0% { transform: scaleY(0); opacity: 0; }
+  55% { transform: scaleY(1); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: scaleX(5); opacity: 0; }
+}
+/* Wide screens: brass lamps hang either side of the gate. */
+.wg-lamp {
+  position: absolute;
+  top: -4%;
+  display: none;
+  width: 16%;
+  aspect-ratio: 280 / 1080;
+}
+.wg-lamp-l { left: -26%; }
+.wg-lamp-r { right: -26%; }
+.wg-lamp img { width: 100%; height: 100%; }
+.wg-lamp::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 76%;
+  width: 70%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 236, 170, 0.95) 0 8%, rgba(255, 170, 60, 0.45) 22%, rgba(255, 140, 40, 0) 70%);
+  mix-blend-mode: screen;
+  animation: wg-flicker 0.9s ease-in-out infinite alternate;
+}
+@keyframes wg-flicker {
+  from { opacity: 0.8; scale: 0.94; }
+  to { opacity: 1; scale: 1.06; }
+}
+@media (min-aspect-ratio: 1 / 1) {
+  .wg-lamp { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wg-gate { animation: wg-out-plain 0.6s ease-out 0.6s forwards; }
+  .wg-leaf, .wg-leaf::after, .wg-gate-flood, .wg-seam { animation: none; }
+}
+@keyframes wg-out-plain {
+  to { opacity: 0; visibility: hidden; }
 }

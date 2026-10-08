@@ -310,6 +310,7 @@
   "auth": {
     "signIn": "ಸೈನ್ ಇನ್",
     "myAccount": "ನನ್ನ ಖಾತೆ",
+    "signOut": "ಸೈನ್ ಔಟ್",
     "google": "Google ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ",
     "redirecting": "Google ತೆರೆಯುತ್ತಿದೆ…",
     "failed": "Google ಸೈನ್ ಇನ್ ಆರಂಭಿಸಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",

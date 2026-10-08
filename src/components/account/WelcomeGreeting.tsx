@@ -10,7 +10,7 @@ import CosmosCanvas from "./CosmosCanvas";
 import { WELCOME_COOKIE } from "@/lib/welcome";
 
 // The whole greeting runs this long, then fades into the page beneath.
-const TOTAL_MS = 8000;
+const TOTAL_MS = 9200;
 const EXIT_MS = 700;
 // Never longer than this, even when a tap starts the sound late.
 const MAX_MS = 10000;
@@ -25,6 +25,17 @@ const CALL_MS = 5900;
 const BELL_RING_S: [number, number] = [0.15, 4.3];
 // Skipping fades the call out over this long instead of cutting it.
 const AUDIO_FADE_MS = 1200;
+// The scene's timings below come after the doors open (CSS --wg-o).
+const after = (s: number) => `calc(var(--wg-o) + ${s}s)`;
+
+// Let go of the recording once it's done, so phones drop it from the
+// lock screen / "Now Playing" controls.
+function releaseAudio(audio: HTMLAudioElement) {
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+  if ("mediaSession" in navigator) navigator.mediaSession.metadata = null;
+}
 
 const PETALS: { left: string; size: number; duration: number; delay: number; drift: number; variant: PetalVariant }[] = [
   { left: "4%", size: 16, duration: 5.2, delay: 0.6, drift: 30, variant: "marigold" },
@@ -72,6 +83,41 @@ function ChakraHalo() {
         ))}
       </g>
     </svg>
+  );
+}
+
+// The Vaikuntha Dwaram the greeting opens with: teak doors with brass
+// studs, the Shankha and the Chakra, in the golden makara thoranam.
+function VaikunthaGate() {
+  return (
+    <div className="wg-gate" aria-hidden>
+      <div className="wg-gate-hole">
+        <span className="wg-gate-flood" />
+      </div>
+      <div className="wg-doors">
+        {(["l", "r"] as const).map((side) => (
+          <div key={side} className={`wg-leaf wg-leaf-${side}`}>
+            <span className="wg-panel" />
+            <span className="wg-medallion">
+              {side === "l" ? (
+                <Image src="/images/emblem-shankha-solo.png" alt="" width={137} height={268} priority />
+              ) : (
+                <Image src="/images/emblem-chakra-disc.png" alt="" width={120} height={120} priority className="wg-chakra-img" />
+              )}
+            </span>
+            <span className="wg-panel wg-panel-low" />
+            <span className="wg-ring" />
+          </div>
+        ))}
+        <span className="wg-seam" />
+      </div>
+      {(["l", "r"] as const).map((side) => (
+        <span key={side} className={`wg-lamp wg-lamp-${side}`}>
+          <Image src="/images/hanging-lamp.png" alt="" width={280} height={1080} />
+        </span>
+      ))}
+      <Image src="/images/makara-thoranam.png" alt="" width={679} height={947} priority sizes="(max-width: 640px) 150vw, 640px" className="wg-thoranam" />
+    </div>
   );
 }
 
@@ -140,7 +186,7 @@ function graphemes(text: string) {
 }
 
 // Full-screen welcome played once, right after a devotee signs in (Google
-// or email): flying in through the stars to a real nebula, the Lord in a golden arch with the
+// or email): the Vaikuntha doors open in a flood of light, then flying in through the stars to a real nebula, the Lord in a golden arch with the
 // chakra turning behind, a petal shower and the thiruchinnam sounding, then "Namaskaram <name> ·
 // Adiyen Ramanuja Dasan" and a short blessing, fading into the page in ~8s.
 // Tap, Esc or Skip ends it early.
@@ -184,7 +230,7 @@ export default function WelcomeGreeting() {
         const k = Math.min(1, (performance.now() - t0) / AUDIO_FADE_MS);
         audio.volume = Math.cos((k * Math.PI) / 2);
         if (k < 1) requestAnimationFrame(step);
-        else if (audio.volume < 0.05) audio.pause();
+        else if (audio.volume < 0.05) releaseAudio(audio);
       };
       requestAnimationFrame(step);
     }
@@ -197,16 +243,22 @@ export default function WelcomeGreeting() {
     if (name === null) return;
     let cancelled = false;
     const audio = audioRef.current;
-    if (audio) {
-      audio.volume = 1;
-      audio.currentTime = 0;
-    }
+    if (!audio) return;
+    audio.src = THIRUCHINNAM;
+    audio.volume = 1;
     audio
-      ?.play()
+      .play()
       .then(() => !cancelled && setSound("playing"))
       .catch(() => !cancelled && setSound("blocked"));
+    const onEnded = () => releaseAudio(audio);
+    audio.addEventListener("ended", onEnded);
     return () => {
       cancelled = true;
+      audio.removeEventListener("ended", onEnded);
+      // Still sounding (an iPhone playing on into its fade-out)? Let it
+      // finish; it lets go of itself when it ends.
+      if (audio.paused) releaseAudio(audio);
+      else audio.addEventListener("ended", onEnded, { once: true });
     };
   }, [name]);
 
@@ -268,7 +320,7 @@ export default function WelcomeGreeting() {
 
   return (
     <>
-      <audio ref={audioRef} src={THIRUCHINNAM} preload="none" className="hidden" />
+      <audio ref={audioRef} preload="none" className="hidden" />
       {name === null ? null : (
         <div
           role="dialog"
@@ -284,12 +336,12 @@ export default function WelcomeGreeting() {
               region) — NASA, ESA & the Hubble 20th Anniversary Team (STScI), public
               domain. Phones get a tall crop, wider screens the full frame. */}
           <div className="wg-space" aria-hidden />
-          <CosmosCanvas />
-          <span className="wg-shooting" style={{ top: "12%", left: "6%", animationDelay: "1.3s" }} aria-hidden />
-          <span className="wg-shooting" style={{ top: "30%", left: "52%", animationDelay: "4.4s" }} aria-hidden />
+          <CosmosCanvas startDelayMs={1500} />
+          <span className="wg-shooting" style={{ top: "12%", left: "6%", animationDelay: after(1.3) }} aria-hidden />
+          <span className="wg-shooting" style={{ top: "30%", left: "52%", animationDelay: after(4.4) }} aria-hidden />
 
           {(["left-[5%] sm:left-[9%]", "right-[5%] sm:right-[9%]"] as const).map((side, i) => (
-            <div key={i} className={`wg-bell pointer-events-none absolute top-0 ${side}`} aria-hidden>
+            <div key={i} className={`wg-bell pointer-events-none absolute top-0 z-30 ${side}`} aria-hidden>
               <Image
                 src="/images/hanging-bell.png"
                 alt=""
@@ -312,7 +364,7 @@ export default function WelcomeGreeting() {
                   width: p.size,
                   height: p.size,
                   animationDuration: `${p.duration}s`,
-                  animationDelay: `${p.delay}s`,
+                  animationDelay: after(p.delay),
                   ["--petal-drift" as string]: `${p.drift}px`,
                 }}
               >
@@ -335,7 +387,7 @@ export default function WelcomeGreeting() {
             <div className="wg-text flex min-w-0 flex-col items-center">
               <p className="wg-namaskaram mt-2 font-display leading-none text-gold-light" aria-label={t("namaskaram")}>
                 {letters.map((ch, i) => (
-                  <span key={i} className="wg-letter" style={{ animationDelay: `${1 + i * 0.05}s` }} aria-hidden>
+                  <span key={i} className="wg-letter" style={{ animationDelay: after(1 + i * 0.05) }} aria-hidden>
                     {ch === " " ? " " : ch}
                   </span>
                 ))}
@@ -349,25 +401,27 @@ export default function WelcomeGreeting() {
                 <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold-light sm:w-20" />
               </div>
 
-              <FitLine className="wg-dasan wg-step mt-3 font-display" style={{ animationDelay: "2.3s" }}>
+              <FitLine className="wg-dasan wg-step mt-3 font-display" style={{ animationDelay: after(2.3) }}>
                 {t("dasan")}
               </FitLine>
 
               {/* The Sanskrit blessing: Devanagari, then the visitor's own script. */}
-              <FitLine className={`wg-blessing wg-step mt-3 leading-normal ${devanagari.className}`} style={{ animationDelay: "3s" }}>
+              <FitLine className={`wg-blessing wg-step mt-3 leading-normal ${devanagari.className}`} style={{ animationDelay: after(3) }}>
                 {BLESSING.sa}
               </FitLine>
               <FitLine
                 className="wg-blessing wg-blessing-alt wg-step mt-0.5 leading-snug"
-                style={{ animationDelay: "3.35s", fontFamily: locale === "kn" ? "var(--font-temple-kannada), var(--font-temple-sans), sans-serif" : undefined }}
+                style={{ animationDelay: after(3.35), fontFamily: locale === "kn" ? "var(--font-temple-kannada), var(--font-temple-sans), sans-serif" : undefined }}
               >
                 {locale === "kn" ? BLESSING.kn : BLESSING.en}
               </FitLine>
             </div>
           </div>
 
+          <VaikunthaGate />
+
           <div
-            className="absolute inset-x-0 flex flex-col items-center gap-2"
+            className="absolute inset-x-0 z-30 flex flex-col items-center gap-2"
             style={{ bottom: "max(1rem, calc(env(safe-area-inset-bottom) + 0.5rem))" }}
           >
             {sound === "blocked" ? (
@@ -391,10 +445,10 @@ export default function WelcomeGreeting() {
               {t("skip")}
             </button>
           </div>
-          <p className="wg-credit absolute right-3 text-[10px] text-cream/35" style={{ bottom: "max(0.5rem, env(safe-area-inset-bottom))" }}>
+          <p className="wg-credit absolute right-3 z-30 text-[10px] text-cream/35" style={{ bottom: "max(0.5rem, env(safe-area-inset-bottom))" }}>
             Carina Nebula · NASA, ESA, Hubble
           </p>
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-white/10" aria-hidden>
+          <div className="absolute inset-x-0 bottom-0 z-30 h-1 bg-white/10" aria-hidden>
             <div className="wg-progress h-full origin-left bg-gradient-to-r from-gold via-gold-light to-gold" style={{ animationDuration: `${TOTAL_MS - EXIT_MS}ms` }} />
           </div>
         </div>

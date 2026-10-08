@@ -310,6 +310,7 @@
   "auth": {
     "signIn": "Sign in",
     "myAccount": "My account",
+    "signOut": "Sign out",
     "google": "Continue with Google",
     "redirecting": "Opening Google…",
     "failed": "Couldn't start Google sign-in. Please try again.",

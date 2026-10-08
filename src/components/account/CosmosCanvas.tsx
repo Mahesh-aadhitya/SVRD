@@ -43,7 +43,7 @@ function glowSprite(color: string) {
   return c;
 }
 
-export default function CosmosCanvas({ focusY = 0.38 }: { focusY?: number }) {
+export default function CosmosCanvas({ focusY = 0.38, startDelayMs = 0 }: { focusY?: number; startDelayMs?: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -78,11 +78,17 @@ export default function CosmosCanvas({ focusY = 0.38 }: { focusY?: number }) {
     const stars = Array.from({ length: STAR_COUNT }, () => spawn());
 
     let raf = 0;
-    const t0 = performance.now();
-    let last = t0;
+    // The warp waits for the doors to open (nothing is drawn until then).
+    const t0 = performance.now() + (still ? 0 : startDelayMs);
+    let last = performance.now();
 
     const frame = (now: number) => {
       const t = (now - t0) / 1000;
+      if (t < 0) {
+        last = now;
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       const speed = still ? 0 : DRIFT + (WARP - DRIFT) * Math.exp(-t / 0.32);
@@ -152,7 +158,7 @@ export default function CosmosCanvas({ focusY = 0.38 }: { focusY?: number }) {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
     };
-  }, [focusY]);
+  }, [focusY, startDelayMs]);
 
   return <canvas ref={ref} className="absolute inset-0 h-full w-full" aria-hidden />;
 }
