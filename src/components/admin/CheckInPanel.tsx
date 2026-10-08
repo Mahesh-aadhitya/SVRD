@@ -4,9 +4,10 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "@/i18n/navigation";
 import ChakraLoader from "@/components/ChakraLoader";
 import { checkInBooking, claimPrasadam, collectPaymentHoldDarshan, type CheckInResult } from "@/lib/actions/bookings";
+import { stableIntl } from "@/lib/dates";
 
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
+  return stableIntl(new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" }));
 }
 
 type View =

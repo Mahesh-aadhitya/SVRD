@@ -7,15 +7,14 @@ import { computePanchang, type PanchangDay, type PanchangLocation } from "@/lib/
 import { formatDegree, formatDuration, shiftIsoDate, todayAt } from "@/lib/panchang/format";
 import { AYANAS, GRAHAS, PAKSHAS, GRAHA_ORDER, GRAHA_SHORT, NAKSHATRA_NAMES, RASHIS, RASHI_GLYPHS, RITUS, SAMVATSARAS, label, type GrahaKey } from "@/lib/panchang/names";
 import type { SceneControl } from "./BrahmandaScene";
-import ShareCard from "./ShareCard";
-import ShareActions from "./ShareActions";
+import PanchangShare from "./PanchangShare";
 import { useDayText } from "./dayText";
 import VerseCard from "./VerseCard";
 import DhanurmasaCard from "./DhanurmasaCard";
 import { CalendarList, MonthView, type ListTab } from "./CalendarViews";
-import { TEMPLE_UTSAVAS } from "@/lib/panchang/names";
+import { TEMPLE_TOWN, TEMPLE_UTSAVAS } from "@/lib/panchang/names";
 import { occasionFor, type Verse } from "@/lib/panchang/verses";
-import { NO_UPLOADS, acharyaPath, acharyasOn, mediaFor, type AcharyaUploads } from "@/lib/panchang/acharyas";
+import { NO_UPLOADS, acharyasOn, mediaFor, type AcharyaUploads } from "@/lib/panchang/acharyas";
 import TirunakshatramCard from "./TirunakshatramCard";
 import { RECORDINGS } from "@/lib/panchang/recordings";
 
@@ -68,7 +67,6 @@ export default function PanchangamView({
   initialDay,
   initialVerse,
   locale,
-  siteTitle,
   templeLocation,
   acharyaMedia = NO_UPLOADS,
 }: {
@@ -76,7 +74,6 @@ export default function PanchangamView({
   initialDay: PanchangDay;
   initialVerse: Verse;
   locale: string;
-  siteTitle: string;
   // The temple's pin, as set in the admin's Temple info.
   templeLocation: PanchangLocation;
   // The temple's pictures and recordings of the Alwars and Acharyas.
@@ -219,7 +216,7 @@ export default function PanchangamView({
   const { span, time, vara, longDate } = text;
   // Where the times are for: the temple, or the visitor's own town by name.
   const deviceName = (locale === "kn" ? location.nameKn || location.name : location.name) || t("myLocation");
-  const placeName = location.device ? deviceName : siteTitle;
+  const placeName = location.device ? deviceName : label(TEMPLE_TOWN, locale);
   const today = todayAt(location);
 
   // The verse comes from the server (the whole collection, never repeating
@@ -246,12 +243,6 @@ export default function PanchangamView({
       .catch(() => undefined);
     return () => controller.abort();
   }, [verse, verseKey, day.date, occasion]);
-  const localePrefix = locale === "en" ? "" : `/${locale}`;
-  const acharyaLinks = honoured.map((a) => ({ name: label(a.name, locale), url: `${siteUrl}${localePrefix}${acharyaPath(a.slug)}` }));
-  const whatsappText = [
-    text.message(siteTitle, placeName, verse),
-    ...acharyaLinks.map((l) => `\n🙏 ${t("acharya.knowMoreAbout", { name: l.name })}: ${l.url}`),
-  ].join("");
 
   return (
     <div className="relative isolate bg-[#03020a] text-white/90">
@@ -588,21 +579,14 @@ export default function PanchangamView({
           ) : null}
 
           <Card title={t("share")} className="md:col-span-2">
-            <ShareActions
-              card={
-                <ShareCard
-                  day={day}
-                  locale={locale}
-                  siteTitle={siteTitle}
-                  siteUrl={siteUrl.replace(/^https?:\/\//, "")}
-                  placeName={placeName}
-                  verse={verse}
-                  acharyas={honoured.map((a) => ({ acharya: a, imageUrl: mediaFor(a, acharyaMedia).imageUrl, link: `${siteUrl.replace(/^https?:\/\//, "")}${localePrefix}${acharyaPath(a.slug)}` }))}
-                />
-              }
-              fileBase={`panchangam-${day.date}`}
-              shareTitle={t("shareText", { date: longDate })}
-              whatsappText={whatsappText}
+            <PanchangShare
+              day={day}
+              locale={locale}
+              siteUrl={siteUrl}
+              deviceName={location.device ? deviceName : null}
+              verse={verse}
+              honoured={honoured}
+              acharyaMedia={acharyaMedia}
             />
           </Card>
 

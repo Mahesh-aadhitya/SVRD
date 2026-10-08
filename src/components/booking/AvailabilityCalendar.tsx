@@ -2,7 +2,7 @@
 
 import { useState, type CSSProperties } from "react";
 import { useTranslations } from "next-intl";
-import { isoFromDate, parseIso } from "@/lib/dates";
+import { isoFromDate, parseIso, stableIntl } from "@/lib/dates";
 
 export type DayStatus = "available" | "filling" | "full" | "closed" | "blocked";
 
@@ -70,7 +70,7 @@ export default function AvailabilityCalendar({
     <div style={{ maxWidth: 360 }} className="w-full">
       <div className="flex items-center justify-between">
         <NavButton dir="prev" disabled={month <= minIndex} onClick={() => setMonth((m) => m - 1)} label={t("prevMonth")} />
-        <p className="font-display text-base text-maroon">{first.toLocaleDateString(intl, { month: "long", year: "numeric" })}</p>
+        <p className="font-display text-base text-maroon">{stableIntl(first.toLocaleDateString(intl, { month: "long", year: "numeric" }))}</p>
         <NavButton dir="next" disabled={month >= maxIndex} onClick={() => setMonth((m) => m + 1)} label={t("nextMonth")} />
       </div>
 
@@ -94,7 +94,7 @@ export default function AvailabilityCalendar({
               disabled={!clickable}
               onClick={() => onSelect(iso)}
               aria-pressed={isSelected}
-              aria-label={`${parseIso(iso).toLocaleDateString(intl, { dateStyle: "full" })} — ${t(`legend.${status}`)}`}
+              aria-label={`${stableIntl(parseIso(iso).toLocaleDateString(intl, { dateStyle: "full" }))} — ${t(`legend.${status}`)}`}
               style={{
                 height: 40,
                 borderWidth: isSelected ? 2 : 1,

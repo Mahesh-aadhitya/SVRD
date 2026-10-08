@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import type { User } from "@supabase/supabase-js";
 import { Link } from "@/i18n/navigation";
-import { createClient } from "@/lib/supabase/browser";
+import { useSessionUser } from "@/components/account/useSessionUser";
 import { fetchLiveComments, postLiveComment } from "@/lib/actions/comments";
 import type { PublicComment } from "@/lib/content-types";
+import { stableIntl } from "@/lib/dates";
 
 const POLL_MS = 10_000;
 
@@ -18,14 +18,7 @@ export default function LiveComments({ initial }: { initial: PublicComment[] }) 
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Commenting needs a signed-in devotee; reading doesn't. undefined = still checking.
-  const [user, setUser] = useState<User | null | undefined>(undefined);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
-    return () => data.subscription.unsubscribe();
-  }, []);
+  const user = useSessionUser();
 
   // Polling keeps hidden-by-admin comments disappearing too, which a
   // push-only feed of inserts wouldn't.
@@ -58,13 +51,15 @@ export default function LiveComments({ initial }: { initial: PublicComment[] }) 
     }
   }
 
+  // Temple time (IST) so the server (UTC) and the phone agree on the hour.
   const time = (iso: string) =>
-    new Date(iso).toLocaleString(locale === "kn" ? "kn-IN" : "en-IN", {
+    stableIntl(new Date(iso).toLocaleString(locale === "kn" ? "kn-IN" : "en-IN", {
+      timeZone: "Asia/Kolkata",
       day: "numeric",
       month: "short",
       hour: "numeric",
       minute: "2-digit",
-    });
+    }));
 
   return (
     <div className="mt-4 space-y-4">
@@ -114,7 +109,8 @@ export default function LiveComments({ initial }: { initial: PublicComment[] }) 
             <li key={comment.id} className="rounded-2xl border border-gold/20 bg-white/60 px-4 py-3">
               <div className="flex items-baseline justify-between gap-3">
                 <p className="text-sm font-semibold text-maroon">{comment.authorName}</p>
-                <time className="shrink-0 text-[11px] text-ink/45" dateTime={comment.createdAt}>
+                {/* Safari and Node word dates slightly differently ("at", AM/am). */}
+                <time className="shrink-0 text-[11px] text-ink/45" dateTime={comment.createdAt} suppressHydrationWarning>
                   {time(comment.createdAt)}
                 </time>
               </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { isoFromDate, localTodayIso, parseIso } from "@/lib/dates";
+import { isoFromDate, localTodayIso, parseIso, stableIntl } from "@/lib/dates";
 
 export type CalendarProps = {
   /** Selected single date (yyyy-mm-dd). */
@@ -94,7 +94,7 @@ export default function Calendar({
       <div className="mb-2 flex items-center justify-between">
         <NavButton disabled={!canPrev} onClick={() => shift(-1)} label="Previous month" dir="prev" />
         <p className="font-display text-base text-maroon">
-          {first.toLocaleDateString(intlLocale, { month: "long", year: "numeric" })}
+          {stableIntl(first.toLocaleDateString(intlLocale, { month: "long", year: "numeric" }))}
         </p>
         <NavButton disabled={!canNext} onClick={() => shift(1)} label="Next month" dir="next" />
       </div>
@@ -117,7 +117,7 @@ export default function Calendar({
           const note = !disabled ? dayNote?.(iso) : null;
           const mark = dayMark?.(iso) ?? null;
           const custom = !selected && !disabled ? dayClassName?.(iso) : undefined;
-          const fullDate = parseIso(iso).toLocaleDateString(intlLocale, { dateStyle: "full" });
+          const fullDate = stableIntl(parseIso(iso).toLocaleDateString(intlLocale, { dateStyle: "full" }));
           return (
             <button
               key={iso}

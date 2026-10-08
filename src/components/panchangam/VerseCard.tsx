@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { label } from "@/lib/panchang/names";
-import type { Verse } from "@/lib/panchang/verses";
+import { verseLines, type Verse } from "@/lib/panchang/verses";
 import ShareButton from "@/components/ShareButton";
 import VerseAudio from "@/components/acharya/VerseAudio";
 import YouTubeRecordings from "@/components/acharya/YouTubeRecordings";
@@ -12,9 +12,9 @@ import type { MediaCredit } from "@/lib/panchang/acharyas";
 const glass =
   "rounded-3xl border border-white/10 bg-[#0b0820]/70 shadow-[0_0_40px_rgba(90,70,220,0.18)] backdrop-blur-md";
 
-// The day's verse: the original (Kannada script for Kannada readers,
-// romanised otherwise, plus the Alwars' Tamil), then its meaning in both
-// Kannada and English — the page's language first.
+// The day's verse: the original — always in Kannada script, with the
+// romanised text first for English readers, plus the Alwars' Tamil — then
+// its meaning in both Kannada and English, the page's language first.
 export default function VerseCard({
   verse,
   locale,
@@ -49,14 +49,23 @@ export default function VerseCard({
         <ShareButton
           tone="dark"
           title={`📿 ${label(verse.source, locale)}`}
-          text={[locale === "kn" ? verse.kn : verse.roman, `${t("meaningIn.kn")}: ${verse.meaning.kn}`, `${t("meaningIn.en")}: ${verse.meaning.en}`].join("\n\n")}
+          text={[...verseLines(verse, locale).map((l) => l.text), `${t("meaningIn.kn")}: ${verse.meaning.kn}`, `${t("meaningIn.en")}: ${verse.meaning.en}`].join("\n\n")}
           path={`/panchangam?date=${date}`}
           className="relative z-10"
         />
       </div>
       <h2 className="font-display mt-1 text-lg text-amber-200">{label(verse.source, locale)}</h2>
-      <blockquote className="mt-3 whitespace-pre-line border-l-2 border-amber-300/50 pl-4 text-[15px] leading-relaxed text-amber-50 sm:text-base">
-        {locale === "kn" ? verse.kn : verse.roman}
+      <blockquote className="mt-3 space-y-3 border-l-2 border-amber-300/50 pl-4">
+        {verseLines(verse, locale).map((line, i) => (
+          <p
+            key={line.lang}
+            lang={line.lang}
+            className={`whitespace-pre-line leading-relaxed ${i === 0 ? "text-[15px] text-amber-50 sm:text-base" : "text-sm text-amber-50/80 sm:text-[15px]"}`}
+            style={line.lang === "kn" ? { fontFamily: "var(--font-temple-kannada), var(--font-temple-sans), sans-serif" } : undefined}
+          >
+            {line.text}
+          </p>
+        ))}
       </blockquote>
       {verse.tamil ? (
         <p lang="ta" className="mt-2 whitespace-pre-line pl-4 text-xs leading-relaxed text-indigo-100/55">

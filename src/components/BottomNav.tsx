@@ -30,14 +30,20 @@ export default function BottomNav() {
             <Link
               key={item.key}
               href={item.href}
-              className="flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-medium"
+              className="flex min-w-0 flex-1 flex-col items-center gap-1 px-0.5 py-2 text-[10px] font-medium min-[360px]:text-[11px]"
             >
-              <Icon
-                className={`h-5 w-5 ${active ? "text-maroon" : "text-ink/45"}`}
-              />
-              <span className={`whitespace-nowrap ${active ? "text-maroon" : "text-ink/55"}`}>
+              {/* The beacon sits on the icon's corner, like an app badge, so
+                  it never pushes narrow or Kannada labels into each other. */}
+              <span className="relative">
+                <Icon
+                  className={`h-5 w-5 ${active ? "text-maroon" : "text-ink/45"}`}
+                />
+                <span className="absolute -top-1.5 left-full -ml-1.5 flex whitespace-nowrap [&>*]:ml-0">
+                  <NavBeacon href={item.href} />
+                </span>
+              </span>
+              <span className={`line-clamp-2 w-full text-center leading-tight ${active ? "text-maroon" : "text-ink/55"}`}>
                 {t(item.key)}
-                <NavBeacon href={item.href} />
               </span>
             </Link>
           );

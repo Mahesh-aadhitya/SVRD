@@ -38,7 +38,6 @@ export default async function PanchangamPage({
       initialVerse={initialVerse}
       templeLocation={templeLocation}
       locale={locale}
-      siteTitle={tMeta("siteTitle")}
       acharyaMedia={acharyaMedia}
     />
   );

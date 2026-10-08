@@ -10,7 +10,7 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 // Only same-site paths, without the locale prefix (the forms add it).
 function safeNext(value: string | undefined) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/account";
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/";
   return value.replace(/^\/(en|kn)(?=\/|$)/, "") || "/";
 }
 

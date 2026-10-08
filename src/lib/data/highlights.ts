@@ -42,9 +42,13 @@ export async function getHighlights(): Promise<Highlight[]> {
     });
   }
 
+  const openSevas = new Set(sevas.map((s) => s.id));
   const noticedSevas = new Set<string>();
   for (const n of notices) {
     const sevaId = n.linkUrl?.match(/[?&]seva=([a-z0-9-]+)/)?.[1];
+    // "Tickets open" for a seva that's since been paused or closed would
+    // send devotees to a booking they can't make.
+    if (n.kind === "ticket_release" && sevaId && !openSevas.has(sevaId)) continue;
     if (n.kind === "ticket_release" && sevaId) noticedSevas.add(sevaId);
     const isNew = n.publishOn >= recent;
     const score =

@@ -1,6 +1,7 @@
 // Plain type shared between the server data-fetcher (src/lib/data/sevas.ts)
 // and client components (BookingFlow). Deliberately has no "server-only"
 // imports so client bundles can import it directly.
+import { knDayPart } from "./panchang/format";
 
 export type Seva = {
   id: string;
@@ -43,15 +44,15 @@ export type SevaSlot = {
   isActive: boolean;
 };
 
+// Formatted by hand, like the panchang times, so the server and Safari print
+// the same text ("7:30 PM" / "ಸಂಜೆ 7:30") and hydration doesn't break.
 function formatTime(hhmm: string, locale: string) {
   const [h, m] = hhmm.split(":").map(Number);
-  return new Date(2000, 0, 1, h, m).toLocaleTimeString(locale === "kn" ? "kn-IN" : "en-IN", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const clock = `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, "0")}`;
+  return locale === "kn" ? `${knDayPart(h)} ${clock}` : `${clock} ${h < 12 ? "AM" : "PM"}`;
 }
 
-// "6:30 am – 7:30 am"
+// "6:30 AM – 7:30 AM"
 export function formatSlot(slot: Pick<SevaSlot, "startTime" | "endTime">, locale: string) {
   const start = formatTime(slot.startTime, locale);
   return slot.endTime ? `${start} – ${formatTime(slot.endTime, locale)}` : start;

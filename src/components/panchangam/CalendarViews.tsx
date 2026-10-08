@@ -18,6 +18,7 @@ import {
   tithiName,
 } from "@/lib/panchang/names";
 import { yearCalendar, type CalendarCategory, type CalendarEntry, type DayLite } from "@/lib/panchang/year";
+import { stableIntl } from "@/lib/dates";
 
 export type ListTab = Exclude<CalendarCategory, "temple">;
 
@@ -40,7 +41,7 @@ export const entryName = calendarEntryName;
 
 const fmtDate = (iso: string, locale: string, opts: Intl.DateTimeFormatOptions) => {
   const [y, m, d] = iso.split("-").map(Number);
-  return new Intl.DateTimeFormat(locale === "kn" ? "kn-IN" : "en-IN", { timeZone: "UTC", ...opts }).format(new Date(Date.UTC(y, m - 1, d)));
+  return stableIntl(new Intl.DateTimeFormat(locale === "kn" ? "kn-IN" : "en-IN", { timeZone: "UTC", ...opts }).format(new Date(Date.UTC(y, m - 1, d))));
 };
 
 const tithiLabel = (d: DayLite, locale: string) => {

@@ -15,7 +15,7 @@ export default function NavBeacon({ href, onDark = false }: { href: string; onDa
   const here = items.filter((h) => sectionOf(h) === href);
   if (href === "/live" && here.some((h) => h.kind === "live")) {
     return (
-      <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-red-600 px-1.5 py-px align-middle text-[9px] font-bold uppercase leading-4 tracking-wider text-white">
+      <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-red-600 px-1.5 py-px align-middle text-[10px] font-bold uppercase leading-4 tracking-wider text-white">
         <span className="relative flex h-1.5 w-1.5">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-80" />
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />

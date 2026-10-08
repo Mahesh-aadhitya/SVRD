@@ -1,9 +1,11 @@
 "use server";
 
 import { z } from "zod";
+import { cookies } from "next/headers";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ensureProfile, getDevotee } from "@/lib/devotee/auth";
+import { welcomeCookie } from "@/lib/welcome";
 
 // Email + password accounts for devotees who don't use Google. New
 // accounts (and password resets) are confirmed with a 6-digit code emailed
@@ -40,12 +42,16 @@ function mapError(message: string): AuthError {
 
 // Only same-site paths, localized for the redirect helper.
 function safeNext(next: string) {
-  return next.startsWith("/") && !next.startsWith("//") ? next : "/account";
+  return next.startsWith("/") && !next.startsWith("//") ? next : "/";
 }
 
 async function finish(locale: string, next: string): Promise<never> {
   const devotee = await getDevotee();
-  if (devotee) await ensureProfile(devotee).catch((e) => console.error("ensureProfile:", e));
+  if (devotee) {
+    const profile = await ensureProfile(devotee).catch((e) => (console.error("ensureProfile:", e), null));
+    const welcome = welcomeCookie(profile?.fullName || devotee.name);
+    (await cookies()).set(welcome.name, welcome.value, welcome.options);
+  }
   redirect({ href: safeNext(next), locale });
   throw new Error("unreachable");
 }

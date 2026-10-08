@@ -425,3 +425,17 @@ function dayNumber(iso: string) {
   const [y, m, d] = iso.split("-").map(Number);
   return Math.floor(Date.UTC(y, m - 1, d) / 86_400_000);
 }
+
+/**
+ * The verse's original text to show for a language: Kannada readers get the
+ * Kannada script; everyone else the romanised text with the Kannada script
+ * alongside, so the Kannada verse is always there.
+ */
+export function verseLines(verse: Pick<Verse, "kn" | "roman">, locale: string): { lang: "kn" | "en"; text: string }[] {
+  return locale === "kn"
+    ? [{ lang: "kn", text: verse.kn }]
+    : [
+        { lang: "en", text: verse.roman },
+        { lang: "kn", text: verse.kn },
+      ];
+}

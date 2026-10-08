@@ -3,9 +3,8 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import type { User } from "@supabase/supabase-js";
 import { usePathname } from "@/i18n/navigation";
-import { createClient } from "@/lib/supabase/browser";
+import { useSessionUser } from "@/components/account/useSessionUser";
 import HighlightTile from "./HighlightTile";
 import { markHighlightsSeen, openNotifications, sectionOf, useHighlights, useSeenHighlights } from "./useHighlights";
 
@@ -28,17 +27,10 @@ export default function WhatsNewPopup() {
   const items = useHighlights();
   const seen = useSeenHighlights();
   const pathname = usePathname();
-  const [user, setUser] = useState<User | null | undefined>(undefined);
+  const user = useSessionUser();
   const [closedFor, setClosedFor] = useState<string | null>(null);
   // What this tab has already been shown: "<user id or guest>". null on the server.
   const shown = useSyncExternalStore(noop, readShown, () => "server");
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
-    const { data } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null));
-    return () => data.subscription.unsubscribe();
-  }, []);
 
   // Opening a section counts as having seen what's new in it (the menu
   // lamp beside it goes out).

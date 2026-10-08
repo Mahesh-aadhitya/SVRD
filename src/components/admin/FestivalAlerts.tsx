@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import type { PanchangLocation } from "@/lib/panchang/compute";
 import { observanceName } from "@/lib/panchang/observance-text";
 import { scanDays } from "@/lib/panchang/year";
-import { todayInIndia } from "@/lib/dates";
+import { todayInIndia, stableIntl } from "@/lib/dates";
 
 const LEAD_DAYS = 3;
 const SEEN_KEY = "admin-festival-alerts-shown";
@@ -94,4 +94,4 @@ export default function FestivalAlerts({ location }: { location: PanchangLocatio
 
 const when = (inDays: number) => (inDays === 0 ? "Today" : inDays === 1 ? "Tomorrow" : `In ${inDays} days`);
 const fmt = (iso: string) =>
-  new Intl.DateTimeFormat("en-IN", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(`${iso}T00:00:00Z`));
+  stableIntl(new Intl.DateTimeFormat("en-IN", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(`${iso}T00:00:00Z`)));

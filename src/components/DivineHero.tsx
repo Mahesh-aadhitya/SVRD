@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ringBellNow, scheduleBellRing } from "@/lib/templeBell";
 
-type PetalVariant = "marigold" | "rose" | "jasmine";
+export type PetalVariant = "marigold" | "rose" | "jasmine";
 
 // Fixed (not random) so server and client render the same markup — avoids
 // hydration mismatches while still looking organically scattered. `left`
@@ -260,7 +260,7 @@ export default function DivineHero() {
   );
 }
 
-function Petal({ variant, size, uid }: { variant: PetalVariant; size: number; uid: number }) {
+export function Petal({ variant, size, uid }: { variant: PetalVariant; size: number; uid: number }) {
   if (variant === "jasmine") {
     return (
       <svg viewBox="0 0 24 24" width={size} height={size} className="block drop-shadow-[0_1px_1px_rgba(122,31,31,0.25)]">

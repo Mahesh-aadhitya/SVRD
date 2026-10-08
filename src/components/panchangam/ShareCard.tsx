@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { PanchangDay } from "@/lib/panchang/compute";
 import { RASHI_GLYPHS, TEMPLE_UTSAVAS, label } from "@/lib/panchang/names";
-import type { Verse } from "@/lib/panchang/verses";
+import { verseLines, type Verse } from "@/lib/panchang/verses";
 import { useDayText } from "./dayText";
 import AcharyaPortrait from "@/components/acharya/AcharyaPortrait";
 import type { Acharya } from "@/lib/panchang/acharyas";
@@ -232,9 +232,15 @@ export default function ShareCard({
               <div style={{ fontSize: 20, color: "#e8c97a", textAlign: "center" }}>
                 📿 {t("verseOfDay")} · {label(verse.source, locale)}
               </div>
-              <div style={{ marginTop: 12, fontSize: 27, lineHeight: 1.55, color: "#fff4d6", textAlign: "center", whiteSpace: "pre-line" }}>
-                {kn ? verse.kn : verse.roman}
-              </div>
+              {verseLines(verse, locale).map((line, i) => (
+                <div
+                  key={line.lang}
+                  lang={line.lang}
+                  style={{ marginTop: 12, fontSize: i ? 23 : 27, lineHeight: 1.55, color: i ? "#efe2bf" : "#fff4d6", textAlign: "center", whiteSpace: "pre-line" }}
+                >
+                  {line.text}
+                </div>
+              ))}
               {meanings.map((m, i) => (
                 <div key={i} style={{ marginTop: 12, fontSize: 21, lineHeight: 1.5, color: i ? "#b9b0d6" : "#e6def5", textAlign: "center" }}>
                   {m}

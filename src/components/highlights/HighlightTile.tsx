@@ -29,11 +29,12 @@ const ACCENT: Record<HighlightKind, { bar: string; label: string }> = {
 
 // One notification tile: emblem on the left, kind · when, title, a line
 // of detail, and a NEW dot until the devotee has seen it.
-export default function HighlightTile({ item, unseen = false, compact = false, onOpen }: {
+export default function HighlightTile({ item, unseen = false, compact = false, onOpen, className = "" }: {
   item: Highlight;
   unseen?: boolean;
   compact?: boolean;
   onOpen?: () => void;
+  className?: string;
 }) {
   const t = useTranslations("highlights");
   const d = useHighlightText()(item);
@@ -47,7 +48,7 @@ export default function HighlightTile({ item, unseen = false, compact = false, o
       onClick={onOpen}
       className={`group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-gold/25 bg-white/90 shadow-sm transition hover:-translate-y-0.5 hover:border-gold/60 hover:shadow-md ${
         compact ? "p-3 pl-4" : "p-4 pl-5"
-      }`}
+      } ${className}`}
     >
       <span className={`absolute inset-y-0 left-0 w-1 ${accent.bar}`} aria-hidden />
 
@@ -64,20 +65,21 @@ export default function HighlightTile({ item, unseen = false, compact = false, o
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide">
+        <span className="flex flex-wrap items-center gap-x-2 text-[11px] font-bold uppercase tracking-wide">
           {live ? (
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />
             </span>
           ) : null}
-          <span className={accent.label}>{d.badge}</span>
-          {d.when ? <span className="font-medium normal-case tracking-normal text-ink/45">· {d.when}</span> : null}
+          <span className={`whitespace-nowrap ${accent.label}`}>{d.badge}</span>
+          {d.when ? <span className="whitespace-nowrap font-medium normal-case tracking-normal text-ink/45">· {d.when}</span> : null}
         </span>
-        <span className={`mt-0.5 block font-display leading-snug text-maroon ${compact ? "line-clamp-1 text-base" : "line-clamp-2 text-lg"}`}>
+        {/* No `block` here: it overrides line-clamp's display and the text stops trimming. */}
+        <span className={`mt-0.5 font-display leading-snug text-maroon ${compact ? "line-clamp-1 text-base" : "line-clamp-2 text-lg"}`}>
           {d.title}
         </span>
-        {d.body ? <span className="mt-0.5 line-clamp-1 block text-sm text-ink/60">{d.body}</span> : null}
+        {d.body ? <span className="mt-0.5 line-clamp-1 text-sm text-ink/60">{d.body}</span> : null}
       </span>
 
       {unseen ? (

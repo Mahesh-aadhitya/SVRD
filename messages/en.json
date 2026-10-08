@@ -590,7 +590,7 @@
     "useMyLocation": "Use my location",
     "locating": "Finding you…",
     "locationFailed": "Couldn't get your location — showing the temple's timings.",
-    "timesFor": "Timings for {place}",
+    "timesFor": "These timings are calculated for {place}",
     "panchaAnga": "Pancha Anga",
     "vara": "Vara",
     "tithi": "Tithi",
@@ -790,7 +790,8 @@
       "watchOnYouTube": "Watch on YouTube",
       "tanians": "Tanians",
       "taniansNote": "The tanians recited before the Divya Prabandham and the guruparampara."
-    }
+    },
+    "shareLanguage": "Share in"
   },
   "share": {
     "share": "Share",
@@ -858,5 +859,12 @@
       "utr_mismatch": "The transaction ID you typed doesn't match the screenshot.",
       "missing_utr": "The transaction ID (UTR) isn't visible. Upload a screenshot that shows it, or type it in the box above."
     }
+  },
+  "welcomeGreeting": {
+    "namaskaram": "Namaskaram",
+    "dasan": "Adiyen Ramanuja Dasan",
+    "skip": "Skip",
+    "label": "Welcome greeting",
+    "soundHint": "Tap to hear the Thiruchinnam"
   }
 }

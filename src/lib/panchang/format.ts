@@ -21,7 +21,7 @@ function shifted(ms: number, loc: PanchangLocation) {
   return new Date(ms + loc.tzOffsetMin * 60_000);
 }
 
-function knDayPart(h: number) {
+export function knDayPart(h: number) {
   if (h < 4) return "ರಾತ್ರಿ";
   if (h < 6) return "ಬೆಳಗಿನ ಜಾವ";
   if (h < 12) return "ಬೆಳಿಗ್ಗೆ";

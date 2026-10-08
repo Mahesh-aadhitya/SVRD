@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { PaymentAttempt } from "@/lib/data/bookings";
+import { stableIntl } from "@/lib/dates";
 
 const REASONS: Record<string, string> = {
   not_payment: "Not a UPI payment screenshot",
@@ -17,7 +18,7 @@ const REASONS: Record<string, string> = {
   duplicate_utr: "UTR already used for another booking",
 };
 
-const stamp = (iso: string) => new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
+const stamp = (iso: string) => stableIntl(new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" }));
 
 // Screenshots the automatic check refused, with what was read from each.
 export default function RejectedAttempts({ attempts }: { attempts: PaymentAttempt[] }) {

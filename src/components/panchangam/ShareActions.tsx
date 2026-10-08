@@ -6,6 +6,10 @@ import { useTranslations } from "next-intl";
 
 type Kind = "image" | "pdf";
 
+/** Button and status wording — passed in so it can stay in the page's
+ *  language while the card itself is in another (see PanchangShare). */
+export type ShareLabels = Record<"shareImage" | "sharePdf" | "whatsapp" | "preparing" | "shareFailed" | "saved", string>;
+
 const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
 /**
@@ -21,13 +25,16 @@ export default function ShareActions({
   fileBase,
   shareTitle,
   whatsappText,
+  labels,
 }: {
   card: ReactNode;
   fileBase: string;
   shareTitle: string;
   whatsappText: string;
+  labels?: ShareLabels;
 }) {
-  const t = useTranslations("panchangam");
+  const translate = useTranslations("panchangam");
+  const t = (key: keyof ShareLabels) => labels?.[key] ?? translate(key);
   const [busy, setBusy] = useState<Kind | null>(null);
   const [status, setStatus] = useState<"failed" | "saved" | null>(null);
   // Building the file can outlast the tap's "user activation" window, after

@@ -162,12 +162,17 @@ export async function saveSeva(
   if (slotError) return { error: `Seva saved, but time slots failed: ${slotError}` };
 
   const datesChanged = dates.join() !== [...previousDates].filter((d) => d >= today).sort().join();
-  if (input.postNotice && input.openForBooking && datesChanged) {
+  const postNew = input.postNotice && input.openForBooking && datesChanged;
+  if (existingId) {
+    const syncError = await syncReleaseNotices(supabase, id, row.name, dates, today, postNew);
+    if (syncError) return { error: `Seva saved, but its notices failed to update: ${syncError}` };
+  }
+  if (postNew) {
     const noticeError = await postTicketReleaseNotice(supabase, id, row.name, dates);
     if (noticeError) return { error: `Seva saved, but the notice failed: ${noticeError}` };
-    updateTag("notices");
   }
 
+  updateTag("notices");
   updateTag("sevas");
   redirect({ href: "/admin/sevas", locale });
 }
@@ -205,12 +210,12 @@ async function syncSlots(supabase: SupabaseAdmin, sevaId: string, slots: z.infer
   return null;
 }
 
-async function postTicketReleaseNotice(
-  supabase: SupabaseAdmin,
-  sevaId: string,
-  name: { en: string; kn: string },
-  dates: string[],
-) {
+type SevaName = { en: string; kn: string };
+
+const releaseLink = (sevaId: string) => `/booking?seva=${sevaId}`;
+
+// Title, body and expiry of a "tickets open" notice for these dates.
+function releaseNoticeText(name: SevaName, dates: string[]) {
   const fields = {
     releaseStartDate: dates[0],
     releaseEndDate: dates.at(-1)!,
@@ -218,16 +223,46 @@ async function postTicketReleaseNotice(
     releaseWeekdays: null,
     releaseDates: dates,
   };
-  const { error } = await supabase.from("notices").insert({
-    kind: "ticket_release",
+  return {
     title: { en: `${name.en} — tickets open`, kn: `${name.kn} — ಟಿಕೆಟ್‌ಗಳು ಲಭ್ಯ` },
     body: {
       en: `Bookings are open for: ${describeRelease(fields, "en")}. Reserve your seva before slots fill up.`,
       kn: `ಬುಕಿಂಗ್ ತೆರೆದಿದೆ: ${describeRelease(fields, "kn")}. ಸ್ಥಳಗಳು ಭರ್ತಿಯಾಗುವ ಮೊದಲು ನಿಮ್ಮ ಸೇವೆಯನ್ನು ಕಾಯ್ದಿರಿಸಿ.`,
     },
-    link_url: `/booking?seva=${sevaId}`,
-    expires_on: dates.at(-1),
+    expires_on: dates.at(-1)!,
+  };
+}
+
+async function postTicketReleaseNotice(supabase: SupabaseAdmin, sevaId: string, name: SevaName, dates: string[]) {
+  const { error } = await supabase.from("notices").insert({
+    kind: "ticket_release",
+    ...releaseNoticeText(name, dates),
+    link_url: releaseLink(sevaId),
   });
+  return error?.message ?? null;
+}
+
+// A release notice is written once, with the seva's name and dates in its
+// text, so editing the seva later left the old name/dates on the home page
+// and notices page. On every save, rewrite this seva's still-running release
+// notices from the current name and dates — or retire them when a fresh
+// notice is about to be posted, or when no dates are left.
+async function syncReleaseNotices(
+  supabase: SupabaseAdmin,
+  sevaId: string,
+  name: SevaName,
+  dates: string[],
+  today: string,
+  replacing: boolean,
+) {
+  const yesterday = new Date(Date.parse(`${today}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
+  const running = supabase
+    .from("notices")
+    .update(replacing || dates.length === 0 ? { expires_on: yesterday } : releaseNoticeText(name, dates))
+    .eq("kind", "ticket_release")
+    .eq("link_url", releaseLink(sevaId))
+    .or(`expires_on.is.null,expires_on.gte.${today}`);
+  const { error } = await running;
   return error?.message ?? null;
 }
 

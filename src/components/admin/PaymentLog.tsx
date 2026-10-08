@@ -4,10 +4,10 @@ import { useState, useTransition } from "react";
 import { rejectPayment, setPaymentUtr, verifyPayment } from "@/lib/actions/payments";
 import type { PaymentLogEntry } from "@/lib/data/bookings";
 import { formatSlot } from "@/lib/seva-types";
-import { formatIso } from "@/lib/dates";
+import { formatIso, stableIntl } from "@/lib/dates";
 import { useRouter } from "@/i18n/navigation";
 
-const stamp = (iso: string) => new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
+const stamp = (iso: string) => stableIntl(new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" }));
 
 // One card per uploaded UPI screenshot: tap the thumbnail to see it full
 // size, then verify or reject. Cards (not a table) so it works one-handed

@@ -8,6 +8,7 @@ import { computeKundali, type Dasha, type Kundali } from "@/lib/panchang/kundali
 import ShareButton from "@/components/ShareButton";
 import JatakaChart, { DARK_PALETTE, type ChartStyle } from "./JatakaChart";
 import KundaliExport from "./KundaliExport";
+import { stableIntl } from "@/lib/dates";
 import {
   GRAHAS,
   MASAS,
@@ -182,8 +183,10 @@ export default function KundaliView({ locale }: { locale: string }) {
             />
             {input.name ? <p className="font-display text-2xl text-amber-100">{input.name}</p> : null}
             <p className="text-sm text-indigo-100/75">
-              {new Intl.DateTimeFormat(locale === "kn" ? "kn-IN" : "en-IN", { dateStyle: "long", timeZone: "UTC" }).format(
-                new Date(`${input.date}T00:00:00Z`),
+              {stableIntl(
+                new Intl.DateTimeFormat(locale === "kn" ? "kn-IN" : "en-IN", { dateStyle: "long", timeZone: "UTC" }).format(
+                  new Date(`${input.date}T00:00:00Z`),
+                ),
               )}{" "}
               · {input.time} · {input.location.name}
             </p>
@@ -336,7 +339,7 @@ function DashaCard({ dashas, locale }: { dashas: Dasha[]; locale: string }) {
   const current = dashas.find((d) => d.start <= now && now < d.end);
   const [open, setOpen] = useState<GrahaKey | null>(current?.lord ?? null);
   const fmt = (ms: number) =>
-    new Intl.DateTimeFormat(locale === "kn" ? "kn-IN" : "en-IN", { month: "short", year: "numeric", timeZone: "Asia/Kolkata" }).format(new Date(ms));
+    stableIntl(new Intl.DateTimeFormat(locale === "kn" ? "kn-IN" : "en-IN", { month: "short", year: "numeric", timeZone: "Asia/Kolkata" }).format(new Date(ms)));
   const L = (n: { en: string; kn: string }) => label(n, locale);
 
   return (

@@ -25,6 +25,19 @@ export function maxIso(...dates: (string | null | undefined)[]) {
   return dates.filter((d): d is string => !!d).sort().at(-1) ?? null;
 }
 
+// Node (server) and Safari ship different ICU data, so one Intl call can word
+// a date differently — "8 Oct, 2026" vs "8 Oct 2026", "7 Oct, 2:17 am" vs
+// "7 Oct at 2:17 AM", narrow vs plain spaces — and React then throws away the
+// server HTML and re-renders on the phone. Folding those known differences
+// into one spelling keeps server and browser text identical.
+export function stableIntl(text: string) {
+  return text
+    .replace(/[   ]/g, " ")
+    .replace(/ at /g, ", ")
+    .replace(/,\s+(\d{4})\b/g, " $1")
+    .replace(/\b([ap])\.?m\.?(?=$|[\s,–-])/gi, (_, p: string) => `${p.toUpperCase()}M`);
+}
+
 export function formatIso(iso: string, locale: string, opts: Intl.DateTimeFormatOptions) {
-  return parseIso(iso).toLocaleDateString(locale === "kn" ? "kn-IN" : "en-IN", opts);
+  return stableIntl(parseIso(iso).toLocaleDateString(locale === "kn" ? "kn-IN" : "en-IN", opts));
 }

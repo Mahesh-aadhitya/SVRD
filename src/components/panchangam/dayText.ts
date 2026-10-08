@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import type { PanchangDay, Segment } from "@/lib/panchang/compute";
 import { formatClock, formatLongDate, formatSpan, formatTime } from "@/lib/panchang/format";
 import { observanceName } from "@/lib/panchang/observance-text";
-import type { Verse } from "@/lib/panchang/verses";
+import { verseLines, type Verse } from "@/lib/panchang/verses";
 import { DHANURMASA } from "@/lib/panchang/dhanurmasa";
 import {
   ADHIKA,
@@ -105,7 +105,7 @@ export function useDayText(day: PanchangDay, locale: string) {
             "",
             `📿 *${t("verseOfDay")} · ${L(verse.source)}*`,
             // WhatsApp italics only span one line, so mark each line.
-            ...(locale === "kn" ? verse.kn : verse.roman).split("\n").map((line) => `_${line}_`),
+            ...verseLines(verse, locale).flatMap((l, i) => [...(i ? [""] : []), ...l.text.split("\n").map((line) => `_${line}_`)]),
             "",
             `${t("meaningIn.kn")}: ${verse.meaning.kn}`,
             `${t("meaningIn.en")}: ${verse.meaning.en}`,

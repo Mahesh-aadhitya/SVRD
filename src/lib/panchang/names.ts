@@ -311,6 +311,9 @@ export const ADHIKA_EKADASHI_NAMES: [Named, Named] = [n("Padmini", "ಪದ್ಮ
 export const EKADASHI = n("Ekadashi", "ಏಕಾದಶಿ");
 
 // Our temple's own annual utsavas — amanta masa + tithi (15+ = bahula).
+/** The temple's town — named with the temple wherever timings are shared. */
+export const TEMPLE_TOWN: Named = { en: "Kolar", kn: "ಕೋಲಾರ" };
+
 export const TEMPLE_UTSAVAS = {
   varadaraja: {
     masa: 10,

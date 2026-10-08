@@ -7,6 +7,7 @@ import { formatDegree } from "@/lib/panchang/format";
 import type { Kundali } from "@/lib/panchang/kundali";
 import { GRAHAS, MASAS, NAKSHATRA_NAMES, PAKSHAS, RASHIS, SAMVATSARAS, VARAS, YOGAS, karanaName, label, tithiName } from "@/lib/panchang/names";
 import JatakaChart, { PRINT_PALETTE, type ChartStyle } from "./JatakaChart";
+import { stableIntl } from "@/lib/dates";
 
 export const PAPER = {
   A4: { w: 210, h: 297 },
@@ -90,11 +91,11 @@ export default function KundaliSheet({
     [t("sunRashi"), L(RASHIS[kundali.birth.sunRashi])],
   ];
   const intl = locale === "kn" ? "kn-IN" : "en-IN";
-  const fmt = (ms: number) => new Intl.DateTimeFormat(intl, { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }).format(new Date(ms));
+  const fmt = (ms: number) => stableIntl(new Intl.DateTimeFormat(intl, { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }).format(new Date(ms)));
   const [today] = useState(() => Date.now());
   const now = Math.max(kundali.moment, today);
   const current = kundali.dashas.find((d) => d.start <= now && now < d.end);
-  const birthDate = new Intl.DateTimeFormat(intl, { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${input.date}T00:00:00Z`));
+  const birthDate = stableIntl(new Intl.DateTimeFormat(intl, { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${input.date}T00:00:00Z`)));
   const { lat, lon, tzOffsetMin } = input.location;
   const tz = `UTC${tzOffsetMin >= 0 ? "+" : "−"}${Math.floor(Math.abs(tzOffsetMin) / 60)}:${String(Math.abs(tzOffsetMin) % 60).padStart(2, "0")}`;
   const particulars: [string, string][] = [
