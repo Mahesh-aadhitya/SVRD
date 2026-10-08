@@ -42,7 +42,9 @@ export default function WhatsNewPopup() {
   const who = user ? user.id : "guest";
   const fresh = seen ? items.filter((h) => h.kind === "live" || h.kind === "alert" || (h.isNew && !seen.has(h.id))).slice(0, 4) : [];
   const busyPage = /^\/(login|booking|donate|ticket)(\/|$)/.test(pathname);
-  const open = user !== undefined && shown !== "server" && shown !== who && closedFor !== who && !busyPage && fresh.length > 0;
+  // Signing in shows it again; signing out doesn't (already shown in this tab).
+  const alreadyShown = shown === who || (who === "guest" && shown !== null);
+  const open = user !== undefined && shown !== "server" && !alreadyShown && closedFor !== who && !busyPage && fresh.length > 0;
 
   function close() {
     try {

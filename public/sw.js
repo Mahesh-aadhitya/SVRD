@@ -1,4 +1,4 @@
-const CACHE_NAME = "temple-app-shell-v10";
+const CACHE_NAME = "temple-app-shell-v11";
 
 // Local / LAN dev servers reuse the same /_next/static URLs while their
 // contents change, so a cache-first worker there serves stale CSS and JS
@@ -26,10 +26,14 @@ self.addEventListener("install", (event) => {
     event.waitUntil(self.skipWaiting());
     return;
   }
+  // Each file is cached on its own and failures are ignored: one missing
+  // file must never stop this worker installing, or phones would stay on
+  // an older, broken worker.
   event.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
+      .then((cache) => Promise.allSettled(APP_SHELL.map((url) => cache.add(url))))
+      .catch(() => {})
       .then(() => self.skipWaiting())
   );
 });

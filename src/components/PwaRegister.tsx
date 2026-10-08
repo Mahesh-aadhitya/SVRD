@@ -19,9 +19,14 @@ export default function PwaRegister() {
       return;
     }
 
-    navigator.serviceWorker.register("/sw.js").catch(() => {
-      // Installability is a progressive enhancement; silently skip if it fails.
-    });
+    // Always fetch sw.js fresh and check for a new worker on every visit, so
+    // a fixed worker replaces an old one as soon as possible.
+    navigator.serviceWorker
+      .register("/sw.js", { updateViaCache: "none" })
+      .then((reg) => reg.update())
+      .catch(() => {
+        // Installability is a progressive enhancement; silently skip if it fails.
+      });
   }, []);
 
   return null;

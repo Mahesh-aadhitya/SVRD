@@ -52,42 +52,47 @@ const PETALS: { left: string; size: number; duration: number; delay: number; dri
   { left: "94%", size: 15, duration: 5.7, delay: 2.0, drift: -26, variant: "rose" },
 ];
 
-// A golden Sudarshana halo: flame-tipped rim, two rings and sixteen spokes.
-function ChakraHalo() {
-  const spokes = Array.from({ length: 16 }, (_, i) => (i * 360) / 16);
-  const flames = Array.from({ length: 32 }, (_, i) => (i * 360) / 32);
+// Feather sparks thrown off as the wings open: [side, x%, y%, drift x, drift y, delay s].
+const SPARKS: ["l" | "r", number, number, number, number, number][] = [
+  ["l", 6, 14, -60, -30, 0.55],
+  ["l", 2, 24, -80, 10, 0.7],
+  ["l", 10, 32, -50, 40, 0.9],
+  ["l", 4, 18, -70, -60, 1.6],
+  ["r", 94, 14, 60, -30, 0.6],
+  ["r", 98, 24, 80, 10, 0.75],
+  ["r", 90, 32, 50, 40, 0.95],
+  ["r", 96, 18, 70, -60, 1.7],
+];
+
+// Garuda, Periya Thiruvadi, welcoming the devotee: he flies down, spreads
+// his wings wide and bows with hands joined in anjali. Built from a Belur
+// stone Garuda, recast in gold, with the wings as separate layers.
+function Garuda() {
   return (
-    <svg viewBox="-100 -100 200 200" className="wg-chakra block w-full" aria-hidden>
-      <defs>
-        <radialGradient id="wg-halo-fill">
-          <stop offset="0%" stopColor="#e8c97a" stopOpacity="0.35" />
-          <stop offset="70%" stopColor="#b98a3d" stopOpacity="0.08" />
-          <stop offset="100%" stopColor="#b98a3d" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle r="96" fill="url(#wg-halo-fill)" />
-      <g fill="#e8c97a" opacity="0.85">
-        {flames.map((a) => (
-          <path key={a} d="M0 -97 C3 -91 3.5 -88 0 -84 C-3.5 -88 -3 -91 0 -97Z" transform={`rotate(${a})`} />
+    <div className="wg-deity relative" aria-hidden>
+      <span className="wg-aura" />
+      <div className="wg-garuda">
+        <div className="wg-garuda-bow">
+          <Image src="/images/garuda/garuda-wing-l.webp" alt="" width={633} height={1248} priority unoptimized className="wg-wing wg-wing-l" />
+          <Image src="/images/garuda/garuda-wing-r.webp" alt="" width={633} height={1248} priority unoptimized className="wg-wing wg-wing-r" />
+          <Image src="/images/garuda/garuda-body.webp" alt="" width={633} height={1248} priority unoptimized className="wg-garuda-body" />
+          <span className="wg-anjali" />
+        </div>
+        {SPARKS.map(([side, x, y, dx, dy, delay], i) => (
+          <span
+            key={i}
+            className="wg-spark"
+            style={{ left: `${x}%`, top: `${y}%`, animationDelay: after(delay), ["--dx" as string]: `${dx}px`, ["--dy" as string]: `${dy}px` }}
+            data-side={side}
+          />
         ))}
-      </g>
-      <g fill="none" stroke="#e8c97a" strokeLinecap="round">
-        <circle r="83" strokeWidth="2.2" opacity="0.9" />
-        <circle r="76" strokeWidth="0.8" opacity="0.6" strokeDasharray="2 3" />
-        <circle r="30" strokeWidth="1.6" opacity="0.8" />
-        {spokes.map((a) => (
-          <g key={a} transform={`rotate(${a})`}>
-            <line x1="0" y1="-32" x2="0" y2="-74" strokeWidth="1.3" opacity="0.75" />
-            <path d="M0 -60 l4 -7 l-4 -7 l-4 7Z" fill="#e8c97a" stroke="none" opacity="0.7" />
-          </g>
-        ))}
-      </g>
-    </svg>
+      </div>
+    </div>
   );
 }
 
-// The Vaikuntha Dwaram the greeting opens with: teak doors with brass
-// studs, the Shankha and the Chakra, in the golden makara thoranam.
+// The Vaikuntha Dwaram the greeting opens with: gold-clad doors (Shankha
+// and Chakra medallions) in the makara thoranam, Jaya and Vijaya on guard.
 function VaikunthaGate() {
   return (
     <div className="wg-gate" aria-hidden>
@@ -95,28 +100,17 @@ function VaikunthaGate() {
         <span className="wg-gate-flood" />
       </div>
       <div className="wg-doors">
-        {(["l", "r"] as const).map((side) => (
-          <div key={side} className={`wg-leaf wg-leaf-${side}`}>
-            <span className="wg-panel" />
-            <span className="wg-medallion">
-              {side === "l" ? (
-                <Image src="/images/emblem-shankha-solo.png" alt="" width={137} height={268} priority />
-              ) : (
-                <Image src="/images/emblem-chakra-disc.png" alt="" width={120} height={120} priority className="wg-chakra-img" />
-              )}
-            </span>
-            <span className="wg-panel wg-panel-low" />
-            <span className="wg-ring" />
-          </div>
-        ))}
+        <div className="wg-leaf wg-leaf-l" />
+        <div className="wg-leaf wg-leaf-r" />
         <span className="wg-seam" />
       </div>
-      {(["l", "r"] as const).map((side) => (
-        <span key={side} className={`wg-lamp wg-lamp-${side}`}>
-          <Image src="/images/hanging-lamp.png" alt="" width={280} height={1080} />
-        </span>
-      ))}
       <Image src="/images/makara-thoranam.png" alt="" width={679} height={947} priority sizes="(max-width: 640px) 150vw, 640px" className="wg-thoranam" />
+      <span className="wg-guard wg-guard-l">
+        <Image src="/images/gate/jaya.webp" alt="" width={427} height={803} priority unoptimized />
+      </span>
+      <span className="wg-guard wg-guard-r">
+        <Image src="/images/gate/vijaya.webp" alt="" width={429} height={816} priority unoptimized />
+      </span>
     </div>
   );
 }
@@ -186,8 +180,8 @@ function graphemes(text: string) {
 }
 
 // Full-screen welcome played once, right after a devotee signs in (Google
-// or email): the Vaikuntha doors open in a flood of light, then flying in through the stars to a real nebula, the Lord in a golden arch with the
-// chakra turning behind, a petal shower and the thiruchinnam sounding, then "Namaskaram <name> ·
+// or email): the Vaikuntha doors open in a flood of light, then flying in through the stars to a real nebula, Garuda
+// spreading his wings and bowing in anjali, a petal shower and the thiruchinnam sounding, then "Namaskaram <name> ·
 // Adiyen Ramanuja Dasan" and a short blessing, fading into the page in ~8s.
 // Tap, Esc or Skip ends it early.
 export default function WelcomeGreeting() {
@@ -374,15 +368,7 @@ export default function WelcomeGreeting() {
           </div>
 
           <div className="wg-stack relative flex w-full max-w-xl flex-col items-center">
-            {/* The Lord in a golden arch, the chakra turning behind */}
-            <div className="wg-deity relative">
-              <span className="pointer-events-none absolute left-1/2 top-1/2 w-[185%] -translate-x-1/2 -translate-y-1/2">
-                <ChakraHalo />
-              </span>
-              <div className="wg-arch relative overflow-hidden rounded-t-full border-2 border-gold-light/80 shadow-[0_0_40px_rgba(232,201,122,0.45)]">
-                <Image src="/images/deity-hero.png" alt="" fill priority sizes="200px" className="object-cover object-[50%_12%]" />
-              </div>
-            </div>
+            <Garuda />
 
             <div className="wg-text flex min-w-0 flex-col items-center">
               <p className="wg-namaskaram mt-2 font-display leading-none text-gold-light" aria-label={t("namaskaram")}>
