@@ -411,4 +411,6 @@ export const TIRUNAKSHATRAMS: { rashi: number; nakshatra: number; name: Named }[
   { rashi: 3, nakshatra: 14, name: n("Garudalwar Tirunakshatram · Garuda Jayanti", "ಗರುಡಾಳ್ವಾರ್ ತಿರುನಕ್ಷತ್ರ · ಗರುಡ ಜಯಂತಿ") },
   // Recent Acharyas.
   { rashi: 5, nakshatra: 12, name: n("Madhuramangalam Jeeyar Tirunakshatram", "ಮಧುರಮಂಗಲಂ ಜೀಯರ್ ತಿರುನಕ್ಷತ್ರ") },
+  // "mēṣe maghāyāṃ sambhūtaṃ …" — born in Mesha (Chithirai) under Magha.
+  { rashi: 0, nakshatra: 9, name: n("Sri Satakopa Ramanuja Jeeyar Tirunakshatram", "ಶ್ರೀ ಶಠಕೋಪ ರಾಮಾನುಜ ಜೀಯರ್ ತಿರುನಕ್ಷತ್ರ") },
 ];

@@ -1,4 +1,5 @@
 import "server-only";
+import { tidyTitle } from "@/lib/tidy";
 import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/public";
 import { fetchFolders } from "@/lib/data/folders";
@@ -22,7 +23,7 @@ export const getSongs = unstable_cache(
     if (error) throw new Error(`getSongs: ${error.message}`);
     return (data ?? []).map((row) => ({
       id: row.id,
-      title: row.title,
+      title: { en: tidyTitle(row.title.en), kn: tidyTitle(row.title.kn) },
       folderId: row.folder_id,
       duration: row.duration,
       audioUrl: row.audio_url,

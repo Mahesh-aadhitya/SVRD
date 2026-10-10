@@ -83,6 +83,7 @@ const FREQUENCY_CHOICES: Record<SevaFrequency, { title: string; hint: string; sc
   monthly: { title: "Monthly seva", hint: "Once a month", schedule: "e.g. Every month on Shravana nakshatra" },
   annual: { title: "Annual seva", hint: "Once a year / festival", schedule: "e.g. Once a year on Vaikunta Ekadashi" },
   special: { title: "Darshan & special", hint: "Darshan tickets, one-off sevas", schedule: "e.g. On selected dates" },
+  request: { title: "Special seva on request", hint: "Devotees book any allowed day", schedule: "e.g. On the day you choose" },
 };
 
 export default function SevaForm({
@@ -126,6 +127,9 @@ export default function SevaForm({
   const [open, setOpen] = useState(seva ? seva.isActive : true);
   const [frequency, setFrequency] = useState<SevaFrequency>(seva?.frequency ?? "nitya");
   const [listed, setListed] = useState(seva ? seva.isListed : true);
+  const [allowRequests, setAllowRequests] = useState(seva ? seva.allowRequests : true);
+  // Seva on request: the weekdays it can be booked for (none = every day).
+  const [requestDays, setRequestDays] = useState<number[]>(seva?.frequency === "request" ? (seva.releaseWeekdays ?? []) : []);
 
   const dateSet = new Set(dates);
   // Days closed inside the booking window, each with the reason devotees see.
@@ -133,6 +137,10 @@ export default function SevaForm({
     Object.fromEntries(Object.entries(seva?.blockedDates ?? {}).filter(([d]) => d >= today)),
   );
   const [tapMode, setTapMode] = useState<"open" | "block">("open");
+  // One note for many blocked days at once (e.g. a whole utsavam week).
+  const [picked, setPicked] = useState<string[]>([]);
+  const [bulkNote, setBulkNote] = useState("");
+  const applyNote = (days: string[]) => setBlocked((prev) => ({ ...prev, ...Object.fromEntries(days.filter((d) => d in prev).map((d) => [d, bulkNote.trim()])) }));
   const [focusDate, setFocusDate] = useState<string | null>(null);
   const unblock = (iso: string) =>
     setBlocked((prev) => {
@@ -197,8 +205,9 @@ export default function SevaForm({
   return (
     <form action={formAction} className="max-w-4xl space-y-6 pb-24">
       <input type="hidden" name="slots" value={JSON.stringify(slotsPayload)} />
-      <input type="hidden" name="dates" value={JSON.stringify(dates)} />
-      <input type="hidden" name="blocked" value={JSON.stringify(blocked)} />
+      {/* A seva on request has no booking dates: devotees ask for their own day. */}
+      <input type="hidden" name="dates" value={JSON.stringify(frequency === "request" ? [] : dates)} />
+      <input type="hidden" name="blocked" value={JSON.stringify(frequency === "request" ? {} : blocked)} />
 
       {/* 1 — Details */}
       <Section step={1} title="Seva details">
@@ -257,6 +266,19 @@ export default function SevaForm({
             <input type="checkbox" name="listed" checked={listed} onChange={(e) => setListed(e.target.checked)} className="peer sr-only" />
             <span aria-hidden className="relative h-7 w-12 shrink-0 rounded-full bg-black/15 transition-colors peer-checked:bg-maroon peer-focus-visible:ring-2 peer-focus-visible:ring-gold">
               <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${listed ? "translate-x-6" : "translate-x-1"}`} />
+            </span>
+          </label>
+          <label className="flex items-center justify-between gap-4 rounded-xl bg-white/70 px-4 py-3">
+            <span>
+              <span className="block text-sm font-semibold text-ink">Devotees can request it for their special day</span>
+              <span className="block text-xs text-ink/55">
+                Shows “Request for a special day”: the devotee picks any day, the priest gets it on WhatsApp and email and calls
+                them back. Turn off for sevas done only on their own days.
+              </span>
+            </span>
+            <input type="checkbox" name="allowRequests" checked={allowRequests} onChange={(e) => setAllowRequests(e.target.checked)} className="peer sr-only" />
+            <span aria-hidden className="relative h-7 w-12 shrink-0 rounded-full bg-black/15 transition-colors peer-checked:bg-maroon peer-focus-visible:ring-2 peer-focus-visible:ring-gold">
+              <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${allowRequests ? "translate-x-6" : "translate-x-1"}`} />
             </span>
           </label>
         </div>
@@ -385,226 +407,349 @@ export default function SevaForm({
         ) : null}
       </Section>
 
-      {/* 3 — Booking dates */}
-      <Section step={3} title="Booking dates">
-        <label className="flex items-center justify-between gap-4 rounded-xl bg-white/70 px-4 py-3">
-          <span>
-            <span className="block text-sm font-semibold text-ink">Open for booking</span>
-            <span className="block text-xs text-ink/55">Turn off to stop new bookings without losing your dates.</span>
-          </span>
-          <input type="checkbox" name="openForBooking" checked={open} onChange={(e) => setOpen(e.target.checked)} className="peer sr-only" />
-          <span aria-hidden className="relative h-7 w-12 shrink-0 rounded-full bg-black/15 transition-colors peer-checked:bg-maroon peer-focus-visible:ring-2 peer-focus-visible:ring-gold">
-            <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${open ? "translate-x-6" : "translate-x-1"}`} />
-          </span>
-        </label>
+      {frequency === "request" ? (
+        <Section step={3} title="Booking rules">
+          <input type="hidden" name="requestWeekdays" value={JSON.stringify(requestDays)} />
+          <label className="flex items-center justify-between gap-4 rounded-xl bg-white/70 px-4 py-3">
+            <span>
+              <span className="block text-sm font-semibold text-ink">Open for booking</span>
+              <span className="block text-xs text-ink/55">
+                Devotees book any allowed day themselves, pay, and get their ticket — no dates to open one by one. Turn off to
+                stop new bookings.
+              </span>
+            </span>
+            <input type="checkbox" name="openForBooking" checked={open} onChange={(e) => setOpen(e.target.checked)} className="peer sr-only" />
+            <span aria-hidden className="relative h-7 w-12 shrink-0 rounded-full bg-black/15 transition-colors peer-checked:bg-maroon peer-focus-visible:ring-2 peer-focus-visible:ring-gold">
+              <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${open ? "translate-x-6" : "translate-x-1"}`} />
+            </span>
+          </label>
 
-        <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,22rem)_1fr]">
-          <div>
-            <div role="radiogroup" aria-label="What a tap does" className="mb-2 grid grid-cols-2 gap-1 rounded-full bg-black/[0.05] p-1 text-xs font-semibold">
-              {(
-                [
-                  ["open", "Tap to open for booking"],
-                  ["block", "Tap to block with a note"],
-                ] as const
-              ).map(([mode, text]) => (
-                <button
-                  key={mode}
-                  type="button"
-                  role="radio"
-                  aria-checked={tapMode === mode}
-                  onClick={() => setTapMode(mode)}
-                  className={`rounded-full px-3 py-1.5 transition-colors ${
-                    tapMode === mode ? (mode === "open" ? "bg-maroon text-cream shadow" : "bg-red-600 text-white shadow") : "text-ink/60 hover:text-ink"
-                  }`}
-                >
-                  {text}
-                </button>
-              ))}
+          <div className="mt-5">
+            <p className="text-sm font-medium text-ink/70">Days of the week it can be booked for</p>
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              {[0, 1, 2, 3, 4, 5, 6].map((dow) => {
+                const on = requestDays.includes(dow);
+                return (
+                  <button
+                    key={dow}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setRequestDays((d) => (on ? d.filter((x) => x !== dow) : [...d, dow].sort()))}
+                    className={`rounded-full border px-3.5 py-1.5 text-sm font-semibold ${
+                      on ? "border-maroon bg-maroon text-cream" : "border-ink/15 bg-white text-ink/70 hover:border-maroon/40"
+                    }`}
+                  >
+                    {weekdayName(dow, "en", "short")}
+                  </button>
+                );
+              })}
             </div>
-            <p className="mb-2 text-xs text-ink/55">
-              {tapMode === "open"
-                ? "Tap the days devotees can book. Tap again to remove."
-                : "Tap a day to close it and write why — devotees see the reason. Tap again to unblock."}
-            </p>
-            <Calendar
-              locale={locale}
-              onSelect={toggleDate}
-              isSelected={(iso) => dateSet.has(iso)}
-              dayClassName={(iso) => (iso in blocked ? BLOCKED_DAY : undefined)}
-              dayMark={(iso) => {
-                const marks = importantDays[iso];
-                return marks?.length ? { colors: [...new Set(marks.map((m) => MARK_COLOR[m.category]))], title: marks.map((m) => m.name).join(" · ") } : null;
-              }}
-            />
-            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-ink/60">
-              <span className="inline-flex items-center gap-1">
-                <span className="h-2.5 w-2.5 rounded bg-maroon" /> Open
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="h-2.5 w-2.5 rounded bg-red-100 ring-1 ring-red-300" /> Blocked
-              </span>
-              {usedCategories.map((c) =>
-                MARK_LABEL[c] ? (
-                  <span key={c} className="inline-flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: MARK_COLOR[c] }} /> {MARK_LABEL[c]}
-                  </span>
-                ) : null,
-              )}
-            </div>
+            <p className="mt-1 text-xs text-ink/50">{requestDays.length ? "Only these days can be booked." : "None selected — every day can be booked."}</p>
           </div>
 
-          <div className="space-y-4">
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm font-medium text-ink/70">
+              Book at least … days ahead
+              <input type="number" name="bookMinDays" min={0} max={365} defaultValue={seva?.bookMinDays ?? 7} className={`${inputClass} mt-1.5`} />
+              <span className="mt-1 block text-xs font-normal text-ink/50">7 = a week&apos;s notice to prepare.</span>
+            </label>
+            <label className="block text-sm font-medium text-ink/70">
+              Up to … days ahead
+              <input type="number" name="bookMaxDays" min={1} max={730} defaultValue={seva?.bookMaxDays ?? 90} className={`${inputClass} mt-1.5`} />
+              <span className="mt-1 block text-xs font-normal text-ink/50">How far ahead devotees can book.</span>
+            </label>
+          </div>
+        </Section>
+      ) : (
+        <>
+        {/* 3 — Booking dates */}
+        <Section step={3} title="Booking dates">
+          <label className="flex items-center justify-between gap-4 rounded-xl bg-white/70 px-4 py-3">
+            <span>
+              <span className="block text-sm font-semibold text-ink">Open for booking</span>
+              <span className="block text-xs text-ink/55">Turn off to stop new bookings without losing your dates.</span>
+            </span>
+            <input type="checkbox" name="openForBooking" checked={open} onChange={(e) => setOpen(e.target.checked)} className="peer sr-only" />
+            <span aria-hidden className="relative h-7 w-12 shrink-0 rounded-full bg-black/15 transition-colors peer-checked:bg-maroon peer-focus-visible:ring-2 peer-focus-visible:ring-gold">
+              <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${open ? "translate-x-6" : "translate-x-1"}`} />
+            </span>
+          </label>
+
+          <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,22rem)_1fr]">
             <div>
-              <p className="text-sm font-medium text-ink/70">Quick select</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {quickPicks.map((pick) => (
+              <div role="radiogroup" aria-label="What a tap does" className="mb-2 grid grid-cols-2 gap-1 rounded-full bg-black/[0.05] p-1 text-xs font-semibold">
+                {(
+                  [
+                    ["open", "Tap to open for booking"],
+                    ["block", "Tap to block with a note"],
+                  ] as const
+                ).map(([mode, text]) => (
                   <button
-                    key={pick.label}
+                    key={mode}
                     type="button"
-                    onClick={() => addDates(pick.dates())}
-                    className="rounded-full border border-gold/50 bg-white/70 px-3 py-1.5 text-xs font-semibold text-maroon hover:border-maroon/50"
+                    role="radio"
+                    aria-checked={tapMode === mode}
+                    onClick={() => setTapMode(mode)}
+                    className={`rounded-full px-3 py-1.5 transition-colors ${
+                      tapMode === mode ? (mode === "open" ? "bg-maroon text-cream shadow" : "bg-red-600 text-white shadow") : "text-ink/60 hover:text-ink"
+                    }`}
                   >
-                    + {pick.label}
+                    {text}
                   </button>
                 ))}
               </div>
+              <p className="mb-2 text-xs text-ink/55">
+                {tapMode === "open"
+                  ? "Tap the days devotees can book. Tap again to remove."
+                  : "Tap a day to close it and write why — devotees see the reason. Tap again to unblock."}
+              </p>
+              <Calendar
+                locale={locale}
+                onSelect={toggleDate}
+                isSelected={(iso) => dateSet.has(iso)}
+                dayClassName={(iso) => (iso in blocked ? BLOCKED_DAY : undefined)}
+                dayMark={(iso) => {
+                  const marks = importantDays[iso];
+                  return marks?.length ? { colors: [...new Set(marks.map((m) => MARK_COLOR[m.category]))], title: marks.map((m) => m.name).join(" · ") } : null;
+                }}
+              />
+              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-ink/60">
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-2.5 w-2.5 rounded bg-maroon" /> Open
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-2.5 w-2.5 rounded bg-red-100 ring-1 ring-red-300" /> Blocked
+                </span>
+                {usedCategories.map((c) =>
+                  MARK_LABEL[c] ? (
+                    <span key={c} className="inline-flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: MARK_COLOR[c] }} /> {MARK_LABEL[c]}
+                    </span>
+                  ) : null,
+                )}
+              </div>
             </div>
 
-            <div className="rounded-xl border border-ink/10 bg-white/70 p-4">
-              {dates.length === 0 ? (
-                <p className="text-sm text-ink/50">No dates selected yet.</p>
-              ) : (
-                <>
-                  <p className="text-sm font-semibold text-maroon">
-                    {dates.length} day{dates.length === 1 ? "" : "s"} open for booking
-                    {blockedList.length ? <span className="font-normal text-red-700"> · {blockedList.length} blocked</span> : null}
-                  </p>
-                  {nextDate ? (
-                    <p className="mt-0.5 text-xs text-ink/55">
-                      First: {short(nextDate)} · Last:{" "}
-                      {formatIso(dates.at(-1)!, "en", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-ink/70">Quick select</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {quickPicks.map((pick) => (
+                    <button
+                      key={pick.label}
+                      type="button"
+                      onClick={() => addDates(pick.dates())}
+                      className="rounded-full border border-gold/50 bg-white/70 px-3 py-1.5 text-xs font-semibold text-maroon hover:border-maroon/50"
+                    >
+                      + {pick.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-ink/10 bg-white/70 p-4">
+                {dates.length === 0 ? (
+                  <p className="text-sm text-ink/50">No dates selected yet.</p>
+                ) : (
+                  <>
+                    <p className="text-sm font-semibold text-maroon">
+                      {dates.length} day{dates.length === 1 ? "" : "s"} open for booking
+                      {blockedList.length ? <span className="font-normal text-red-700"> · {blockedList.length} blocked</span> : null}
                     </p>
-                  ) : null}
-                  <button type="button" onClick={() => setDates([])} className="mt-2 text-xs font-semibold text-red-600 hover:underline">
-                    Clear all dates
-                  </button>
-                </>
-              )}
-            </div>
+                    {nextDate ? (
+                      <p className="mt-0.5 text-xs text-ink/55">
+                        First: {short(nextDate)} · Last:{" "}
+                        {formatIso(dates.at(-1)!, "en", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    ) : null}
+                    <button type="button" onClick={() => setDates([])} className="mt-2 text-xs font-semibold text-red-600 hover:underline">
+                      Clear all dates
+                    </button>
+                  </>
+                )}
+              </div>
 
-            {/* Blocked days and their reasons */}
-            {blockedList.length || gaps.length ? (
-              <div className="rounded-xl border border-red-200 bg-red-50/60 p-4">
-                <p className="text-sm font-semibold text-red-800">Blocked days</p>
-                <p className="mt-0.5 text-xs text-ink/55">Devotees see this note when they tap the day on the booking calendar.</p>
-                {blockedList.length ? (
-                  <ul className="mt-3 space-y-2">
-                    {blockedList.map((iso) => (
-                      <li key={iso} className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
-                        <span className="w-28 shrink-0 text-xs font-semibold text-ink/75">
-                          {short(iso)}
-                          {importantDays[iso] ? <span className="block font-normal text-ink/45">{importantDays[iso][0].name}</span> : null}
-                        </span>
+              {/* Blocked days and their reasons */}
+              {blockedList.length || gaps.length ? (
+                <div className="rounded-xl border border-red-200 bg-red-50/60 p-4">
+                  <p className="text-sm font-semibold text-red-800">Blocked days</p>
+                  <p className="mt-0.5 text-xs text-ink/55">Devotees see this note when they tap the day on the booking calendar.</p>
+                  {blockedList.length > 1 ? (
+                    <div className="mt-3 rounded-lg border border-red-200 bg-white/80 p-3">
+                      <p className="text-xs font-semibold text-ink/70">Same note for several days</p>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-2">
                         <input
-                          value={blocked[iso]}
+                          value={bulkNote}
                           maxLength={160}
-                          autoFocus={focusDate === iso}
-                          onChange={(e) => setBlocked((prev) => ({ ...prev, [iso]: e.target.value }))}
-                          placeholder="Why it's closed, e.g. Brahmotsavam — no sevas"
-                          aria-label={`Reason ${iso} is blocked`}
+                          onChange={(e) => setBulkNote(e.target.value)}
+                          placeholder="e.g. Brahmotsavam — no sevas"
+                          aria-label="Note for the selected days"
                           className={`${inputClass} min-w-0 flex-1 py-2`}
                         />
                         <button
                           type="button"
-                          onClick={() => openDate(iso)}
-                          className="shrink-0 rounded-full px-2.5 py-1.5 text-xs font-semibold text-maroon hover:bg-maroon/5"
+                          disabled={!bulkNote.trim() || picked.length === 0}
+                          onClick={() => {
+                            applyNote(picked);
+                            setPicked([]);
+                          }}
+                          className="rounded-full bg-maroon px-3.5 py-2 text-xs font-semibold text-cream hover:bg-maroon-dark disabled:opacity-40"
                         >
-                          Open instead
+                          Apply to selected ({picked.filter((d) => d in blocked).length})
                         </button>
                         <button
                           type="button"
-                          onClick={() => unblock(iso)}
-                          aria-label={`Unblock ${iso}`}
-                          className="h-8 w-8 shrink-0 rounded-full text-red-600 hover:bg-red-500/10"
+                          disabled={!bulkNote.trim()}
+                          onClick={() => applyNote(blockedList)}
+                          className="rounded-full border border-maroon/30 px-3.5 py-2 text-xs font-semibold text-maroon hover:bg-maroon/5 disabled:opacity-40"
                         >
-                          ✕
+                          Apply to all {blockedList.length}
                         </button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-                {gaps.length ? (
-                  <div className="mt-3">
-                    <p className="text-xs text-ink/60">
-                      {gaps.length} day{gaps.length === 1 ? "" : "s"} in between {gaps.length === 1 ? "is" : "are"} closed without a reason — tap one to add a note:
-                    </p>
-                    <div className="mt-1.5 flex max-h-28 flex-wrap gap-1.5 overflow-y-auto">
-                      {gaps.slice(0, 60).map((iso) => (
-                        <button
-                          key={iso}
-                          type="button"
-                          onClick={() => block(iso)}
-                          className="rounded-full border border-red-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-red-700 hover:border-red-400"
-                        >
-                          + {short(iso)}
-                        </button>
-                      ))}
+                      </div>
+                      <label className="mt-2 inline-flex items-center gap-2 text-xs text-ink/60">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4"
+                          checked={blockedList.every((d) => picked.includes(d))}
+                          onChange={(e) => setPicked(e.target.checked ? blockedList : [])}
+                        />
+                        Select all blocked days
+                      </label>
                     </div>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-
-            {/* Festivals ahead, so the admin can open or close them on purpose */}
-            {upcomingImportant.length ? (
-              <div className="rounded-xl border border-gold/40 bg-cream/60 p-4">
-                <p className="text-sm font-semibold text-maroon">Important days ahead</p>
-                <ul className="mt-2 divide-y divide-gold/20">
-                  {upcomingImportant.map((iso) => {
-                    const isOpen = dateSet.has(iso);
-                    const isBlocked = iso in blocked;
-                    return (
-                      <li key={iso} className="flex items-center gap-3 py-2">
-                        <span className="w-24 shrink-0 text-xs font-semibold text-ink/70">{short(iso)}</span>
-                        <span className="min-w-0 flex-1 text-xs text-ink/80">
-                          {importantDays[iso].map((m, i) => (
-                            <span key={i} className="mr-2 inline-flex items-center gap-1">
-                              <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: MARK_COLOR[m.category] }} />
-                              {m.name}
-                            </span>
-                          ))}
-                        </span>
-                        {isOpen ? (
-                          <span className="shrink-0 rounded-full bg-maroon/10 px-2 py-0.5 text-[11px] font-semibold text-maroon">Open</span>
-                        ) : isBlocked ? (
-                          <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700">Blocked</span>
-                        ) : (
-                          <span className="flex shrink-0 gap-1">
-                            <button type="button" onClick={() => openDate(iso)} className="rounded-full border border-maroon/30 px-2 py-0.5 text-[11px] font-semibold text-maroon hover:bg-maroon/5">
-                              Open
-                            </button>
-                            <button type="button" onClick={() => block(iso)} className="rounded-full border border-red-300 px-2 py-0.5 text-[11px] font-semibold text-red-700 hover:bg-red-50">
-                              Block
-                            </button>
+                  ) : null}
+                  {blockedList.length ? (
+                    <ul className="mt-3 space-y-2">
+                      {blockedList.map((iso) => (
+                        <li key={iso} className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+                          {blockedList.length > 1 ? (
+                            <input
+                              type="checkbox"
+                              checked={picked.includes(iso)}
+                              onChange={(e) => setPicked((prev) => (e.target.checked ? [...prev, iso] : prev.filter((d) => d !== iso)))}
+                              aria-label={`Select ${iso}`}
+                              className="h-4 w-4 shrink-0"
+                            />
+                          ) : null}
+                          <span className="w-28 shrink-0 text-xs font-semibold text-ink/75">
+                            {short(iso)}
+                            {importantDays[iso] ? <span className="block font-normal text-ink/45">{importantDays[iso][0].name}</span> : null}
                           </span>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ) : null}
+                          <input
+                            value={blocked[iso]}
+                            maxLength={160}
+                            autoFocus={focusDate === iso}
+                            onChange={(e) => setBlocked((prev) => ({ ...prev, [iso]: e.target.value }))}
+                            placeholder="Why it's closed, e.g. Brahmotsavam — no sevas"
+                            aria-label={`Reason ${iso} is blocked`}
+                            className={`${inputClass} min-w-0 flex-1 py-2`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => openDate(iso)}
+                            className="shrink-0 rounded-full px-2.5 py-1.5 text-xs font-semibold text-maroon hover:bg-maroon/5"
+                          >
+                            Open instead
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => unblock(iso)}
+                            aria-label={`Unblock ${iso}`}
+                            className="h-8 w-8 shrink-0 rounded-full text-red-600 hover:bg-red-500/10"
+                          >
+                            ✕
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  {gaps.length ? (
+                    <div className="mt-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-xs text-ink/60">
+                          {gaps.length} day{gaps.length === 1 ? "" : "s"} in between {gaps.length === 1 ? "is" : "are"} closed without a reason — tap one to add a note:
+                        </p>
+                        {gaps.length > 1 ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setBlocked((prev) => ({ ...Object.fromEntries(gaps.map((d) => [d, ""])), ...prev }));
+                              setPicked(gaps);
+                            }}
+                            className="rounded-full border border-red-300 bg-white px-3 py-1 text-[11px] font-semibold text-red-700 hover:border-red-500"
+                          >
+                            Block all {gaps.length} (then add one note)
+                          </button>
+                        ) : null}
+                      </div>
+                      <div className="mt-1.5 flex max-h-28 flex-wrap gap-1.5 overflow-y-auto">
+                        {gaps.slice(0, 60).map((iso) => (
+                          <button
+                            key={iso}
+                            type="button"
+                            onClick={() => block(iso)}
+                            className="rounded-full border border-red-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-red-700 hover:border-red-400"
+                          >
+                            + {short(iso)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
 
-            <label className="flex items-start gap-2 text-sm text-ink/80">
-              <input type="checkbox" name="postNotice" defaultChecked={!seva} className="mt-0.5 h-4 w-4" />
-              <span>
-                Announce on the notice board
-                <span className="block text-xs text-ink/50">Posts “tickets open” with the dates when you save new dates.</span>
-              </span>
-            </label>
+              {/* Festivals ahead, so the admin can open or close them on purpose */}
+              {upcomingImportant.length ? (
+                <div className="rounded-xl border border-gold/40 bg-cream/60 p-4">
+                  <p className="text-sm font-semibold text-maroon">Important days ahead</p>
+                  <ul className="mt-2 divide-y divide-gold/20">
+                    {upcomingImportant.map((iso) => {
+                      const isOpen = dateSet.has(iso);
+                      const isBlocked = iso in blocked;
+                      return (
+                        <li key={iso} className="flex items-center gap-3 py-2">
+                          <span className="w-24 shrink-0 text-xs font-semibold text-ink/70">{short(iso)}</span>
+                          <span className="min-w-0 flex-1 text-xs text-ink/80">
+                            {importantDays[iso].map((m, i) => (
+                              <span key={i} className="mr-2 inline-flex items-center gap-1">
+                                <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: MARK_COLOR[m.category] }} />
+                                {m.name}
+                              </span>
+                            ))}
+                          </span>
+                          {isOpen ? (
+                            <span className="shrink-0 rounded-full bg-maroon/10 px-2 py-0.5 text-[11px] font-semibold text-maroon">Open</span>
+                          ) : isBlocked ? (
+                            <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700">Blocked</span>
+                          ) : (
+                            <span className="flex shrink-0 gap-1">
+                              <button type="button" onClick={() => openDate(iso)} className="rounded-full border border-maroon/30 px-2 py-0.5 text-[11px] font-semibold text-maroon hover:bg-maroon/5">
+                                Open
+                              </button>
+                              <button type="button" onClick={() => block(iso)} className="rounded-full border border-red-300 px-2 py-0.5 text-[11px] font-semibold text-red-700 hover:bg-red-50">
+                                Block
+                              </button>
+                            </span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ) : null}
+
+              <label className="flex items-start gap-2 text-sm text-ink/80">
+                <input type="checkbox" name="postNotice" defaultChecked={!seva} className="mt-0.5 h-4 w-4" />
+                <span>
+                  Announce on the notice board
+                  <span className="block text-xs text-ink/50">Posts “tickets open” with the dates when you save new dates.</span>
+                </span>
+              </label>
+            </div>
           </div>
-        </div>
-      </Section>
+        </Section>
+        </>
+      )}
 
       {/* Sticky save bar */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-ink/10 bg-cream/95 backdrop-blur">

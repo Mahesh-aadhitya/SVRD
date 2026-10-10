@@ -51,52 +51,89 @@ export function useHighlights(initial: Highlight[] = EMPTY) {
   return useSyncExternalStore(subscribe, () => (current === EMPTY ? initial : current), () => initial);
 }
 
-// ── What this browser has already looked at ─────────────────────────────
+// ── What this browser has read, and what it has cleared ────────────────
+// Two id lists in localStorage, one browser's own: read items lose their
+// NEW dot and nav lamp; cleared items leave the notification panel.
 
-const SEEN_KEY = "temple-seen-highlights";
-const SEEN_EVENT = "temple-seen-highlights-change";
+function idStore(key: string) {
+  const event = `${key}-change`;
 
-function readSeenRaw(): string {
-  try {
-    return localStorage.getItem(SEEN_KEY) ?? "[]";
-  } catch {
-    return "[]";
+  function read(): string {
+    try {
+      return localStorage.getItem(key) ?? "[]";
+    } catch {
+      return "[]";
+    }
   }
-}
 
-function subscribeSeen(onChange: () => void) {
-  window.addEventListener(SEEN_EVENT, onChange);
-  window.addEventListener("storage", onChange);
-  return () => {
-    window.removeEventListener(SEEN_EVENT, onChange);
-    window.removeEventListener("storage", onChange);
+  function write(ids: string[]) {
+    try {
+      localStorage.setItem(key, JSON.stringify(ids.slice(-80)));
+    } catch {
+      // Storage blocked — nothing is remembered.
+    }
+    window.dispatchEvent(new Event(event));
+  }
+
+  function subscribe(onChange: () => void) {
+    window.addEventListener(event, onChange);
+    window.addEventListener("storage", onChange);
+    return () => {
+      window.removeEventListener(event, onChange);
+      window.removeEventListener("storage", onChange);
+    };
+  }
+
+  // null on the server and during hydration, so "new" markers only appear
+  // once we know what this browser has seen (no flash of lit lamps).
+  function useIds(): Set<string> | null {
+    const raw = useSyncExternalStore(subscribe, read, () => null);
+    return useMemo(() => {
+      if (raw === null) return null;
+      try {
+        return new Set(JSON.parse(raw) as string[]);
+      } catch {
+        return new Set();
+      }
+    }, [raw]);
+  }
+
+  const parse = () => {
+    try {
+      return JSON.parse(read()) as string[];
+    } catch {
+      return [];
+    }
+  };
+
+  return {
+    useIds,
+    add(ids: string[]) {
+      if (ids.length) write([...parse().filter((x) => !ids.includes(x)), ...ids]);
+    },
+    remove(ids: string[]) {
+      if (ids.length) write(parse().filter((x) => !ids.includes(x)));
+    },
   };
 }
 
-// null on the server and during hydration, so "new" markers only appear
-// once we know what this browser has seen (no flash of lit lamps).
-export function useSeenHighlights(): Set<string> | null {
-  const raw = useSyncExternalStore(subscribeSeen, readSeenRaw, () => null);
-  return useMemo(() => {
-    if (raw === null) return null;
-    try {
-      return new Set(JSON.parse(raw) as string[]);
-    } catch {
-      return new Set();
-    }
-  }, [raw]);
+const seenStore = idStore("temple-seen-highlights");
+const clearedStore = idStore("temple-cleared-highlights");
+
+export const useSeenHighlights = seenStore.useIds;
+export const markHighlightsSeen = seenStore.add;
+export const useClearedHighlights = clearedStore.useIds;
+export const restoreHighlights = clearedStore.remove;
+
+// Clearing also reads them, so their lamps go out too.
+export function clearHighlights(ids: string[]) {
+  seenStore.add(ids);
+  clearedStore.add(ids);
 }
 
-export function markHighlightsSeen(ids: string[]) {
-  if (!ids.length) return;
-  try {
-    const seen = (JSON.parse(readSeenRaw()) as string[]).filter((x) => !ids.includes(x));
-    localStorage.setItem(SEEN_KEY, JSON.stringify([...seen, ...ids].slice(-80)));
-  } catch {
-    // Storage blocked — the lamp just stays lit.
-  }
-  window.dispatchEvent(new Event(SEEN_EVENT));
-}
+// The live-darshan item keeps one id from stream to stream, so it can't be
+// cleared — it leaves by itself when the stream ends.
+export const canClear = (h: Highlight) => h.kind !== "live";
 
 // "All updates" anywhere on the page opens the notification panel.
 export const OPEN_NOTIFICATIONS_EVENT = "temple-open-notifications";
@@ -130,7 +167,11 @@ export function useHighlightText() {
   // "Today", "2 days ago" for messages; the day itself for tickets and events.
   const when = (h: Highlight) => {
     if (!h.date || h.kind === "live") return "";
-    if (h.kind === "tickets") return t("when.from", { date: day(h.date) });
+    if (h.kind === "tickets") {
+      if (h.detail === "open-today") return t("when.openToday");
+      if (h.detail === "open-tomorrow") return t("when.forTomorrow");
+      return t("when.from", { date: day(h.date) });
+    }
     if (h.kind === "event") return day(h.date);
     const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
     const days = Math.round((Date.parse(today) - Date.parse(h.date)) / 86_400_000);

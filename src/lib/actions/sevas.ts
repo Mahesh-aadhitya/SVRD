@@ -1,7 +1,8 @@
 "use server";
 
 import { z } from "zod";
-import { updateTag } from "next/cache";
+import { revalidateTag, updateTag } from "next/cache";
+import { after } from "next/server";
 import { redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { verifyAdminSession } from "@/lib/admin/dal";
@@ -9,6 +10,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { findDuplicateEntry } from "@/lib/admin/duplicates";
 import { resolveFolderId } from "@/lib/admin/folder-field";
 import { todayInIndia } from "@/lib/dates";
+import { findFocalPoint } from "@/lib/ai/focal-point";
 import { describeRelease, SEVA_FREQUENCIES } from "@/lib/seva-types";
 
 type SupabaseAdmin = ReturnType<typeof createAdminClient>;
@@ -43,6 +45,10 @@ const sevaSchema = z.object({
   scheduleKn: z.string().trim().max(200),
   image: z.string().trim().max(500),
   listed: z.boolean(),
+  allowRequests: z.boolean(),
+  requestWeekdays: z.array(z.number().int().min(0).max(6)).max(7),
+  bookMinDays: z.coerce.number().int().min(0).max(365),
+  bookMaxDays: z.coerce.number().int().min(1).max(730),
 });
 
 export type SevaFormState = { error?: string } | undefined;
@@ -90,6 +96,10 @@ export async function saveSeva(
     scheduleKn: formData.get("scheduleKn") ?? "",
     image: formData.get("image") ?? "",
     listed: formData.get("listed") === "on",
+    allowRequests: formData.get("allowRequests") === "on",
+    requestWeekdays: parseJson(formData.get("requestWeekdays") ?? "[]"),
+    bookMinDays: formData.get("bookMinDays") || 7,
+    bookMaxDays: formData.get("bookMaxDays") || 90,
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Please check the form" };
   const input = parsed.data;
@@ -102,8 +112,13 @@ export async function saveSeva(
 
   // Past dates are dropped silently — they can't be booked anyway.
   const today = todayInIndia();
-  const dates = [...new Set(input.dates)].filter((d) => d >= today).sort();
-  if (input.openForBooking && dates.length === 0) {
+  // A seva on request has no booking dates; "open" means accepting requests.
+  const onRequest = input.frequency === "request";
+  const dates = onRequest ? [] : [...new Set(input.dates)].filter((d) => d >= today).sort();
+  if (onRequest && input.bookMaxDays <= input.bookMinDays) {
+    return { error: "“Up to … days ahead” must be more than “Book at least … days ahead”." };
+  }
+  if (input.openForBooking && dates.length === 0 && !onRequest) {
     return { error: "Select at least one booking date on the calendar, or switch off “Open for booking”." };
   }
 
@@ -124,9 +139,11 @@ export async function saveSeva(
 
   let id = existingId;
   let previousDates: string[] = [];
+  let previous: { image_url: string | null; image_focus: string | null } | null = null;
   if (id) {
-    const { data } = await supabase.from("sevas").select("release_dates").eq("id", id).single();
+    const { data } = await supabase.from("sevas").select("release_dates, image_url, image_focus").eq("id", id).single();
     previousDates = data?.release_dates ?? [];
+    previous = data;
   } else {
     id = slugify(input.nameEn);
     if (!id) return { error: "The English name needs at least one letter or number" };
@@ -145,12 +162,18 @@ export async function saveSeva(
     release_dates: dates.length ? dates : null,
     release_start_date: dates[0] ?? null,
     release_end_date: dates.at(-1) ?? null,
-    release_weekdays: null,
+    // A seva on request keeps its bookable weekdays here (none = every day).
+    release_weekdays: onRequest && input.requestWeekdays.length ? [...new Set(input.requestWeekdays)].sort() : null,
+    book_min_days: input.bookMinDays,
+    book_max_days: input.bookMaxDays,
     frequency: input.frequency,
     timing: input.timing,
     schedule: { en: input.scheduleEn, kn: input.scheduleKn },
     image_url: input.image || null,
+    // A new photo's face position is found again after saving (below).
+    ...(previous?.image_url === (input.image || null) ? {} : { image_focus: null }),
     is_listed: input.listed,
+    allow_requests: input.allowRequests,
     blocked_dates: blocked,
   };
   const { error } = existingId
@@ -170,6 +193,19 @@ export async function saveSeva(
   if (postNew) {
     const noticeError = await postTicketReleaseNotice(supabase, id, row.name, dates);
     if (noticeError) return { error: `Seva saved, but the notice failed: ${noticeError}` };
+  }
+
+  // Find where the deity's face is in a new photo, so cards crop around it.
+  const photo = row.image_url;
+  if (photo && (previous?.image_url !== photo || !previous?.image_focus)) {
+    const sevaId = id;
+    after(async () => {
+      const focus = await findFocalPoint(photo).catch(() => null);
+      if (!focus) return;
+      await supabase.from("sevas").update({ image_focus: focus }).eq("id", sevaId).eq("image_url", photo);
+      // updateTag only works in the action itself, not after it.
+      revalidateTag("sevas", { expire: 0 });
+    });
   }
 
   updateTag("notices");
@@ -226,8 +262,8 @@ function releaseNoticeText(name: SevaName, dates: string[]) {
   return {
     title: { en: `${name.en} — tickets open`, kn: `${name.kn} — ಟಿಕೆಟ್‌ಗಳು ಲಭ್ಯ` },
     body: {
-      en: `Bookings are open for: ${describeRelease(fields, "en")}. Reserve your seva before slots fill up.`,
-      kn: `ಬುಕಿಂಗ್ ತೆರೆದಿದೆ: ${describeRelease(fields, "kn")}. ಸ್ಥಳಗಳು ಭರ್ತಿಯಾಗುವ ಮೊದಲು ನಿಮ್ಮ ಸೇವೆಯನ್ನು ಕಾಯ್ದಿರಿಸಿ.`,
+      en: `Bookings are open for: ${describeRelease(fields, "en")}.`,
+      kn: `ಬುಕಿಂಗ್ ತೆರೆದಿದೆ: ${describeRelease(fields, "kn")}.`,
     },
     expires_on: dates.at(-1)!,
   };

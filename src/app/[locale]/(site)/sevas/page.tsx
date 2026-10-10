@@ -6,8 +6,8 @@ import ContentImage from "@/components/ContentImage";
 import ShareButton from "@/components/ShareButton";
 import { ChipCount, ChipRow, chipClass } from "@/components/ui/Chip";
 import { getListedSevas } from "@/lib/data/sevas";
-import { formatIso, todayInIndia } from "@/lib/dates";
-import { isReleasedOn, SEVA_FREQUENCIES, type Seva, type SevaFrequency } from "@/lib/seva-types";
+import { formatIso, nowInIndia, todayInIndia } from "@/lib/dates";
+import { formatTiming, isReleasedOn, SEVA_FREQUENCIES, todayStillBookable, weekdayName, type Seva, type SevaFrequency } from "@/lib/seva-types";
 import type { Locale } from "@/i18n/routing";
 
 function addDays(iso: string, days: number) {
@@ -16,11 +16,13 @@ function addDays(iso: string, days: number) {
   return d.toISOString().slice(0, 10);
 }
 
-// The next date a devotee can book, or null when booking isn't open.
-function nextOpenDate(seva: Seva, today: string) {
+// The next date a devotee can book, or null when booking isn't open (today
+// only before 3 PM and while one of its time slots is still to start).
+function nextOpenDate(seva: Seva, today: string, now: string) {
   if (!seva.isActive || !seva.releaseEndDate || seva.releaseEndDate < today) return null;
   for (let d = seva.releaseStartDate && seva.releaseStartDate > today ? seva.releaseStartDate : today; d <= seva.releaseEndDate; d = addDays(d, 1)) {
-    if (isReleasedOn(seva, d)) return d;
+    if (d === today && !todayStillBookable(seva, now)) continue;
+    if (isReleasedOn(seva, d) && !(d in seva.blockedDates)) return d;
   }
   return null;
 }
@@ -36,7 +38,8 @@ export default async function SevasPage({
   setRequestLocale(locale);
   const [{ type }, sevas] = await Promise.all([searchParams, getListedSevas()]);
   const today = todayInIndia();
-  const open = Object.fromEntries(sevas.map((s) => [s.id, nextOpenDate(s, today)]));
+  const now = nowInIndia();
+  const open = Object.fromEntries(sevas.map((s) => [s.id, nextOpenDate(s, today, now)]));
   const frequency = SEVA_FREQUENCIES.find((f) => f === type) ?? null;
   return <Content sevas={sevas} open={open} frequency={frequency} />;
 }
@@ -68,6 +71,19 @@ function Content({ sevas, open, frequency }: { sevas: Seva[]; open: Record<strin
         </nav>
       ) : null}
 
+      {/* Any seva on a day of the devotee's choosing, on request (when the admin allows any). */}
+      {sevas.some((s) => s.allowRequests) ? (
+        <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-gold/40 bg-gradient-to-r from-[#fbf1de] to-[#f4e4bd] p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-display text-lg text-maroon">🪔 {t("bannerTitle")}</p>
+            <p className="mt-0.5 text-sm text-ink/70">{t("bannerBody")}</p>
+          </div>
+          <Link href="/seva-request" className="shrink-0 self-start rounded-full bg-maroon px-5 py-2.5 text-sm font-semibold text-cream hover:bg-maroon-dark sm:self-auto">
+            {t("bannerCta")}
+          </Link>
+        </div>
+      ) : null}
+
       {groups.length === 0 ? <p className="mt-10 text-center text-sm text-ink/55">{t("empty")}</p> : null}
 
       <div className="mt-8 space-y-12">
@@ -75,7 +91,8 @@ function Content({ sevas, open, frequency }: { sevas: Seva[]; open: Record<strin
           <section key={f} id={f} className="scroll-mt-24">
             <h2 className="font-display text-2xl text-maroon">{t(`groups.${f}.title`)}</h2>
             <p className="mt-0.5 text-sm text-ink/60">{t(`groups.${f}.subtitle`)}</p>
-            <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Phones: a sideways swipe row, the next card peeking in; larger screens: a grid. */}
+            <div className="-mx-4 mt-5 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto overscroll-x-contain px-4 pb-3 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
               {list.map((seva) => (
                 <SevaCard key={seva.id} seva={seva} frequency={f} nextDate={open[seva.id]} />
               ))}
@@ -93,9 +110,12 @@ function SevaCard({ seva, frequency, nextDate }: { seva: Seva; frequency: SevaFr
   const schedule = seva.schedule[locale] || seva.schedule.en;
 
   return (
-    <article id={`seva-${seva.id}`} className="flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-gold/25 bg-white/85 shadow-sm">
-      <div className="relative h-40 w-full">
-        <ContentImage src={seva.imageUrl} alt={seva.name[locale]} />
+    <article
+      id={`seva-${seva.id}`}
+      className="flex w-[82%] max-w-sm shrink-0 snap-start scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-gold/25 bg-white/85 shadow-sm sm:w-auto sm:max-w-none"
+    >
+      <div className="relative h-56 w-full overflow-hidden">
+        <ContentImage src={seva.imageUrl} alt={seva.name[locale]} focus={seva.imageFocus} />
         <span className="absolute left-3 top-3 rounded-full bg-cream/95 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-maroon shadow-sm">
           {t(`groups.${frequency}.badge`)}
         </span>
@@ -111,7 +131,7 @@ function SevaCard({ seva, frequency, nextDate }: { seva: Seva; frequency: SevaFr
           <ShareButton
             compact
             title={seva.name[locale]}
-            text={[schedule, seva.timing, seva.description[locale]].filter(Boolean).join("\n")}
+            text={[schedule, seva.timing ? formatTiming(seva.timing, locale) : null, seva.description[locale]].filter(Boolean).join("\n")}
             path={`/sevas#seva-${seva.id}`}
           />
         </div>
@@ -125,7 +145,7 @@ function SevaCard({ seva, frequency, nextDate }: { seva: Seva; frequency: SevaFr
           {seva.timing ? (
             <div className="flex gap-2">
               <dt className="sr-only">{t("timing")}</dt>
-              <dd className="font-medium text-saffron">🕉 {seva.timing}</dd>
+              <dd className="font-medium text-saffron">🕉 {formatTiming(seva.timing, locale)}</dd>
             </div>
           ) : null}
         </dl>
@@ -157,6 +177,24 @@ function SevaCard({ seva, frequency, nextDate }: { seva: Seva; frequency: SevaFr
             <span className="rounded-full bg-black/[0.04] px-3 py-1.5 text-xs font-medium text-ink/50">{t("notOpen")}</span>
           )}
         </div>
+        {frequency === "request" ? (
+          <p className="mt-3 text-xs text-ink/60">
+            🗓{" "}
+            {t("requestRule", {
+              days: seva.releaseWeekdays?.length ? seva.releaseWeekdays.map((d) => weekdayName(d, locale, "short")).join(", ") : t("everyDay"),
+              notice: seva.bookMinDays,
+            })}
+          </p>
+        ) : null}
+        {/* Sevas the admin allows can be asked for on a special day — on-request ones too, for a day their rules don't offer. */}
+        {seva.allowRequests ? (
+          <Link
+            href={{ pathname: "/seva-request", query: { seva: seva.id } }}
+            className="mt-3 self-start text-xs font-semibold text-maroon/80 underline decoration-gold underline-offset-4 hover:text-maroon"
+          >
+            🪔 {t("requestOther")}
+          </Link>
+        ) : null}
       </div>
     </article>
   );

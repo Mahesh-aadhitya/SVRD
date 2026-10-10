@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import QRCode from "qrcode";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
@@ -11,6 +10,7 @@ import { signTicket, verifyTicket } from "@/lib/ticket-token";
 import { getCurrentAdmin } from "@/lib/admin/dal";
 import { getSiteSettings } from "@/lib/data/site-settings";
 import { upiReady } from "@/lib/content-types";
+import { siteOrigin } from "@/lib/site-url";
 import TicketPayment from "@/components/payment/TicketPayment";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -56,10 +56,7 @@ export default async function TicketPage({
 
   // The QR encodes this ticket's own signed link, so scanning it at the
   // counter shows the live booking and payment status.
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  const proto = h.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
-  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? `${proto}://${host}`;
+  const origin = await siteOrigin();
   const ticketUrl = `${origin}${locale === "kn" ? "/kn" : ""}/ticket/${ref}?t=${signTicket(ref)}&scan=1`;
   const qrSvg = await QRCode.toString(ticketUrl, { type: "svg", margin: 0, errorCorrectionLevel: "M", color: { dark: "#2a1b12" } });
 

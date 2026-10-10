@@ -45,7 +45,7 @@ export default async function LoginPage({
           <p className="relative mt-6 text-center font-display text-3xl leading-tight">{t("title")}</p>
           <p className="relative mt-2 text-center text-sm text-cream/75">{t("subtitle")}</p>
           <ul className="relative mx-auto mt-7 max-w-xs space-y-3 text-sm">
-            {(["benefitBook", "benefitHistory", "benefitDonate"] as const).map((k) => (
+            {(["benefitBook", "benefitHistory", "benefitTickets"] as const).map((k) => (
               <li key={k} className="flex gap-3">
                 <span className="text-gold-light">✦</span>
                 <span className="text-cream/90">{t(k)}</span>

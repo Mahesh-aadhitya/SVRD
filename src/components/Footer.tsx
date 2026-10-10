@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { TempleInfo } from "@/lib/content-types";
+import AdminLink from "./AdminLink";
 
 export default function Footer({ info }: { info: TempleInfo }) {
   const t = useTranslations("footer");
@@ -50,9 +51,7 @@ export default function Footer({ info }: { info: TempleInfo }) {
             <Link href="/gallery" className="hover:text-gold-light">
               {tNav("gallery")}
             </Link>
-            <Link href="/admin" className="hover:text-gold-light">
-              {tNav("admin")}
-            </Link>
+            <AdminLink className="hover:text-gold-light" />
           </div>
         </div>
         <p className="mt-8 border-t border-cream/15 pt-6 text-xs text-cream/50">

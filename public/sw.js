@@ -1,4 +1,4 @@
-const CACHE_NAME = "temple-app-shell-v11";
+const CACHE_NAME = "temple-app-shell-v12";
 
 // Local / LAN dev servers reuse the same /_next/static URLs while their
 // contents change, so a cache-first worker there serves stale CSS and JS
@@ -108,10 +108,9 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  const immutable =
-    url.pathname.startsWith("/_next/static/") ||
-    /\.(png|svg|jpg|jpeg|webp|woff2?)$/.test(url.pathname);
-  if (immutable) {
+  // Build files have the content hash in their URL, so a saved copy is
+  // always right: cache-first.
+  if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(
       caches.match(request).then(
         (cached) =>
@@ -122,5 +121,25 @@ self.addEventListener("fetch", (event) => {
           })
       )
     );
+    return;
+  }
+
+  // Icons, photos and fonts keep the same URL when they change (a new
+  // favicon, a replaced seva photo), so show the saved copy at once but
+  // fetch a fresh one each time for next time (stale-while-revalidate).
+  if (/\.(png|svg|jpg|jpeg|webp|ico|woff2?)$/.test(url.pathname)) {
+    const fresh = fetch(request)
+      .then((response) => {
+        if (response.status === 200) cacheCopy(request, response);
+        return response;
+      })
+      .catch(() => null);
+    event.respondWith(
+      caches
+        .match(request)
+        .then((cached) => cached || fresh)
+        .then((response) => response || Response.error())
+    );
+    event.waitUntil(fresh);
   }
 });

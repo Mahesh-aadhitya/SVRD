@@ -7,19 +7,25 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import HighlightTile from "./HighlightTile";
 import {
+  canClear,
+  clearHighlights,
   markHighlightsSeen,
   OPEN_NOTIFICATIONS_EVENT,
+  restoreHighlights,
+  useClearedHighlights,
   useHighlights,
   useSeenHighlights,
 } from "./useHighlights";
 
 // The temple's notices as a notification bell: a count of what's new and
-// unseen, and a panel that slides in from the side with every update as a
-// tile. Closing the panel marks them all as seen.
+// unread, and a panel that slides in from the side with every update as a
+// tile. Opening a tile reads it; the devotee can also mark all as read,
+// clear one (×) or all, and bring cleared ones back.
 export default function NotificationBell() {
   const t = useTranslations("highlights");
   const items = useHighlights();
   const seen = useSeenHighlights();
+  const cleared = useClearedHighlights();
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
   // The panel is portalled to <body>: inside the header it would share the
@@ -30,15 +36,15 @@ export default function NotificationBell() {
     () => false,
   );
 
-  const unseen = seen
-    ? items.filter((h) => h.kind !== "live" && h.isNew && !seen.has(h.id))
-    : [];
+  const shown = cleared ? items.filter((h) => !cleared.has(h.id)) : items;
+  const hidden = items.length - shown.length;
+  const isUnseen = (h: (typeof items)[number]) =>
+    !!seen && h.isNew && h.kind !== "live" && !seen.has(h.id);
+  const unseen = shown.filter(isUnseen);
   const live = items.some((h) => h.kind === "live");
+  const clearable = shown.filter(canClear);
 
-  function close() {
-    setOpen(false);
-    markHighlightsSeen(items.filter((h) => h.isNew).map((h) => h.id));
-  }
+  const close = () => setOpen(false);
 
   // "All updates" buttons elsewhere open this panel. (The header renders a
   // bell for desktop and one for phones.)
@@ -150,29 +156,65 @@ export default function NotificationBell() {
                     </svg>
                   </button>
                 </div>
+                {unseen.length || clearable.length ? (
+                  <div className="relative flex items-center justify-end gap-1 border-b border-gold/20 px-3 py-1.5 text-sm">
+                    {unseen.length ? (
+                      <button
+                        type="button"
+                        onClick={() => markHighlightsSeen(unseen.map((h) => h.id))}
+                        className="rounded-full px-3 py-1.5 font-semibold text-maroon hover:bg-maroon/5"
+                      >
+                        {t("drawer.markAllRead")}
+                      </button>
+                    ) : null}
+                    {clearable.length ? (
+                      <button
+                        type="button"
+                        onClick={() => clearHighlights(clearable.map((h) => h.id))}
+                        className="rounded-full px-3 py-1.5 font-semibold text-ink/60 hover:bg-black/5 hover:text-ink"
+                      >
+                        {t("drawer.clearAll")}
+                      </button>
+                    ) : null}
+                  </div>
+                ) : null}
                 <div className="relative flex-1 space-y-2.5 overflow-y-auto px-4 py-4">
-                  {items.length === 0 ? (
+                  {shown.length === 0 ? (
                     <p className="py-16 text-center text-sm text-ink/55">
                       {t("drawer.empty")}
                     </p>
                   ) : (
-                    items.map((h) => (
-                      <HighlightTile
-                        key={h.id}
-                        item={h}
-                        compact
-                        unseen={
-                          !!seen &&
-                          h.isNew &&
-                          h.kind !== "live" &&
-                          !seen.has(h.id)
-                        }
-                        onOpen={close}
-                      />
+                    shown.map((h) => (
+                      <div key={h.id} className="group/tile relative">
+                        <HighlightTile
+                          item={h}
+                          compact
+                          unseen={isUnseen(h)}
+                          onOpen={() => {
+                            markHighlightsSeen([h.id]);
+                            close();
+                          }}
+                        />
+                        {/* Outside the tile: a button can't sit inside its link.
+                            Always visible on touch; on hover/focus with a mouse. */}
+                        {canClear(h) ? (
+                          <button
+                            type="button"
+                            onClick={() => clearHighlights([h.id])}
+                            aria-label={t("drawer.dismiss")}
+                            title={t("drawer.dismiss")}
+                            className="absolute -left-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full border border-gold/40 bg-white text-ink/55 shadow-sm transition hover:text-maroon focus:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/tile:opacity-100"
+                          >
+                            <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
+                              <path d="M6 6l8 8M14 6l-8 8" strokeLinecap="round" />
+                            </svg>
+                          </button>
+                        ) : null}
+                      </div>
                     ))
                   )}
                 </div>
-                <div className="relative border-t border-gold/30 px-5 py-3">
+                <div className="relative flex items-center justify-between gap-3 border-t border-gold/30 px-5 py-3">
                   <Link
                     href="/notices"
                     onClick={close}
@@ -180,6 +222,15 @@ export default function NotificationBell() {
                   >
                     {t("drawer.allNotices")} →
                   </Link>
+                  {hidden ? (
+                    <button
+                      type="button"
+                      onClick={() => restoreHighlights(items.map((h) => h.id))}
+                      className="text-sm text-ink/55 hover:text-maroon hover:underline"
+                    >
+                      {t("drawer.restore", { count: hidden })}
+                    </button>
+                  ) : null}
                 </div>
               </aside>
             </div>,

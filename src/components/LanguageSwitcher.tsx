@@ -22,7 +22,7 @@ export default function LanguageSwitcher() {
             className={`transition-colors ${
               locale === loc
                 ? "font-semibold text-maroon underline decoration-gold underline-offset-4"
-                : "text-ink/50 hover:text-maroon"
+                : "text-ink/80 hover:text-maroon"
             }`}
           >
             {t(loc)}

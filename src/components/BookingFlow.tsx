@@ -6,7 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
-import { formatSlot, isReleasedOn, SEVA_FREQUENCIES, type Seva, type SevaFrequency, type SevaSlot } from "@/lib/seva-types";
+import { formatSlot, isReleasedOn, SAME_DAY_CUTOFF, SEVA_FREQUENCIES, type Seva, type SevaFrequency, type SevaSlot } from "@/lib/seva-types";
 import { MAX_TICKETS_PER_BOOKING, type BookedCounts } from "@/lib/content-types";
 import { createBooking, getSevaAvailability, type CreateBookingResult } from "@/lib/actions/bookings";
 import CategoryFilterBar from "@/components/CategoryFilterBar";
@@ -132,13 +132,13 @@ export default function BookingFlow({
     };
   }, [sevaId, refreshKey]);
 
-  // Today's time slots close once they've started (the server enforces the same).
-  const slotClosed = (s: SevaSlot, iso: string) => {
-    if (iso !== today) return false;
+  // Today closes at 3 PM, and its time slots once they've started (the
+  // server enforces the same).
+  const nowHHMM = () => {
     const now = new Date();
-    const hhmm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-    return s.startTime <= hhmm;
+    return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   };
+  const slotClosed = (s: SevaSlot, iso: string) => iso === today && (nowHHMM() >= SAME_DAY_CUTOFF || s.startTime <= nowHHMM());
   const seatsLeft = (iso: string, s: SevaSlot | null) =>
     s
       ? Math.max(0, s.capacity - (counts?.[iso]?.[s.id] ?? 0))
@@ -147,6 +147,7 @@ export default function BookingFlow({
   const dayInfo = (iso: string): { status: DayStatus; left: number } => {
     if (seva && iso >= today && iso in seva.blockedDates && !isReleasedOn(seva, iso)) return { status: "blocked", left: 0 };
     if (!seva || iso < today || !isReleasedOn(seva, iso)) return { status: "closed", left: 0 };
+    if (iso === today && nowHHMM() >= SAME_DAY_CUTOFF) return { status: "closed", left: 0 };
     if (slots.length === 0) {
       const left = seatsLeft(iso, null);
       return { status: statusFor(left, seva.capacityPerSlot), left };

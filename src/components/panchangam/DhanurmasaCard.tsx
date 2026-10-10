@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { DHANURMASA, TIRUPPAVAI } from "@/lib/panchang/dhanurmasa";
 import { label } from "@/lib/panchang/names";
 import ShareButton from "@/components/ShareButton";
+import { verseLines } from "@/lib/panchang/verses";
 
 const glass =
   "rounded-3xl border border-white/10 bg-[#0b0820]/70 shadow-[0_0_40px_rgba(90,70,220,0.18)] backdrop-blur-md";
@@ -28,14 +29,19 @@ export default function DhanurmasaCard({ day, date, locale, className = "" }: { 
         <ShareButton
           tone="dark"
           title={`${label(DHANURMASA.name, locale)} · ${t("dhanurmasa.day", { day })}`}
-          text={[t("dhanurmasa.pasuram", { n: number }), locale === "kn" ? pasuram.kn : pasuram.roman, pasuram.tamil, ...gists].join("\n\n")}
+          text={[t("dhanurmasa.pasuram", { n: number }), ...verseLines(pasuram, locale).map((l) => l.text), pasuram.tamil, ...gists].join("\n\n")}
           path={`/panchangam?date=${date}`}
           className="relative z-10"
         />
       </div>
       <p className="mt-3 text-xs uppercase tracking-wider text-indigo-100/55">{t("dhanurmasa.pasuram", { n: number })}</p>
       <blockquote className="mt-1 border-l-2 border-amber-300/50 pl-4 text-[15px] text-amber-50">
-        {locale === "kn" ? pasuram.kn : pasuram.roman}…
+        {/* Always in Kannada script; the English site shows it romanised first. */}
+        {verseLines(pasuram, locale).map((line, i) => (
+          <span key={line.lang} lang={line.lang} className={`block ${i ? "mt-1 text-sm text-amber-50/80" : ""}`} style={line.lang === "kn" ? { fontFamily: "var(--font-temple-kannada), var(--font-temple-sans), sans-serif" } : undefined}>
+            {line.text}…
+          </span>
+        ))}
         <span lang="ta" className="mt-1 block text-xs text-indigo-100/55">
           {pasuram.tamil}…
         </span>

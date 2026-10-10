@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ShareButton from "@/components/ShareButton";
 import { Link } from "@/i18n/navigation";
-import AcharyaPortrait from "@/components/acharya/AcharyaPortrait";
+import ZoomablePortrait from "@/components/acharya/ZoomablePortrait";
 import { NO_UPLOADS, acharyaForTirunakshatram, acharyaPath, mediaFor, type AcharyaUploads } from "@/lib/panchang/acharyas";
 import { useTranslations } from "next-intl";
 import type { PanchangLocation } from "@/lib/panchang/compute";
@@ -238,7 +238,7 @@ export function CalendarList({
                   <li key={`${e.date}-${i}`} className="flex items-center gap-2">
                     <Link href={acharyaPath(acharya.slug)} className="flex w-full min-w-0 items-center gap-3 py-2.5 text-left transition hover:bg-white/5">
                       <DateBadge iso={e.date} locale={locale} />
-                      <AcharyaPortrait name={name} imageUrl={mediaFor(acharya, acharyaMedia).imageUrl} size={40} />
+                      <ZoomablePortrait name={name} imageUrl={mediaFor(acharya, acharyaMedia).imageUrl} fullImageUrl={mediaFor(acharya, acharyaMedia).imageFullUrl} size={40} />
                       <span className="min-w-0 flex-1">
                         <span className="block text-white/95">{entryName(e, locale)}</span>
                         <span className="line-clamp-1 text-xs text-fuchsia-100/70">{label(acharya.summary, locale)}</span>

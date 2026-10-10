@@ -15,7 +15,10 @@
     "notices": "Notices",
     "donate": "Donate",
     "sevas": "Sevas",
-    "panchangam": "Panchangam"
+    "panchangam": "Panchangam",
+    "book": "Book",
+    "visit": "Visit",
+    "more": "More"
   },
   "home": {
     "heroEyebrow": "Jai Sreemannarayana",
@@ -32,7 +35,22 @@
     "galleryPreviewTitle": "Moments from the Temple",
     "galleryPreviewCta": "Browse full gallery",
     "addressTitle": "Visit Us",
-    "addressCta": "Get directions"
+    "addressCta": "Get directions",
+    "hoursTitle": "Darshan hours today",
+    "hoursToday": "Today",
+    "openNow": "Open now",
+    "openUntil": "until {time}",
+    "closedNow": "Closed now",
+    "opensAt": "opens at {time}",
+    "opensTomorrow": "opens tomorrow at {time}",
+    "closedToday": "Closed today",
+    "closingSoon": "Closing soon",
+    "openingSoon": "Opening soon",
+    "closesAt": "closes at {time}",
+    "sessionMorning": "Morning",
+    "sessionAfternoon": "Afternoon",
+    "sessionEvening": "Evening",
+    "now": "Now"
   },
   "events": {
     "pageTitle": "Annual Event Calendar",
@@ -137,8 +155,8 @@
       "sameAsFirst": "Same as devotee 1"
     },
     "wholeDay": "Full day",
-    "signInTitle": "Sign in to book a seva",
-    "signInBody": "Sign in with Google to book — your tickets, darshan and prasadam history stay in your account.",
+    "signInTitle": "Sign-in required",
+    "signInBody": "Please sign in to book a seva — with Google or your email. Your tickets, darshan and prasadam history stay in your account.",
     "myBookings": "My bookings",
     "reservedPayTitle": "Seva reserved — complete payment",
     "payLaterNote": "Can't pay now? Your seat is held — pay ₹{amount} later from your ticket page, or at the temple counter with this reference.",
@@ -196,7 +214,9 @@
       "donations": "Donations",
       "kundali": "Kundali / Jataka",
       "payments": "Payments",
-      "acharyas": "Alwars & Acharyas"
+      "acharyas": "Alwars & Acharyas",
+      "devotees": "Devotee Accounts",
+      "sevaRequests": "Seva Requests"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -313,12 +333,13 @@
     "signOut": "Sign out",
     "google": "Continue with Google",
     "redirecting": "Opening Google…",
+    "signingIn": "Signing you in…",
     "failed": "Couldn't start Google sign-in. Please try again.",
     "title": "Sign in to the temple",
     "subtitle": "Book sevas, follow your darshan and donate — all in one place.",
     "benefitBook": "Book sevas and darshan tickets",
     "benefitHistory": "See all your bookings, darshan and prasadam history",
-    "benefitDonate": "Donate online and download receipts",
+    "benefitTickets": "Keep your seva tickets on your phone, ready at the counter",
     "callbackError": "Sign-in didn't complete. Please try again.",
     "privacy": "We only use your name and email to keep your bookings and donations together. We never post anything to your Google account.",
     "welcome": "Jai Sreemannarayana",
@@ -341,10 +362,10 @@
       "working": "Please wait…",
       "signInCta": "Sign in",
       "signUpCta": "Create account",
-      "signUpNote": "We'll email you a 6-digit code to confirm your address.",
+      "signUpNote": "We'll email you a code to confirm your address.",
       "verifyTitle": "Verify your email",
       "verifyResetTitle": "Enter your reset code",
-      "verifyBody": "Enter the 6-digit code we sent to {email}.",
+      "verifyBody": "Enter the code we sent to {email}.",
       "code": "Verification code",
       "verifyCta": "Verify",
       "changeEmail": "Change email",
@@ -353,9 +374,7 @@
       "forgotBody": "Enter your account email and we'll send you a code.",
       "sendCode": "Send code",
       "backToSignIn": "Back to sign in",
-      "resetTitle": "Choose a new password",
-      "resetBody": "You're verified — set a new password for your account.",
-      "resetCta": "Save and continue",
+      "resetCta": "Save password and sign in",
       "messages": {
         "codeSent": "Code sent to {email}. Check your inbox (and spam).",
         "codeResent": "A new code is on its way."
@@ -367,7 +386,8 @@
         "exists": "An account with this email already exists — sign in instead.",
         "badCode": "That code is wrong or has expired. Request a new one.",
         "rateLimited": "Too many attempts. Please wait a minute and try again.",
-        "failed": "Something went wrong. Please try again."
+        "failed": "Something went wrong. Please try again.",
+        "samePassword": "Choose a password different from your old one."
       }
     }
   },
@@ -524,7 +544,9 @@
       "today": "Today",
       "yesterday": "Yesterday",
       "daysAgo": "{days} days ago",
-      "from": "from {date}"
+      "from": "from {date}",
+      "forTomorrow": "For tomorrow",
+      "openToday": "Open today"
     },
     "drawer": {
       "title": "Notifications",
@@ -532,7 +554,11 @@
       "openCount": "Open notifications — {count} new",
       "close": "Close",
       "empty": "You're all caught up.",
-      "allNotices": "All notices"
+      "allNotices": "All notices",
+      "markAllRead": "Mark all as read",
+      "clearAll": "Clear all",
+      "dismiss": "Clear this notification",
+      "restore": "Show cleared ({count})"
     }
   },
   "sevas": {
@@ -563,6 +589,11 @@
         "title": "Darshan & special sevas",
         "subtitle": "Darshan tickets and sevas on selected dates.",
         "badge": "Special"
+      },
+      "request": {
+        "title": "Special sevas on request",
+        "subtitle": "Performed only when devotees book them — choose any available day.",
+        "badge": "On request"
       }
     },
     "when": "When",
@@ -575,7 +606,13 @@
     "notOpen": "Booking not open",
     "empty": "Seva details will appear here soon.",
     "allSevas": "All sevas",
-    "typeLabel": "Show"
+    "typeLabel": "Show",
+    "requestOther": "Request for a special day",
+    "bannerTitle": "A seva on your special day?",
+    "bannerBody": "Birthdays, anniversaries, an elder's tithi — request any seva on the day you wish and our priest will call you back.",
+    "bannerCta": "Request a seva",
+    "requestRule": "Book for {days} · at least {notice} days ahead",
+    "everyDay": "any day"
   },
   "panchangam": {
     "pageTitle": "Panchangam",
@@ -784,6 +821,8 @@
       "recentNote": "Acharyas of our own times who carried the tradition forward.",
       "tirunakshatramUnknown": "Tirunakshatram to be added",
       "pictureCredit": "Picture: {author} · {license}",
+      "viewPicture": "View {name}'s picture",
+      "closePicture": "Close picture",
       "audioCredit": "Recording: {author} · {license}",
       "listenShort": "Listen",
       "recitations": "Listen to their works",
@@ -867,5 +906,42 @@
     "skip": "Skip",
     "label": "Welcome greeting",
     "soundHint": "Tap to hear the Thiruchinnam"
+  },
+  "sevaRequest": {
+    "pageTitle": "Request a seva for your special day",
+    "pageSubtitle": "Tell us the seva and the day. Our priest will call you to confirm the details and the offering.",
+    "sevaLabel": "Seva",
+    "otherSeva": "Another seva (describe below)",
+    "otherSevaLabel": "Which seva would you like?",
+    "dateLabel": "Day you would like it",
+    "pickDate": "Pick a day",
+    "occasionLabel": "Occasion",
+    "occasions": {
+      "birthday": "Birthday",
+      "anniversary": "Wedding anniversary",
+      "remembrance": "Remembrance (tithi)",
+      "beginning": "New beginning (house, job, vehicle)",
+      "other": "Other"
+    },
+    "devoteesLabel": "Devotees for the sankalpa",
+    "addDevotee": "+ Add another devotee",
+    "removeDevotee": "Remove last",
+    "phoneLabel": "Mobile number (the priest will call you)",
+    "noteLabel": "Anything else the priest should know (optional)",
+    "submit": "Send request",
+    "sending": "Sending…",
+    "doneTitle": "Request sent 🙏",
+    "doneBody": "Our priest will call you on {phone} to confirm. Request number: {ref}. A copy has been emailed to you.",
+    "another": "Send another request",
+    "signInTitle": "Sign in to request a seva",
+    "signInBody": "So the priest knows whom to call back, please sign in with Google or your email.",
+    "signIn": "Sign in",
+    "errors": {
+      "invalid": "Please choose the seva and the day, and enter a devotee's name and a 10-digit mobile number.",
+      "pastDate": "Please choose today or a later day.",
+      "login": "Please sign in first.",
+      "rateLimited": "You've sent several requests just now. Please wait a little and try again.",
+      "failed": "Couldn't send the request. Please try again."
+    }
   }
 }

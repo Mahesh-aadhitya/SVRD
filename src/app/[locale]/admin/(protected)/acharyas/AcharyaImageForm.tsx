@@ -42,7 +42,7 @@ export default function AcharyaImageForm({
   const playing = audio || bundledAudio;
   return (
     <form action={action} className="flex flex-wrap items-end gap-4">
-      <ImageUploadField name="image" prefix="acharyas" defaultValue={imageUrl} label="Picture" />
+      <ImageUploadField name="image" prefix="acharyas" defaultValue={imageUrl} label="Picture" aspect={3 / 4} shapeLabel="3 : 4 portrait" />
       <div className="min-w-56">
         <p className="text-sm font-medium text-ink/70">Recording of the composition</p>
         <input type="hidden" name="audio" value={audio} />

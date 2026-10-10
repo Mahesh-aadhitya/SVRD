@@ -9,7 +9,7 @@ import { TIRUPPAVAI } from "./dhanurmasa";
 import type { Observance } from "./rules";
 
 /** Where a bundled picture or recording comes from (all freely licensed). */
-export type MediaCredit = { src: string; author: string; license: string; sourceUrl: string; title?: Named };
+export type MediaCredit = { src: string; author: string; license: string; sourceUrl: string; title?: Named; /** The whole picture, when `src` is a smaller copy. */ full?: string };
 
 export type Acharya = {
   slug: string;
@@ -30,6 +30,8 @@ export type Acharya = {
   life: Named[];
   works: Named[];
   composition?: Verse;
+  /** Further tanians, shown on their page after the composition. */
+  moreTanians?: Verse[];
   /** A freely licensed picture shipped with the site (a temple upload replaces it). */
   picture?: MediaCredit;
   /** A freely licensed recording of (or close to) the composition. */
@@ -991,23 +993,56 @@ export const ACHARYAS: Acharya[] = [
   {
     slug: "satakopa-ramanuja-jeeyar",
     kind: "recent",
+    // Mesha (Chithirai) Magha — from his tirunakshatram tanian below.
+    tirunakshatram: 27,
     name: n("Sri Satakopa Ramanuja Jeeyar Swami", "ಶ್ರೀ ಶಠಕೋಪ ರಾಮಾನುಜ ಜೀಯರ್ ಸ್ವಾಮಿ"),
-    alsoKnownAs: n("23rd pontiff of the Sri Andal Jeeyar Mutt, Srivilliputtur", "ಶ್ರೀವಿಲ್ಲಿಪುತ್ತೂರ್ ಶ್ರೀ ಆಂಡಾಳ್ ಜೀಯರ್ ಮಠದ 23ನೇ ಪೀಠಾಧಿಪತಿ"),
+    alsoKnownAs: n(
+      "23rd Matadipathi of Sri Manavala Mamunigal Mutt (Sri Andal Jeeyar Mutt), Srivilliputtur, and of Sri Vara Vara Muni Mutt, Melukote",
+      "ಶ್ರೀವಿಲ್ಲಿಪುತ್ತೂರಿನ ಶ್ರೀ ಮಣವಾಳ ಮಾಮುನಿಗಳ ಮಠದ (ಶ್ರೀ ಆಂಡಾಳ್ ಜೀಯರ್ ಮಠ) 23ನೇ ಮಠಾಧಿಪತಿ ಹಾಗೂ ಮೇಲುಕೋಟೆಯ ಶ್ರೀ ವರವರಮುನಿ ಮಠದ ಮಠಾಧಿಪತಿ",
+    ),
     summary: n(
-      "The 23rd Jeeyar of the Sri Andal Jeeyar Mutt at Srivilliputtur, and founder of the Anandashrama at Melkote.",
-      "ಶ್ರೀವಿಲ್ಲಿಪುತ್ತೂರಿನ ಶ್ರೀ ಆಂಡಾಳ್ ಜೀಯರ್ ಮಠದ 23ನೇ ಜೀಯರ್ — ಮೇಲುಕೋಟೆಯ ಆನಂದಾಶ್ರಮದ ಸ್ಥಾಪಕರು.",
+      "The 23rd Jeeyar of Sri Manavala Mamunigal's mutt at Srivilliputtur, who heads the Vara Vara Muni Mutt and the Anandashrama at Melukote and founded the Sri Acharya Patashala there.",
+      "ಶ್ರೀವಿಲ್ಲಿಪುತ್ತೂರಿನ ಶ್ರೀ ಮಣವಾಳ ಮಾಮುನಿಗಳ ಮಠದ 23ನೇ ಜೀಯರ್ — ಮೇಲುಕೋಟೆಯ ವರವರಮುನಿ ಮಠ ಮತ್ತು ಆನಂದಾಶ್ರಮದ ಅಧಿಪತಿಗಳು, ಅಲ್ಲಿನ ಶ್ರೀ ಆಚಾರ್ಯ ಪಾಠಶಾಲೆಯ ಸ್ಥಾಪಕರು.",
     ),
     life: [
       n(
-        "The Sri Andal Jeeyar Mutt at Srivilliputtur — the birthplace of Sri Andal and Periyalwar — traces an unbroken line of Jeeyars to Manavala Mamunigal, some six hundred years ago. Its pontiffs bear the title Satakopa Ramanuja Jeeyar, and Swami is the 23rd in that line.",
-        "ಶ್ರೀ ಆಂಡಾಳ್ ಮತ್ತು ಪೆರಿಯಾಳ್ವಾರರ ಜನ್ಮಸ್ಥಳವಾದ ಶ್ರೀವಿಲ್ಲಿಪುತ್ತೂರಿನ ಶ್ರೀ ಆಂಡಾಳ್ ಜೀಯರ್ ಮಠವು ಸುಮಾರು ಆರುನೂರು ವರ್ಷಗಳ ಹಿಂದೆ ಮಣವಾಳ ಮಾಮುನಿಗಳಿಂದ ಆರಂಭವಾದ ಅಖಂಡ ಜೀಯರ್ ಪರಂಪರೆಯನ್ನು ಹೊಂದಿದೆ. ಅದರ ಪೀಠಾಧಿಪತಿಗಳು 'ಶಠಕೋಪ ರಾಮಾನುಜ ಜೀಯರ್' ಎಂಬ ಬಿರುದು ಧರಿಸುತ್ತಾರೆ; ಸ್ವಾಮಿಗಳು ಆ ಪರಂಪರೆಯ 23ನೇಯವರು.",
+        "The Sri Andal Jeeyar Mutt at Srivilliputtur — the birthplace of Sri Andal and Periyalwar — traces an unbroken line of Jeeyars to Manavala Mamunigal. Its pontiffs bear the title Satakopa Ramanuja Jeeyar, and Swami is the 23rd in that line. He also heads the Sri Vara Vara Muni Mutt at Melukote, where his ashrama is the Anandashrama.",
+        "ಶ್ರೀ ಆಂಡಾಳ್ ಮತ್ತು ಪೆರಿಯಾಳ್ವಾರರ ಜನ್ಮಸ್ಥಳವಾದ ಶ್ರೀವಿಲ್ಲಿಪುತ್ತೂರಿನ ಶ್ರೀ ಆಂಡಾಳ್ ಜೀಯರ್ ಮಠವು ಮಣವಾಳ ಮಾಮುನಿಗಳಿಂದ ಆರಂಭವಾದ ಅಖಂಡ ಜೀಯರ್ ಪರಂಪರೆಯನ್ನು ಹೊಂದಿದೆ. ಅದರ ಪೀಠಾಧಿಪತಿಗಳು 'ಶಠಕೋಪ ರಾಮಾನುಜ ಜೀಯರ್' ಎಂಬ ಬಿರುದು ಧರಿಸುತ್ತಾರೆ; ಸ್ವಾಮಿಗಳು ಆ ಪರಂಪರೆಯ 23ನೇಯವರು. ಮೇಲುಕೋಟೆಯ ಶ್ರೀ ವರವರಮುನಿ ಮಠದ ಅಧಿಪತಿಗಳೂ ಅವರೇ; ಅಲ್ಲಿ ಅವರ ಆಶ್ರಮ ಆನಂದಾಶ್ರಮ.",
       ),
       n(
-        "Swami has carried the mutt's service to Melkote — Tirunarayanapuram, where Sri Ramanuja lived for twelve years — founding the Anandashrama there. At Melukote the mutt also runs a gurukula patashala teaching the Yajurveda, the Divya Prabandham and Sanskrit.",
-        "ಸ್ವಾಮಿಗಳು ಮಠದ ಸೇವೆಯನ್ನು ಶ್ರೀ ರಾಮಾನುಜರು ಹನ್ನೆರಡು ವರ್ಷ ನೆಲೆಸಿದ ತಿರುನಾರಾಯಣಪುರ — ಮೇಲುಕೋಟೆಗೆ ವಿಸ್ತರಿಸಿ ಅಲ್ಲಿ ಆನಂದಾಶ್ರಮವನ್ನು ಸ್ಥಾಪಿಸಿದರು. ಮೇಲುಕೋಟೆಯಲ್ಲಿ ಮಠವು ಯಜುರ್ವೇದ, ದಿವ್ಯ ಪ್ರಬಂಧ ಮತ್ತು ಸಂಸ್ಕೃತವನ್ನು ಕಲಿಸುವ ಗುರುಕುಲ ಪಾಠಶಾಲೆಯನ್ನೂ ನಡೆಸುತ್ತದೆ.",
+        "Until the age of 23 he was trained in the traditional way under Vidwan Sri Aghalayam Ramanuja Iyengar. He then served seven years in the Indian Army, through the Indo-Pak war of 1965, four years in defence factories, and twenty-eight years as an industrialist, before six years as a vanaprastha and, at last, sanyasa as a Jeeyar.",
+        "23 ವರ್ಷದವರೆಗೆ ವಿದ್ವಾನ್ ಶ್ರೀ ಅಘಲಯಂ ರಾಮಾನುಜ ಅಯ್ಯಂಗಾರ್ ಅವರ ಬಳಿ ಸಾಂಪ್ರದಾಯಿಕ ಶಿಕ್ಷಣ ಪಡೆದರು. ನಂತರ 1965ರ ಭಾರತ–ಪಾಕಿಸ್ತಾನ ಯುದ್ಧವೂ ಸೇರಿ ಏಳು ವರ್ಷ ಭಾರತೀಯ ಸೇನೆಯಲ್ಲಿ, ನಾಲ್ಕು ವರ್ಷ ರಕ್ಷಣಾ ಕಾರ್ಖಾನೆಗಳಲ್ಲಿ, ಇಪ್ಪತ್ತೆಂಟು ವರ್ಷ ಉದ್ಯಮಿಯಾಗಿ ಸೇವೆ ಸಲ್ಲಿಸಿ, ಆರು ವರ್ಷ ವಾನಪ್ರಸ್ಥರಾಗಿದ್ದು, ಕೊನೆಗೆ ಜೀಯರ್ ಆಗಿ ಸಂನ್ಯಾಸ ಸ್ವೀಕರಿಸಿದರು.",
+      ),
+      n(
+        "At Melukote — Tirunarayanapuram, where Sri Ramanuja lived for twelve years — Swami founded the Sri Acharya Patashala, opened on 1 June 2010 with five students. It now teaches 37 rural students the Krishna Yajurveda, Agama Shastra, the Divya Prabandham and Sanskrit, alongside general education, computers and yoga, and is affiliated to the Karnataka Sanskrit University. Swami chairs its trust.",
+        "ಶ್ರೀ ರಾಮಾನುಜರು ಹನ್ನೆರಡು ವರ್ಷ ನೆಲೆಸಿದ ತಿರುನಾರಾಯಣಪುರ — ಮೇಲುಕೋಟೆಯಲ್ಲಿ ಸ್ವಾಮಿಗಳು ಶ್ರೀ ಆಚಾರ್ಯ ಪಾಠಶಾಲೆಯನ್ನು ಸ್ಥಾಪಿಸಿದರು; 1 ಜೂನ್ 2010ರಂದು ಐದು ವಿದ್ಯಾರ್ಥಿಗಳೊಂದಿಗೆ ಅದು ಆರಂಭವಾಯಿತು. ಇಂದು 37 ಗ್ರಾಮೀಣ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಕೃಷ್ಣ ಯಜುರ್ವೇದ, ಆಗಮ ಶಾಸ್ತ್ರ, ದಿವ್ಯ ಪ್ರಬಂಧ ಮತ್ತು ಸಂಸ್ಕೃತದ ಜೊತೆಗೆ ಸಾಮಾನ್ಯ ಶಿಕ್ಷಣ, ಕಂಪ್ಯೂಟರ್ ಮತ್ತು ಯೋಗವನ್ನೂ ಕಲಿಸುತ್ತದೆ; ಕರ್ನಾಟಕ ಸಂಸ್ಕೃತ ವಿಶ್ವವಿದ್ಯಾಲಯದ ಮಾನ್ಯತೆ ಪಡೆದಿದೆ. ಅದರ ಟ್ರಸ್ಟಿನ ಅಧ್ಯಕ್ಷರು ಸ್ವಾಮಿಗಳೇ.",
       ),
     ],
     works: [],
+    // Both tanians as printed in the mutt's own booklet (Acharya Tanian,
+    // Sri Manavala Mamuni Mutt, Srivilliputtur).
+    composition: sloka(
+      "tn-satakopa-ramanuja-jeeyar",
+      n("Tirunakshatram tanian of Sri Satakopa Ramanuja Jeeyar", "ಶ್ರೀ ಶಠಕೋಪ ರಾಮಾನುಜ ಜೀಯರರ ತಿರುನಕ್ಷತ್ರ ತನಿಯನ್"),
+      "ಮೇಷ ಮಖಾಯಾಂ ಸಂಭೂತಂ\nಧ್ಯೇಯ ಹೃದೇ ರಸಾಂಬುಧಂ ।\nಶಠಕೋಪ ಮುನಿಂ ವಂದೇ\nಶ್ರೀ ರಾಮಾನುಜ ಯೋಗಿನಮ್ ॥",
+      "mēṣa makhāyāṃ sambhūtaṃ\ndhyeya hṛde rasāmbudhaṃ |\nśaṭhakopa muniṃ vande\nśrī rāmānuja yoginam ||",
+      n(
+        "Born in the month of Mesha under the star Magha, an ocean of sweetness to be held in the heart — I bow to Satakopa Muni, the yogi Sri Ramanuja.",
+        "ಮೇಷ ಮಾಸದ ಮಖಾ ನಕ್ಷತ್ರದಲ್ಲಿ ಅವತರಿಸಿದ, ಹೃದಯದಲ್ಲಿ ಧ್ಯಾನಿಸಬೇಕಾದ ರಸಸಾಗರರಾದ ಶ್ರೀ ರಾಮಾನುಜ ಯೋಗಿಗಳಾದ ಶಠಕೋಪ ಮುನಿಗಳಿಗೆ ನಮಿಸುತ್ತೇನೆ.",
+      ),
+    ),
+    moreTanians: [
+      sloka(
+        "tn-satakopa-ramanuja-jeeyar-nitya",
+        n("Nitya tanian of Sri Satakopa Ramanuja Jeeyar (recited daily)", "ಶ್ರೀ ಶಠಕೋಪ ರಾಮಾನುಜ ಜೀಯರರ ನಿತ್ಯ ತನಿಯನ್ (ನಿತ್ಯ ಪಠಿಸುವುದು)"),
+        "ಶ್ರೀ ವಾಧೂಲ ಕುಮಾರ ವೇಂಕಟ ಗುರೋರ್ ಪಾದಾರವಿಂದಾಶ್ರಿತಂ\nಶ್ರೀ ನಾರಾಯಣಾಯ ಜೀಯರಾಖ್ಯ ಯತಿವರ್ಯ ಅನುಗ್ರಹ ಪಾದಾಶ್ರಿತಂ ।\nಶ್ರೀಮತ್ ವಾನಮಹಾಚಲಸ್ಥ ಕಲಿಯನ್ ರಾಮಾನುಜಾರ್ಯ ಪ್ರಿಯಂ\nವಂದೇ ಶಠಕೋಪ ಜೀಯರಾಭಿಧಂ ರಾಮಾನುಜಾಖ್ಯಂ ಮುನಿಮ್ ॥\nಶ್ರೀಮತ್ ವಾನಾಚಲ ರಾಮಾನುಜ ಯತಿಭ್ಯೋ ನಮಃ",
+        "śrī vādhūla kumāra veṅkaṭa guror pādāravindāśritaṃ\nśrī nārāyaṇāya jīyarākhya yativarya anugraha pādāśritaṃ |\nśrīmat vānamahācalastha kaliyan rāmānujārya priyaṃ\nvande śaṭhakopa jīyarābhidhaṃ rāmānujākhyaṃ munim ||\nśrīmat vānācala rāmānuja yatibhyo namaḥ",
+        n(
+          "I bow to the muni named Satakopa Ramanuja Jeeyar — who took refuge at the lotus feet of Sri Venkata Guru of the Vadhula line, who rests at the feet of the great ascetic Sri Narayana Jeeyar by his grace, and who is dear to Sri Kaliyan Ramanujarya of Vanamamalai. Salutations to Srimat Vanachala Ramanuja Yati.",
+          "ಶ್ರೀ ವಾಧೂಲ ವಂಶದ ವೇಂಕಟ ಗುರುಗಳ ಪಾದಾರವಿಂದಗಳನ್ನು ಆಶ್ರಯಿಸಿದ, ಯತಿಶ್ರೇಷ್ಠ ಶ್ರೀ ನಾರಾಯಣ ಜೀಯರರ ಅನುಗ್ರಹದಿಂದ ಅವರ ಪಾದಗಳನ್ನು ಆಶ್ರಯಿಸಿದ, ವಾನಮಾಮಲೆಯ ಶ್ರೀ ಕಲಿಯನ್ ರಾಮಾನುಜಾರ್ಯರಿಗೆ ಪ್ರಿಯರಾದ, ಶಠಕೋಪ ರಾಮಾನುಜ ಜೀಯರ್ ಎಂಬ ಮುನಿಗಳಿಗೆ ನಮಿಸುತ್ತೇನೆ. ಶ್ರೀಮತ್ ವಾನಾಚಲ ರಾಮಾನುಜ ಯತಿಗಳಿಗೆ ನಮಸ್ಕಾರ.",
+        ),
+      ),
+    ],
   },
 ];
 
@@ -1046,15 +1081,21 @@ const RECORDINGS: Record<string, MediaCredit> = {
   },
 };
 
-// The temple's own paintings of the twelve Alwars (also in the gallery's Alwars folder).
+// The temple's own pictures, in public/images/alwars: its paintings of the
+// twelve Alwars (also in the gallery's Alwars folder), and its photos of
+// Madhuramangalam Jeeyar and Satakopa Ramanuja Jeeyar — each whole
+// (<slug>-full.jpg) and as a smaller copy for the framed portraits
+// (<slug>-portrait.jpg).
 const TEMPLE_PICTURES = new Set([
   "poigai-alwar", "bhoothathalwar", "peyalwar", "tirumazhisai-alwar", "kulasekhara-alwar", "nammalwar",
   "madhurakavi-alwar", "periyalwar", "thondaradippodi-alwar", "tiruppanalwar", "tirumangai-alwar", "andal",
+  "madhuramangalam-jeeyar", "satakopa-ramanuja-jeeyar",
 ]);
 
 for (const a of ACHARYAS) {
   const picture = PICTURES[a.slug];
-  if (TEMPLE_PICTURES.has(a.slug)) a.picture = { src: `/images/alwars/${a.slug}.jpg`, author: "", license: "", sourceUrl: "" };
+  if (TEMPLE_PICTURES.has(a.slug))
+    a.picture = { src: `/images/alwars/${a.slug}-portrait.jpg`, full: `/images/alwars/${a.slug}-full.jpg`, author: "", license: "", sourceUrl: "" };
   else if (picture) a.picture = { src: `/images/acharyas/${a.slug}.jpg`, ...picture };
   if (RECORDINGS[a.slug]) a.audio = RECORDINGS[a.slug];
 }
@@ -1065,6 +1106,8 @@ export function mediaFor(a: Acharya, uploads: AcharyaUploads) {
   const audio = uploads.audio[a.slug];
   return {
     imageUrl: image ?? a.picture?.src ?? null,
+    /** The whole picture, for the full-screen view. */
+    imageFullUrl: image ?? a.picture?.full ?? a.picture?.src ?? null,
     // Only borrowed (Commons) pictures carry a credit line.
     imageCredit: image || !a.picture?.sourceUrl ? null : a.picture,
     audioUrl: audio ?? a.audio?.src ?? null,

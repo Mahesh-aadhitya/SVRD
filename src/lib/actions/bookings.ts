@@ -2,9 +2,15 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { getLocale } from "next-intl/server";
 import { verifyAdminSession } from "@/lib/admin/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { findBookingReference, getBookedCounts } from "@/lib/data/bookings";
+import { findBookingReference, getBookedCounts, getBookingForTicket } from "@/lib/data/bookings";
+import { emailBookingConfirmation } from "@/lib/email/booking-confirmation";
+import { alertOfficeOfBooking } from "@/lib/notify/booking-alert";
+import { emailPriestOfBooking } from "@/lib/notify/priest-email";
+import { siteOrigin } from "@/lib/site-url";
 import { signTicket } from "@/lib/ticket-token";
 import { todayInIndia } from "@/lib/dates";
 import { getDevotee } from "@/lib/devotee/auth";
@@ -101,6 +107,25 @@ export async function createBooking(input: {
     supabase.from("devotee_profiles").update({ phone }).eq("id", devotee.id).eq("phone", ""),
   ]);
   revalidatePath("/[locale]/admin", "layout");
+
+  // The devotee's confirmation email (with the signed ticket link) and the
+  // priest's WhatsApp and email alerts go out after the response, so the
+  // devotee isn't kept waiting; one failing doesn't stop the others.
+  const reference: string = row.booking_reference;
+  const [locale, origin] = await Promise.all([getLocale().catch(() => "en"), siteOrigin()]);
+  const ticketUrl = `${origin}${locale === "kn" ? "/kn" : ""}/ticket/${reference}?t=${signTicket(reference)}`;
+  after(async () => {
+    const ticket = await getBookingForTicket(reference).catch((e) => (console.error("booking notifications:", e), null));
+    if (!ticket) return;
+    await Promise.all([
+      devotee.email
+        ? emailBookingConfirmation(devotee.email, ticket, ticketUrl, locale).catch((e) => console.error("booking confirmation email:", e))
+        : null,
+      alertOfficeOfBooking(ticket, `${origin}/admin/verify/${reference}`).catch((e) => console.error("booking WhatsApp alert:", e)),
+      emailPriestOfBooking(ticket).catch((e) => console.error("booking priest email:", e)),
+    ]);
+  });
+
   return {
     ok: true,
     reference: row.booking_reference,

@@ -188,7 +188,7 @@ export default function SiteAudio({ src }: { src?: string | null }) {
         onClick={toggleMute}
         aria-label={muted ? "Unmute background song" : "Mute background song"}
         aria-pressed={!muted}
-        className="fixed bottom-20 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-cream/90 text-maroon shadow-md backdrop-blur transition hover:bg-cream lg:bottom-4"
+        className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-cream/90 text-maroon shadow-md backdrop-blur transition hover:bg-cream lg:bottom-4"
       >
         {muted ? <MutedIcon /> : <SpeakerIcon />}
       </button>

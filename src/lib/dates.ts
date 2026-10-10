@@ -12,6 +12,11 @@ export function isoFromDate(d: Date) {
 }
 
 // Today in the viewer's local calendar.
+// Temple (India) time now, "HH:MM".
+export function nowInIndia() {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date());
+}
+
 export function localTodayIso() {
   return isoFromDate(new Date());
 }

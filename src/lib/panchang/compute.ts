@@ -140,6 +140,29 @@ function helioSidereal(key: GrahaKey, t: Date) {
 export const tithiAt = (t: Date) => Math.floor(elongation(t) / 12);
 export const karanaAt = (t: Date) => Math.floor(elongation(t) / 6);
 export const nakshatraAt = (t: Date) => Math.floor(moonSidereal(t) / NAK);
+
+// The star that begins and ends between two sunrises (prevailing at
+// neither), if any — it belongs to that day.
+export function kshayaStar(sunriseMs: number, nextSunriseMs: number) {
+  const a = nakshatraAt(new Date(sunriseMs));
+  const b = nakshatraAt(new Date(nextSunriseMs));
+  return (b - a + 27) % 27 === 2 ? (a + 1) % 27 : null;
+}
+
+// Whether `star` falls again on a later day of the same solar month —
+// beginning at a sunrise, or wholly between two (the Moon returns to a star
+// every ~27.3 days, so a 30-day month sometimes holds it twice). Sunrises a
+// whole number of days later are close enough for star and month checks.
+export function starRecursInSolarMonth(sunriseMs: number, star: number) {
+  const rashi = sunRashiAt(new Date(sunriseMs));
+  for (let k = 25; k <= 31; k++) {
+    const t = sunriseMs + k * DAY;
+    if (sunRashiAt(new Date(t)) !== rashi) return false;
+    if (nakshatraAt(new Date(t)) === star && nakshatraAt(new Date(t - DAY)) !== star) return true;
+    if (kshayaStar(t, t + DAY) === star) return true;
+  }
+  return false;
+}
 export const yogaAt = (t: Date) => Math.floor(mod360(sunSidereal(t) + moonSidereal(t)) / NAK);
 const moonRashiAt = (t: Date) => Math.floor(moonSidereal(t) / 30);
 export const sunRashiAt = (t: Date) => Math.floor(sunSidereal(t) / 30);
@@ -336,6 +359,8 @@ export function computePanchang(date: string, location: PanchangLocation): Panch
     tithiAtMoonrise: moonriseT ? tithiAt(new Date(moonriseT)) : null,
     nakshatraAtSunrise: nakshatraAt(sr),
     prevNakshatra: nakshatraAt(prevSunrise),
+    kshayaNakshatra: kshayaStar(sunrise, nextSunrise),
+    starRecurs: (star) => starRecursInSolarMonth(sunrise, star),
     sunRashi,
     sankranti:
       nextRashi !== sunRashi ? { rashi: nextRashi, at: toMinute(edge(sunRashiAt, sunrise, 1, 6 * HOUR, DAY + 6 * HOUR)) } : null,

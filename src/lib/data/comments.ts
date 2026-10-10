@@ -3,6 +3,7 @@ import { verifyAdminSession } from "@/lib/admin/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { AdminComment, PublicComment } from "@/lib/content-types";
+import { publicName } from "@/lib/tidy";
 
 export const LIVE_COMMENT_CONTEXT = "live";
 
@@ -20,7 +21,7 @@ export async function getApprovedComments(context: string, limit = 50): Promise<
   if (error) throw new Error(`getApprovedComments: ${error.message}`);
   return (data ?? []).map((row) => ({
     id: row.id,
-    authorName: row.author_name,
+    authorName: publicName(row.author_name),
     text: row.text,
     createdAt: row.created_at,
   }));

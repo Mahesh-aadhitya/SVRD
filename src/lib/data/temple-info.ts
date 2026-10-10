@@ -2,6 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { TempleInfo } from "@/lib/content-types";
+import { tidyAddress } from "@/lib/tidy";
 
 // Uncached, for the admin form: it must show what was last saved.
 export async function fetchTempleInfo(): Promise<TempleInfo> {
@@ -13,8 +14,8 @@ export async function fetchTempleInfo(): Promise<TempleInfo> {
       .single();
     if (error) throw new Error(`getTempleInfo: ${error.message}`);
     return {
-      addressLine1: data.address_line1,
-      addressLine2: data.address_line2,
+      addressLine1: tidyAddress(data.address_line1 ?? ""),
+      addressLine2: tidyAddress(data.address_line2 ?? ""),
       phone: data.phone,
       email: data.email,
       mapsQuery: data.maps_query,

@@ -3,7 +3,7 @@ import { setSevaBookingOpen } from "@/lib/actions/sevas";
 import { formatSlot, isReleasedOn, type Seva } from "@/lib/seva-types";
 import { formatIso, isoFromDate, parseIso, todayInIndia } from "@/lib/dates";
 
-const FREQUENCY_LABEL = { nitya: "Nitya", weekly: "Weekly", monthly: "Monthly", annual: "Annual", special: "Darshan & special" } as const;
+const FREQUENCY_LABEL = { nitya: "Nitya", weekly: "Weekly", monthly: "Monthly", annual: "Annual", special: "Darshan & special", request: "On request" } as const;
 import { folderPath, type Folder } from "@/lib/folders";
 
 // Open dates from today on (capped — only the count and first date are shown).

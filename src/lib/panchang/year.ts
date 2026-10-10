@@ -17,7 +17,7 @@ import {
   SearchMoonPhase,
   EclipseKind,
 } from "astronomy-engine";
-import { dhanurmasaDayAt, edge, momentTithis, nakshatraAt, riseSet, sunRashiAt, tithiAt, toMinute, type PanchangLocation } from "./compute";
+import { dhanurmasaDayAt, edge, kshayaStar, momentTithis, nakshatraAt, riseSet, starRecursInSolarMonth, sunRashiAt, tithiAt, toMinute, type PanchangLocation } from "./compute";
 import { observancesFor, type Observance } from "./rules";
 import type { TirumalaKey } from "./names";
 
@@ -125,6 +125,8 @@ export function scanDays(fromIso: string, toIso: string, loc: PanchangLocation):
         tithiAtMoonrise: moonrise && moonrise < midnight + DAY ? tithiAt(new Date(moonrise)) : null,
         nakshatraAtSunrise: nakAtRise[i],
         prevNakshatra: nakAtRise[i - 1],
+        kshayaNakshatra: kshayaStar(sunrise, sunrises[i + 1]),
+        starRecurs: (star) => starRecursInSolarMonth(sunrise, star),
         sunRashi,
         sankranti:
           nextRashi !== sunRashi ? { rashi: nextRashi, at: toMinute(edge(sunRashiAt, sunrise, 1, 6 * HOUR, DAY + 6 * HOUR)) } : null,

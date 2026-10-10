@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import ShareButton from "@/components/ShareButton";
-import AcharyaPortrait from "@/components/acharya/AcharyaPortrait";
+import ZoomablePortrait from "@/components/acharya/ZoomablePortrait";
 import { acharyaPath, mediaFor, tirunakshatramOf, type Acharya, type AcharyaUploads } from "@/lib/panchang/acharyas";
 import { NAKSHATRA_NAMES, label } from "@/lib/panchang/names";
 
@@ -26,14 +26,14 @@ export default function TirunakshatramCard({
       {acharyas.map((a) => {
         const name = label(a.name, locale);
         const tn = tirunakshatramOf(a);
-        const { imageUrl, audioUrl } = mediaFor(a, uploads);
+        const { imageUrl, imageFullUrl, audioUrl } = mediaFor(a, uploads);
         return (
           <div
             key={a.slug}
             className="flex items-center gap-4 rounded-3xl border border-fuchsia-200/40 bg-gradient-to-r from-fuchsia-300/15 via-amber-300/10 to-fuchsia-300/15 px-4 py-3 shadow-[0_0_30px_rgba(240,150,255,0.18)] backdrop-blur"
           >
             <Link href={acharyaPath(a.slug)} aria-label={t("acharya.knowMoreAbout", { name })}>
-              <AcharyaPortrait name={name} imageUrl={imageUrl} size={64} />
+              <ZoomablePortrait name={name} imageUrl={imageUrl} fullImageUrl={imageFullUrl} size={64} />
             </Link>
             <div className="min-w-0 flex-1">
               <p className="text-[11px] uppercase tracking-widest text-fuchsia-100/80">{t("acharya.todayTitle")}</p>

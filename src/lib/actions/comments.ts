@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureProfile, getDevotee } from "@/lib/devotee/auth";
 import { getApprovedComments, LIVE_COMMENT_CONTEXT } from "@/lib/data/comments";
 import type { CommentStatus, PublicComment } from "@/lib/content-types";
+import { publicName } from "@/lib/tidy";
 
 // ── Devotee-facing ───────────────────────────────────────────────────────
 
@@ -30,7 +31,8 @@ export async function postLiveComment(input: { text: string }): Promise<PostComm
   if (!parsed.success) return { ok: false, error: "invalid" };
 
   const profile = await ensureProfile(devotee).catch(() => null);
-  const authorName = (profile?.fullName || devotee.name || "Devotee").slice(0, 60);
+  // Shown publicly, so never an email address.
+  const authorName = publicName(profile?.fullName || devotee.name).slice(0, 60);
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
   const { error } = await createAdminClient().from("comments").insert({

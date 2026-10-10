@@ -14,11 +14,12 @@ import { getTempleInfo } from "@/lib/data/temple-info";
 import { getHighlights } from "@/lib/data/highlights";
 import WhatsNew from "@/components/highlights/WhatsNew";
 import PanchangTeaser from "@/components/panchangam/PanchangTeaser";
+import TempleHours from "@/components/TempleHours";
 import type { Highlight } from "@/lib/highlight-types";
 import { todayInIndia } from "@/lib/dates";
 import type { Locale } from "@/i18n/routing";
 import type { TempleEvent, TempleInfo } from "@/lib/content-types";
-import type { Seva } from "@/lib/seva-types";
+import { formatTiming, type Seva } from "@/lib/seva-types";
 import type { GalleryItem } from "@/lib/gallery-types";
 
 export default async function HomePage({
@@ -75,8 +76,13 @@ function HomeContent({
     <div className="animate-divine-fade-up">
       <DivineHero />
 
+      {/* What a visitor comes for first: is darshan open (and how to get
+          there), and today's panchangam. */}
+      <TempleHours timings={templeInfo.timings} mapsUrl={templeInfo.mapsUrl} locale={locale} />
+      <PanchangTeaser locale={locale} initialDate={todayInIndia()} />
+
       {/* What's new: live darshan, ticket releases, messages and festivals
-          as notification tiles, right below the hero. */}
+          as notification tiles. */}
       <WhatsNew initial={highlights} />
 
       {/* Quick links */}
@@ -94,8 +100,6 @@ function HomeContent({
         </div>
       </section>
 
-      <PanchangTeaser locale={locale} initialDate={todayInIndia()} />
-
       {/* Daily (nitya) sevas */}
       {dailySevas.length > 0 ? (
         <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
@@ -111,12 +115,12 @@ function HomeContent({
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             {dailySevas.map((seva) => (
               <Card key={seva.id} className="overflow-hidden">
-                <div className="relative h-36 w-full">
-                  <ContentImage src={seva.imageUrl} alt={seva.name[locale]} />
+                <div className="relative h-44 w-full overflow-hidden">
+                  <ContentImage src={seva.imageUrl} alt={seva.name[locale]} focus={seva.imageFocus} />
                 </div>
                 <div className="p-4">
                   <p className="font-display text-lg text-maroon">{seva.name[locale]}</p>
-                  {seva.timing ? <p className="mt-1 text-xs font-medium text-saffron">{seva.timing}</p> : null}
+                  {seva.timing ? <p className="mt-1 text-xs font-medium text-saffron">{formatTiming(seva.timing, locale)}</p> : null}
                 </div>
               </Card>
             ))}

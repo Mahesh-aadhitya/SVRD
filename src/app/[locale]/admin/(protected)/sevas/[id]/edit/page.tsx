@@ -21,7 +21,7 @@ export default async function EditSevaPage({
   if (!seva) notFound();
 
   return (
-    <div>
+    <div className="pb-28">
       <Link href="/admin/sevas" className="text-xs font-semibold text-ink/50 hover:text-maroon">
         ← All sevas
       </Link>

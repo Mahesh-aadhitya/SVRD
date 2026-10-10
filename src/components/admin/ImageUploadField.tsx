@@ -4,24 +4,38 @@ import { useState } from "react";
 import Image from "next/image";
 import { requestImageUpload, type ImagePrefix } from "@/lib/actions/media";
 import { createClient } from "@/lib/supabase/browser";
+import ImageCropDialog from "./ImageCropDialog";
 
-// Uploads the chosen file straight to Supabase Storage as soon as it's
-// picked, then carries only the resulting public URL in a hidden input so
-// the surrounding form's Server Action never receives the file bytes.
+// A picked picture opens in a cropper first, in the shape the site shows it
+// (`aspect`, 3:2 cards by default); the cropped JPEG is then uploaded
+// straight to Supabase Storage, and only the resulting public URL rides in a
+// hidden input, so the surrounding form's Server Action never receives the
+// file bytes. A picture already saved can be re-cropped.
 export default function ImageUploadField({
   name,
   prefix,
   defaultValue,
   label = "Cover image",
+  aspect = 3 / 2,
+  shapeLabel = "3 : 2, like the cards on the site",
 }: {
   name: string;
   prefix: ImagePrefix;
   defaultValue?: string | null;
   label?: string;
+  aspect?: number;
+  shapeLabel?: string;
 }) {
   const [url, setUrl] = useState(defaultValue ?? "");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The picture being cropped: a picked file's object URL, or the saved one.
+  const [cropping, setCropping] = useState<string | null>(null);
+
+  function closeCropper() {
+    if (cropping?.startsWith("blob:")) URL.revokeObjectURL(cropping);
+    setCropping(null);
+  }
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
@@ -62,9 +76,18 @@ export default function ImageUploadField({
               accept="image/jpeg,image/png,image/webp"
               className="sr-only"
               disabled={uploading}
-              onChange={(e) => handleFile(e.target.files?.[0])}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) setCropping(URL.createObjectURL(file));
+              }}
             />
           </label>
+          {url ? (
+            <button type="button" disabled={uploading} onClick={() => setCropping(url)} className="text-xs font-semibold text-maroon hover:underline">
+              Re-crop
+            </button>
+          ) : null}
           {url ? (
             <button type="button" onClick={() => setUrl("")} className="text-xs font-semibold text-red-600 hover:underline">
               Remove
@@ -73,6 +96,18 @@ export default function ImageUploadField({
         </div>
       </div>
       {error ? <p className="mt-2 rounded-xl bg-red-500/10 px-3 py-2 text-xs text-red-600">{error}</p> : null}
+      {cropping ? (
+        <ImageCropDialog
+          src={cropping}
+          aspect={aspect}
+          shapeLabel={shapeLabel}
+          onCancel={closeCropper}
+          onDone={(file) => {
+            closeCropper();
+            handleFile(file);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

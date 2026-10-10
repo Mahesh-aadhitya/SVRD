@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import SectionHeading from "@/components/SectionHeading";
-import AcharyaPortrait from "@/components/acharya/AcharyaPortrait";
+import ZoomablePortrait from "@/components/acharya/ZoomablePortrait";
 import YouTubeRecordings from "@/components/acharya/YouTubeRecordings";
 import { PRABANDHAM_TANIANS, RECORDINGS } from "@/lib/panchang/recordings";
 import { ACHARYAS, acharyaPath, mediaFor, tirunakshatramOf, type Acharya } from "@/lib/panchang/acharyas";
@@ -73,7 +73,7 @@ export default async function AcharyasPage({ params }: { params: Promise<{ local
                         isToday ? "border-maroon ring-2 ring-gold/60" : "border-gold/25"
                       }`}
                     >
-                      <AcharyaPortrait name={label(a.name, locale)} imageUrl={media.imageUrl} size={64} />
+                      <ZoomablePortrait name={label(a.name, locale)} imageUrl={media.imageUrl} fullImageUrl={media.imageFullUrl} size={64} />
                       <span className="min-w-0">
                         <span className="block font-display text-lg leading-tight text-maroon">{label(a.name, locale)}</span>
                         <span className="mt-0.5 block text-xs text-ink/55">

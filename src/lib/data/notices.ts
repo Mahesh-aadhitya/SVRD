@@ -6,6 +6,13 @@ import { verifyAdminSession } from "@/lib/admin/dal";
 import { todayInIndia } from "@/lib/dates";
 import type { Notice } from "@/lib/content-types";
 
+// Older ticket notices end with a "reserve before slots fill up" line;
+// the seva, its dates and the Book link say enough.
+const trimReleaseBody = (body: Notice["body"]): Notice["body"] => ({
+  en: body.en.replace(/\s*Reserve your seva before slots fill up\.\s*$/, ""),
+  kn: body.kn.replace(/\s*ಸ್ಥಳಗಳು ಭರ್ತಿಯಾಗುವ ಮೊದಲು ನಿಮ್ಮ ಸೇವೆಯನ್ನು ಕಾಯ್ದಿರಿಸಿ\.\s*$/, ""),
+});
+
 const NOTICE_COLUMNS = "id, kind, title, body, link_url, is_pinned, publish_on, expires_on, created_at";
 
 type NoticeRow = {
@@ -25,7 +32,7 @@ function mapRow(row: NoticeRow): Notice {
     id: row.id,
     kind: row.kind,
     title: row.title,
-    body: row.body,
+    body: trimReleaseBody(row.body),
     linkUrl: row.link_url,
     isPinned: row.is_pinned,
     publishOn: row.publish_on,

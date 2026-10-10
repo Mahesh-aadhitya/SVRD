@@ -34,6 +34,10 @@ export type DayFacts = {
   tithiAtMoonrise: number | null;
   nakshatraAtSunrise: number;
   prevNakshatra: number;
+  // A star that begins and ends between this sunrise and the next.
+  kshayaNakshatra: number | null;
+  // Whether a star falls again on a later day of this solar month.
+  starRecurs: (star: number) => boolean;
   sunRashi: number;
   // The rashi the Sun enters before the next sunrise, and when.
   sankranti: { rashi: number; at: number } | null;
@@ -93,9 +97,19 @@ export function observancesFor(f: DayFacts): Observance[] {
   // Nakshatra-based days count the star at sunrise (first day if it spans two).
   if (f.nakshatraAtSunrise !== f.prevNakshatra) {
     if (f.nakshatraAtSunrise === 21) out.push({ kind: "shravana" });
-    TIRUNAKSHATRAMS.forEach((tn, index) => {
-      if (tn.rashi === f.sunRashi && tn.nakshatra === f.nakshatraAtSunrise) out.push({ kind: "tirunakshatram", index });
-    });
+  }
+
+  // Tirunakshatrams: the day the star prevails at sunrise (the first, if it
+  // spans two), or the day it falls wholly within when it prevails at no
+  // sunrise. A star that comes twice in the solar month is kept on its
+  // second day — the tradition's rule.
+  const stars = [
+    ...(f.nakshatraAtSunrise !== f.prevNakshatra ? [f.nakshatraAtSunrise] : []),
+    ...(f.kshayaNakshatra !== null ? [f.kshayaNakshatra] : []),
+  ];
+  for (const star of stars) {
+    const keyed = TIRUNAKSHATRAMS.flatMap((tn, index) => (tn.rashi === f.sunRashi && tn.nakshatra === star ? [index] : []));
+    if (keyed.length && !f.starRecurs(star)) keyed.forEach((index) => out.push({ kind: "tirunakshatram", index }));
   }
 
   if (f.dhanurmasaDay === 1 || f.dhanurmasaDay === 27) out.push({ kind: "dhanurmasa", day: f.dhanurmasaDay });

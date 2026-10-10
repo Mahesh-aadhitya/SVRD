@@ -2,10 +2,12 @@ import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import UpiSettingsForm from "@/components/admin/UpiSettingsForm";
+import WhatsappSettingsForm from "@/components/admin/WhatsappSettingsForm";
 import PaymentLog from "@/components/admin/PaymentLog";
 import RejectedAttempts from "@/components/admin/RejectedAttempts";
 import { getPaymentLogForAdmin, getRejectedPaymentAttemptsForAdmin, type PaymentLogFilter } from "@/lib/data/bookings";
 import { fetchSiteSettings } from "@/lib/data/site-settings";
+import { getWhatsappSettings } from "@/lib/notify/whatsapp";
 
 const FILTERS: { key: PaymentLogFilter | "auto"; label: string }[] = [
   { key: "submitted", label: "To verify" },
@@ -27,10 +29,11 @@ export default async function AdminPaymentsPage({
   const [{ locale }, { show }] = await Promise.all([params, searchParams]);
   setRequestLocale(locale);
   const filter = FILTERS.find((f) => f.key === show)?.key ?? "submitted";
-  const [{ entries, counts }, rejected, settings] = await Promise.all([
+  const [{ entries, counts }, rejected, settings, whatsapp] = await Promise.all([
     getPaymentLogForAdmin(filter === "auto" ? "submitted" : filter),
     getRejectedPaymentAttemptsForAdmin(),
     fetchSiteSettings(),
+    getWhatsappSettings(),
   ]);
   const tabCount = (key: PaymentLogFilter | "auto") => (key === "auto" ? rejected.count : counts[key]);
 
@@ -60,6 +63,11 @@ export default async function AdminPaymentsPage({
       <section>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink/50">UPI details for devotees</h2>
         <UpiSettingsForm settings={settings} />
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink/50">WhatsApp alerts</h2>
+        <WhatsappSettingsForm phone={whatsapp.phone} keyHint={whatsapp.apikey ? whatsapp.apikey.slice(-4) : null} />
       </section>
     </div>
   );

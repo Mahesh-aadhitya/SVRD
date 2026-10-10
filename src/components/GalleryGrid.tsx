@@ -23,7 +23,8 @@ export default function GalleryGrid({
 
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [subfolderId, setSubfolderId] = useState<string | null>(null);
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  // Open on photos (videos are a tap away), unless there are none.
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>(() => (items.some((i) => i.type === "photo") ? "photo" : "all"));
   const [active, setActive] = useState<GalleryItem | null>(null);
 
   const shareTitle = (item: GalleryItem) => (item.type === "video" ? t("shareVideo") : t("sharePhoto"));

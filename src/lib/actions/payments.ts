@@ -2,11 +2,16 @@
 
 import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { verifyAdminSession } from "@/lib/admin/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyTicket } from "@/lib/ticket-token";
 import { llmProviders } from "@/lib/ai/llm";
 import { fetchSiteSettings } from "@/lib/data/site-settings";
+import { getBookingForTicket } from "@/lib/data/bookings";
+import { alertOfficeOfPayment } from "@/lib/notify/booking-alert";
+import { emailPriestOfPayment } from "@/lib/notify/priest-email";
+import { siteOrigin } from "@/lib/site-url";
 import { PAYMENT_WINDOW_MS, checkPayment, type PaymentRejection, type ScreenshotReading } from "@/lib/payment-check";
 
 // UPI pay-by-proof: the devotee is shown the temple's UPI QR / ID for 10
@@ -183,6 +188,31 @@ export async function submitPaymentProof(input: {
   }
   await log(true, null);
   revalidatePath("/[locale]/admin", "layout");
+
+  // Tell the priest, after the response: on WhatsApp with a 30-day link to
+  // the screenshot (the bucket is private), and by email with the
+  // screenshot attached.
+  const origin = await siteOrigin();
+  const utr = result.utr;
+  after(async () => {
+    const ticket = await getBookingForTicket(ref).catch((e) => (console.error("payment alerts:", e), null));
+    if (!ticket) return;
+    const ext = input.path.split(".").pop() ?? "jpg";
+    const contentType = Object.entries(PROOF_EXT).find(([, e]) => e === ext)?.[0] ?? "image/jpeg";
+    await Promise.all([
+      supabase.storage
+        .from(PROOF_BUCKET)
+        .createSignedUrl(input.path, 30 * 86_400)
+        .then((signed) => alertOfficeOfPayment(ticket, utr, signed.data?.signedUrl ?? null, `${origin}/admin/verify/${ref}`))
+        .catch((e) => console.error("payment WhatsApp alert:", e)),
+      emailPriestOfPayment(ticket, utr, {
+        filename: `payment-${ref}.${ext}`,
+        content: Buffer.from(await file.arrayBuffer()),
+        contentType,
+      }).catch((e) => console.error("payment priest email:", e)),
+    ]);
+  });
+
   return { ok: true, utr: result.utr };
 }
 

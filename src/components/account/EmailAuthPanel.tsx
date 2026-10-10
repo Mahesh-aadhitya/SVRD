@@ -6,7 +6,7 @@ import { fieldClass } from "@/components/booking/DevoteeFields";
 import {
   requestPasswordReset,
   resendEmailCode,
-  setNewPassword,
+  resetPasswordWithCode,
   signInWithEmail,
   signUpWithEmail,
   verifyEmailCode,
@@ -14,8 +14,9 @@ import {
   type AuthStep,
 } from "@/lib/actions/auth";
 
-// Email + password sign-in / sign-up, with the 6-digit emailed code for
-// confirming a new account or resetting a forgotten password. `next` is a
+// Email + password sign-in / sign-up, with the emailed code for
+// confirming a new account, or — with a new password on the same screen —
+// resetting a forgotten one. `next` is a
 // path without the locale prefix; the server redirect adds it.
 export default function EmailAuthPanel({ next }: { next: string }) {
   const t = useTranslations("auth.email");
@@ -42,7 +43,7 @@ export default function EmailAuthPanel({ next }: { next: string }) {
       if (r.step) {
         setStep(r.step);
         setCode("");
-        if (r.step === "reset") setPassword("");
+        if (r.purpose === "recovery") setPassword("");
       }
       if (r.message) setNotice(t(`messages.${r.message}`, { email: r.email ?? email }));
     });
@@ -116,7 +117,7 @@ export default function EmailAuthPanel({ next }: { next: string }) {
           <button disabled={pending} className={primary}>{pending ? t("working") : t("signInCta")}</button>
         </form>
       ) : step === "signup" ? (
-        <form className="space-y-4" onSubmit={(e) => (e.preventDefault(), run(() => signUpWithEmail({ name, email, password })))}>
+        <form className="space-y-4" onSubmit={(e) => (e.preventDefault(), run(() => signUpWithEmail(locale, { name, email, password })))}>
           <div>
             <label className={label} htmlFor="auth-name">{t("name")}</label>
             <input id="auth-name" required minLength={2} maxLength={100} autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} className={fieldClass} />
@@ -130,7 +131,17 @@ export default function EmailAuthPanel({ next }: { next: string }) {
           <p className="text-center text-xs text-ink/50">{t("signUpNote")}</p>
         </form>
       ) : step === "verify" ? (
-        <form className="space-y-4" onSubmit={(e) => (e.preventDefault(), run(() => verifyEmailCode(locale, next, { email, code, purpose })))}>
+        <form
+          className="space-y-4"
+          onSubmit={(e) => (
+            e.preventDefault(),
+            run(() =>
+              purpose === "recovery"
+                ? resetPasswordWithCode(locale, next, { email, code, password })
+                : verifyEmailCode(locale, next, { email, code }),
+            )
+          )}
+        >
           <div className="text-center">
             <p className="font-display text-xl text-maroon">{t(purpose === "recovery" ? "verifyResetTitle" : "verifyTitle")}</p>
             <p className="mt-1 text-sm text-ink/65">{t("verifyBody", { email })}</p>
@@ -146,18 +157,21 @@ export default function EmailAuthPanel({ next }: { next: string }) {
             placeholder="••••••"
             className={`${fieldClass} h-14 text-center font-mono text-2xl tracking-[0.5em]`}
           />
-          <button disabled={pending || code.length < 6} className={primary}>{pending ? t("working") : t("verifyCta")}</button>
+          {purpose === "recovery" ? passwordField("auth-reset-password", "new-password", t("newPassword")) : null}
+          <button disabled={pending || code.length < 6} className={primary}>
+            {pending ? t("working") : t(purpose === "recovery" ? "resetCta" : "verifyCta")}
+          </button>
           <div className="flex justify-between text-xs">
             <button type="button" className={link} onClick={() => go(purpose === "recovery" ? "forgot" : "signup")}>
               ← {t("changeEmail")}
             </button>
-            <button type="button" className={link} disabled={pending} onClick={() => run(() => resendEmailCode({ email, purpose }))}>
+            <button type="button" className={link} disabled={pending} onClick={() => run(() => resendEmailCode(locale, { email, purpose }))}>
               {t("resend")}
             </button>
           </div>
         </form>
       ) : step === "forgot" ? (
-        <form className="space-y-4" onSubmit={(e) => (e.preventDefault(), run(() => requestPasswordReset({ email })))}>
+        <form className="space-y-4" onSubmit={(e) => (e.preventDefault(), run(() => requestPasswordReset(locale, { email })))}>
           <div className="text-center">
             <p className="font-display text-xl text-maroon">{t("forgotTitle")}</p>
             <p className="mt-1 text-sm text-ink/65">{t("forgotBody")}</p>
@@ -171,16 +185,7 @@ export default function EmailAuthPanel({ next }: { next: string }) {
             <button type="button" className={link} onClick={() => go("signin")}>← {t("backToSignIn")}</button>
           </p>
         </form>
-      ) : (
-        <form className="space-y-4" onSubmit={(e) => (e.preventDefault(), run(() => setNewPassword(locale, next, { password })))}>
-          <div className="text-center">
-            <p className="font-display text-xl text-maroon">{t("resetTitle")}</p>
-            <p className="mt-1 text-sm text-ink/65">{t("resetBody")}</p>
-          </div>
-          {passwordField("auth-reset-password", "new-password", t("newPassword"))}
-          <button disabled={pending} className={primary}>{pending ? t("working") : t("resetCta")}</button>
-        </form>
-      )}
+      ) : null}
 
       {notice ? <p className="mt-4 rounded-xl bg-green-50 px-4 py-2.5 text-center text-sm text-green-800">{notice}</p> : null}
       {error ? <p className="mt-4 rounded-xl bg-red-50 px-4 py-2.5 text-center text-sm text-red-700">{error}</p> : null}

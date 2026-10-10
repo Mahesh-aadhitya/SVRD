@@ -6,7 +6,6 @@ import WelcomeGreeting from "@/components/account/WelcomeGreeting";
 import PageWatermark from "@/components/PageWatermark";
 import SareeBorderDivider from "@/components/SareeBorderDivider";
 import SiteAudio from "@/components/SiteAudio";
-import WhatsNewPopup from "@/components/highlights/WhatsNewPopup";
 import { getTempleInfo } from "@/lib/data/temple-info";
 import { getSiteSettings } from "@/lib/data/site-settings";
 
@@ -32,7 +31,6 @@ export default async function SiteLayout({
       <Footer info={templeInfo} />
       {/* Room for the fixed bottom nav (phones/tablets) so it never covers the footer. */}
       <div className="h-[calc(4.75rem+env(safe-area-inset-bottom,0px))] bg-maroon lg:hidden" aria-hidden />
-      <WhatsNewPopup />
       <BottomNav />
       <WelcomeGreeting />
     </>

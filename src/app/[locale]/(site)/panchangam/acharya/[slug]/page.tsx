@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import ShareButton from "@/components/ShareButton";
-import AcharyaPortrait from "@/components/acharya/AcharyaPortrait";
+import ZoomablePortrait from "@/components/acharya/ZoomablePortrait";
 import VerseAudio from "@/components/acharya/VerseAudio";
 import YouTubeRecordings from "@/components/acharya/YouTubeRecordings";
 import { RECORDINGS } from "@/lib/panchang/recordings";
@@ -14,6 +14,7 @@ import { templeLocationFrom } from "@/lib/panchang/compute";
 import { getAcharyaMedia } from "@/lib/data/acharya-media";
 import { getTempleInfo } from "@/lib/data/temple-info";
 import { formatIso, todayInIndia } from "@/lib/dates";
+import { verseLines } from "@/lib/panchang/verses";
 
 type Params = Promise<{ locale: string; slug: string }>;
 
@@ -73,7 +74,7 @@ export default async function AcharyaPage({ params }: { params: Params }) {
       {/* Portrait and name */}
       <header className="mt-5 flex flex-col items-center gap-5 rounded-3xl border border-gold/30 bg-white/80 p-5 text-center shadow-sm sm:flex-row sm:items-start sm:gap-7 sm:p-7 sm:text-left">
         <div className="flex flex-col items-center gap-1">
-          <AcharyaPortrait name={name} imageUrl={media.imageUrl} size={132} />
+          <ZoomablePortrait name={name} imageUrl={media.imageUrl} fullImageUrl={media.imageFullUrl} size={132} />
           {media.imageCredit ? (
             <a href={media.imageCredit.sourceUrl} target="_blank" rel="noopener noreferrer" className="max-w-40 truncate text-[10px] text-ink/40 hover:underline">
               {t("acharya.pictureCredit", { author: media.imageCredit.author, license: media.imageCredit.license })}
@@ -127,8 +128,18 @@ export default async function AcharyaPage({ params }: { params: Params }) {
             <img src="/images/chakra-watermark.png" alt="" aria-hidden className="pointer-events-none absolute -right-8 -top-8 h-40 w-auto opacity-[0.06]" />
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-saffron">📿 {t("acharya.composition")}</p>
             <h2 className="mt-1 font-display text-lg text-maroon">{L(verse.source)}</h2>
-            <blockquote className="mt-3 whitespace-pre-line break-words border-l-2 border-gold pl-4 text-[15px] leading-relaxed text-ink">
-              {locale === "kn" ? verse.kn : verse.roman}
+            {/* Always in Kannada script; the English site shows it romanised first. */}
+            <blockquote className="mt-3 space-y-3 border-l-2 border-gold pl-4">
+              {verseLines(verse, locale).map((line, i) => (
+                <p
+                  key={line.lang}
+                  lang={line.lang}
+                  className={`whitespace-pre-line break-words leading-relaxed ${i ? "text-sm text-ink/70" : "text-[15px] text-ink"}`}
+                  style={line.lang === "kn" ? { fontFamily: "var(--font-temple-kannada), var(--font-temple-sans), sans-serif" } : undefined}
+                >
+                  {line.text}
+                </p>
+              ))}
             </blockquote>
             {verse.tamil ? (
               <p lang="ta" className="mt-2 whitespace-pre-line pl-4 text-xs leading-relaxed text-ink/55">
@@ -157,6 +168,33 @@ export default async function AcharyaPage({ params }: { params: Params }) {
             <p className="mt-3 text-[11px] text-ink/45">{t("acharya.verseNote")}</p>
           </section>
           ) : null}
+
+          {/* Further tanians, e.g. one recited daily */}
+          {(a.moreTanians ?? []).map((tanian) => (
+            <section key={tanian.id} className="rounded-2xl border border-gold/30 bg-white/80 p-5 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-saffron">📿 {t("acharya.tanians")}</p>
+              <h2 className="mt-1 font-display text-lg text-maroon">{L(tanian.source)}</h2>
+              <blockquote className="mt-3 space-y-3 border-l-2 border-gold pl-4">
+                {verseLines(tanian, locale).map((line, i) => (
+                  <p
+                    key={line.lang}
+                    lang={line.lang}
+                    className={`whitespace-pre-line break-words leading-relaxed ${i ? "text-sm text-ink/70" : "text-[15px] text-ink"}`}
+                    style={line.lang === "kn" ? { fontFamily: "var(--font-temple-kannada), var(--font-temple-sans), sans-serif" } : undefined}
+                  >
+                    {line.text}
+                  </p>
+                ))}
+              </blockquote>
+              <div className="mt-4 space-y-2">
+                {(locale === "kn" ? [tanian.meaning.kn, tanian.meaning.en] : [tanian.meaning.en, tanian.meaning.kn]).map((m, i) => (
+                  <p key={i} className={`text-sm leading-relaxed ${i ? "text-ink/55" : "text-ink/80"}`}>
+                    {m}
+                  </p>
+                ))}
+              </div>
+            </section>
+          ))}
 
           <YouTubeRecordings recordings={RECORDINGS[a.slug] ?? []} locale={locale} />
         </div>
