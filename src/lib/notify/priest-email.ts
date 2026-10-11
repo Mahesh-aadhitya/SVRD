@@ -62,7 +62,7 @@ export function priestBookingEmail(ticket: Ticket) {
 }
 
 export function priestPaymentEmail(ticket: Ticket, utr: string, hasScreenshot: boolean) {
-  const d = details(ticket, [["UPI ವಹಿವಾಟು ಸಂಖ್ಯೆ (UTR)", utr]]);
+  const d = details(ticket, [["ವಹಿವಾಟು ಸಂಖ್ಯೆ (UTR)", utr]]);
   const note = hasScreenshot ? "ಭಕ್ತರು ಕಳುಹಿಸಿದ ಪಾವತಿ ಸ್ಕ್ರೀನ್‌ಶಾಟ್ ಈ ಇಮೇಲ್‌ನೊಂದಿಗೆ ಲಗತ್ತಿಸಲಾಗಿದೆ." : "";
   return {
     subject: `ಸೇವಾ ಪಾವತಿ ಸ್ವೀಕರಿಸಲಾಗಿದೆ: ${d.seva} · ${d.date} (${ticket.reference})`,

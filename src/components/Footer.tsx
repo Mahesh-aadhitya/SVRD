@@ -54,9 +54,21 @@ export default function Footer({ info }: { info: TempleInfo }) {
             <AdminLink className="hover:text-gold-light" />
           </div>
         </div>
-        <p className="mt-8 border-t border-cream/15 pt-6 text-xs text-cream/50">
-          {"©"} {new Date().getFullYear()} {tMeta("siteTitle")}
-        </p>
+        <div className="mt-8 flex flex-col gap-3 border-t border-cream/15 pt-6 text-xs text-cream/50 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            {"©"} {new Date().getFullYear()} {tMeta("siteTitle")}
+          </p>
+          <nav className="flex flex-wrap gap-x-4 gap-y-1.5">
+            <Link href="/contact" className="hover:text-gold-light">
+              {t("contact")}
+            </Link>
+            {(["terms", "privacy", "refunds", "delivery"] as const).map((slug) => (
+              <Link key={slug} href={`/policies/${slug}`} className="hover:text-gold-light">
+                {t(slug)}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </div>
     </footer>
   );

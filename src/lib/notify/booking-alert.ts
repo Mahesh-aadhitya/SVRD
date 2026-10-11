@@ -50,7 +50,7 @@ export function paymentAlertText(ticket: Ticket, utr: string, screenshotUrl: str
     ...header(ticket),
     `ಭಕ್ತರು: ${ticket.devotees.map((d) => d.name).join(", ") || ticket.devoteeName}`,
     amountLine(ticket),
-    `UPI ವಹಿವಾಟು ಸಂಖ್ಯೆ (UTR): ${utr}`,
+    `ವಹಿವಾಟು ಸಂಖ್ಯೆ (UTR): ${utr}`,
     `ಬುಕಿಂಗ್ ಸಂಖ್ಯೆ: ${ticket.reference}`,
     ...(screenshotUrl ? ["", "ಪಾವತಿ ಸ್ಕ್ರೀನ್‌ಶಾಟ್ (30 ದಿನ ಲಭ್ಯ):", screenshotUrl] : []),
     "",

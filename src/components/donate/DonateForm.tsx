@@ -5,27 +5,8 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { confirmDonation, startDonation } from "@/lib/actions/donations";
 import { fieldClass } from "@/components/booking/DevoteeFields";
+import { loadCheckout, upiFirst, type RazorpayHandlerResponse } from "@/lib/razorpay-checkout";
 import { DONATION_PRESETS, DONATION_PURPOSES, MAX_DONATION, type DevoteeProfile, type DonationPurpose } from "@/lib/devotee/types";
-
-type RazorpayHandlerResponse = { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
-type RazorpayInstance = { open: () => void; on: (event: string, cb: () => void) => void };
-declare global {
-  interface Window {
-    Razorpay?: new (options: Record<string, unknown>) => RazorpayInstance;
-  }
-}
-
-// Razorpay Checkout is loaded only when the devotee presses Donate.
-function loadCheckout(): Promise<boolean> {
-  if (window.Razorpay) return Promise.resolve(true);
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-}
 
 export default function DonateForm({ profile }: { profile: DevoteeProfile }) {
   const t = useTranslations("donate");
@@ -66,6 +47,7 @@ export default function DonateForm({ profile }: { profile: DevoteeProfile }) {
       prefill: started.prefill,
       notes: { receipt: started.receiptNo },
       theme: { color: "#7a1f1f" },
+      config: upiFirst(started.keyId),
       handler: async (res: RazorpayHandlerResponse) => {
         const confirmed = await confirmDonation({
           orderId: res.razorpay_order_id,

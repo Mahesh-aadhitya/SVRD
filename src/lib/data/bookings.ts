@@ -26,13 +26,14 @@ type BookingRow = {
   prasadam_claimed_at: string | null;
   payment_method: Booking["paymentMethod"];
   payment_utr: string | null;
+  razorpay_payment_id: string | null;
   payment_submitted_at: string | null;
   payment_reviewed_at: string | null;
   payment_note: string | null;
 };
 
 const BOOKING_COLUMNS =
-  "id, reference, seva_id, booking_date, seva_slots(start_time, end_time), devotee_name, phone, quantity, devotees, amount, status, payment_status, created_at, checked_in_at, prasadam_claimed_at, payment_method, payment_utr, payment_submitted_at, payment_reviewed_at, payment_note";
+  "id, reference, seva_id, booking_date, seva_slots(start_time, end_time), devotee_name, phone, quantity, devotees, amount, status, payment_status, created_at, checked_in_at, prasadam_claimed_at, payment_method, payment_utr, razorpay_payment_id, payment_submitted_at, payment_reviewed_at, payment_note";
 
 function mapRow(row: BookingRow): Booking {
   const slot = Array.isArray(row.seva_slots) ? (row.seva_slots[0] ?? null) : row.seva_slots;
@@ -55,6 +56,7 @@ function mapRow(row: BookingRow): Booking {
     prasadamClaimedAt: row.prasadam_claimed_at,
     paymentMethod: row.payment_method ?? null,
     paymentUtr: row.payment_utr ?? null,
+    razorpayPaymentId: row.razorpay_payment_id ?? null,
     paymentSubmittedAt: row.payment_submitted_at ?? null,
     paymentReviewedAt: row.payment_reviewed_at ?? null,
     paymentNote: row.payment_note ?? null,

@@ -7,6 +7,8 @@ import { getLocale } from "next-intl/server";
 import { verifyAdminSession } from "@/lib/admin/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { findBookingReference, getBookedCounts, getBookingForTicket } from "@/lib/data/bookings";
+import { releaseExpiredHolds } from "@/lib/booking-payments";
+import { razorpayConfigured } from "@/lib/razorpay";
 import { emailBookingConfirmation } from "@/lib/email/booking-confirmation";
 import { alertOfficeOfBooking } from "@/lib/notify/booking-alert";
 import { emailPriestOfBooking } from "@/lib/notify/priest-email";
@@ -22,6 +24,7 @@ import type { BookingStatus, PaymentStatus } from "@/lib/content-types";
 // ── Devotee-facing ───────────────────────────────────────────────────────
 
 export async function getSevaAvailability(sevaId: string): Promise<BookedCounts> {
+  await releaseExpiredHolds();
   if (!/^[a-z0-9-]{1,100}$/.test(sevaId)) return {};
   return getBookedCounts(sevaId);
 }
@@ -82,6 +85,9 @@ export async function createBooking(input: {
   const { sevaId, date, slotId, devotees, phone } = parsed.data;
 
   const supabase = createAdminClient();
+  // Seats held by unpaid online bookings past their hold are freed first.
+  await releaseExpiredHolds();
+  const online = razorpayConfigured();
   const { data, error } = await supabase.rpc("create_booking", {
     p_seva_id: sevaId,
     p_date: date,
@@ -101,8 +107,14 @@ export async function createBooking(input: {
   }
 
   const row = Array.isArray(data) ? data[0] : data;
+  // A paid seva booked while online payment is set up must be paid online
+  // within the hold (see releaseExpiredHolds).
+  const awaitingOnline = online && row.booking_status === "pending";
   await Promise.all([
-    supabase.from("bookings").update({ user_id: devotee.id }).eq("id", row.booking_id),
+    supabase
+      .from("bookings")
+      .update({ user_id: devotee.id, ...(awaitingOnline ? { payment_method: "razorpay" } : {}) })
+      .eq("id", row.booking_id),
     // Remember the mobile number for next time if the profile has none.
     supabase.from("devotee_profiles").update({ phone }).eq("id", devotee.id).eq("phone", ""),
   ]);
@@ -110,11 +122,14 @@ export async function createBooking(input: {
 
   // The devotee's confirmation email (with the signed ticket link) and the
   // priest's WhatsApp and email alerts go out after the response, so the
-  // devotee isn't kept waiting; one failing doesn't stop the others.
+  // devotee isn't kept waiting; one failing doesn't stop the others. A
+  // booking awaiting online payment sends nothing yet: the ticket and the
+  // alerts go out once it's paid (markBookingPaid).
   const reference: string = row.booking_reference;
   const [locale, origin] = await Promise.all([getLocale().catch(() => "en"), siteOrigin()]);
   const ticketUrl = `${origin}${locale === "kn" ? "/kn" : ""}/ticket/${reference}?t=${signTicket(reference)}`;
   after(async () => {
+    if (awaitingOnline) return;
     const ticket = await getBookingForTicket(reference).catch((e) => (console.error("booking notifications:", e), null));
     if (!ticket) return;
     await Promise.all([

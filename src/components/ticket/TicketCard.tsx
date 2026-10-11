@@ -173,6 +173,12 @@ export default async function TicketCard({
           [L("utr"), <span key="utr" style={{ fontFamily: "ui-monospace, monospace", fontWeight: 700 }}>{ticket.paymentUtr ?? "—"}</span>],
           ...(ticket.paymentSubmittedAt ? [[L("paymentSubmittedOn"), formatStamp(ticket.paymentSubmittedAt)]] : []),
         ] as [ReactNode, ReactNode][])
+      : ticket.paymentMethod === "razorpay" && ticket.paymentStatus === "paid"
+        ? ([
+            [L("paymentMode"), L("online")],
+            [L("paymentId"), <span key="pid" style={{ fontFamily: "ui-monospace, monospace", fontWeight: 700 }}>{ticket.razorpayPaymentId ?? "—"}</span>],
+            ...(ticket.paymentSubmittedAt ? [[L("paymentSubmittedOn"), formatStamp(ticket.paymentSubmittedAt)]] : []),
+          ] as [ReactNode, ReactNode][])
       : ticket.paymentMethod === "counter" && ticket.paymentStatus === "paid"
         ? ([[L("paymentMode"), L("counter")]] as [ReactNode, ReactNode][])
         : []),

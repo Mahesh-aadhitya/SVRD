@@ -165,7 +165,8 @@
     "allTypes": "All sevas",
     "noneInFilter": "No sevas open for booking here — try another type or All sevas.",
     "blockedTitle": "Not available on {date}",
-    "sevaCount": "{count, plural, one {# seva} other {# sevas}}"
+    "sevaCount": "{count, plural, one {# seva} other {# sevas}}",
+    "payHoldNote": "Your seats are held for {minutes} minutes. The booking is confirmed and your ticket issued only after payment."
   },
   "about": {
     "pageTitle": "Temple & Contact",
@@ -177,7 +178,16 @@
   },
   "footer": {
     "tagline": "Built with devotion, for every devotee.",
-    "language": "Language"
+    "language": "Language",
+    "contact": "Contact us",
+    "contactSubtitle": "Reach the temple office for bookings, payments or any help.",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "refunds": "Refund & Cancellation",
+    "delivery": "Shipping & Delivery"
   },
   "language": {
     "en": "English",
@@ -325,7 +335,9 @@
     "paymentMode": "Payment mode",
     "counter": "Temple counter",
     "utr": "UPI transaction ID (UTR)",
-    "paymentSubmittedOn": "Paid on"
+    "paymentSubmittedOn": "Paid on",
+    "online": "Online (Razorpay)",
+    "paymentId": "Payment ID"
   },
   "auth": {
     "signIn": "Sign in",
@@ -417,7 +429,7 @@
       "completed": "Completed",
       "darshanDone": "Darshan done",
       "cancelled": "Cancelled",
-      "payAtCounter": "Pay at counter",
+      "payAtCounter": "Awaiting payment",
       "confirmed": "Confirmed",
       "paymentSubmitted": "Payment submitted"
     },
@@ -453,7 +465,7 @@
       "invalid": "Please check the details — name needs at least 2 letters and mobile 10 digits.",
       "login": "Please sign in again."
     },
-    "payOrUpload": "Pay by UPI / upload screenshot"
+    "payOrUpload": "Complete payment"
   },
   "donate": {
     "title": "Donate",
@@ -871,7 +883,9 @@
       "failed": "Couldn't upload. Check your connection and try again.",
       "already_paid": "This booking is already paid.",
       "cancelled": "This booking was cancelled.",
-      "not_found": "Booking not found. Please open your ticket again."
+      "not_found": "Booking not found. Please open your ticket again.",
+      "unavailable": "Online payment isn't available right now. Please pay at the temple counter.",
+      "expired": "The time to pay for this booking has run out and the seats were released. Please book again."
     },
     "preparingQr": "Preparing payment QR…",
     "tryAgain": "Try again",
@@ -883,7 +897,19 @@
     "expiredBodyTicket": "Already paid? Upload the screenshot below. Not paid yet? Show the QR again and pay within 10 minutes.",
     "restart": "Show QR again",
     "uploadMoved": "The QR window has closed. Upload your payment screenshot from your ticket — your seat stays reserved and you can download the ticket there.",
-    "uploadOnTicket": "Upload on my ticket"
+    "uploadOnTicket": "Upload on my ticket",
+    "payOnline": "Pay ₹{amount} online",
+    "payOnlineHint": "Google Pay, PhonePe, any UPI app, cards or netbanking — your ticket is confirmed instantly.",
+    "pleaseWait": "Please wait…",
+    "checkoutFailed": "Couldn't open the payment window. Check your connection and try again.",
+    "onlineFailed": "The payment didn't go through. Please try again.",
+    "onlinePaidBanner": "🙏 Payment received — your seva ticket is confirmed.",
+    "payForTicketTitle": "Complete payment to get your ticket",
+    "payForTicketBody": "Your ticket is issued as soon as the payment is received.",
+    "payForTicketHold": "Your seats are held for {minutes} minutes from booking. Your ticket is issued as soon as the payment is received.",
+    "releasedTitle": "Booking not confirmed",
+    "releasedBody": "This booking was not paid in time, so the seats were released. Please book again.",
+    "bookAgain": "Book again"
   },
   "welcomeGreeting": {
     "namaskaram": "Namaskaram",

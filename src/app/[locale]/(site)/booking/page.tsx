@@ -12,6 +12,7 @@ import type { Folder } from "@/lib/folders";
 import { getSiteSettings } from "@/lib/data/site-settings";
 import { upiReady } from "@/lib/content-types";
 import type { UpiDetails } from "@/components/payment/UpiPaymentPanel";
+import { razorpayConfigured } from "@/lib/razorpay";
 
 export default async function BookingPage({
   params,
@@ -49,7 +50,7 @@ export default async function BookingPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <BookingContent sevas={sevas} folders={folders} profile={profile} upi={upi} />
+      <BookingContent sevas={sevas} folders={folders} profile={profile} upi={upi} online={razorpayConfigured()} />
     </div>
   );
 }
@@ -85,11 +86,13 @@ function BookingContent({
   folders,
   profile,
   upi,
+  online,
 }: {
   sevas: Awaited<ReturnType<typeof getActiveSevas>>;
   folders: Folder[];
   profile: DevoteeProfile | null;
   upi: UpiDetails | null;
+  online: boolean;
 }) {
   const t = useTranslations("booking");
   const tTicket = useTranslations("ticket");
@@ -101,7 +104,7 @@ function BookingContent({
         {tTicket("findLink")} →
       </Link>
       <Suspense fallback={null}>
-        <BookingFlow sevas={sevas} folders={folders} profile={profile} upi={upi} />
+        <BookingFlow sevas={sevas} folders={folders} profile={profile} upi={upi} online={online} />
       </Suspense>
     </>
   );

@@ -12,6 +12,10 @@ import { getSiteSettings } from "@/lib/data/site-settings";
 import { upiReady } from "@/lib/content-types";
 import { siteOrigin } from "@/lib/site-url";
 import TicketPayment from "@/components/payment/TicketPayment";
+import { razorpayConfigured } from "@/lib/razorpay";
+import { formatIso } from "@/lib/dates";
+import { formatSlot } from "@/lib/seva-types";
+import { PAYMENT_HOLD_MINUTES } from "@/lib/payment-hold";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
@@ -27,6 +31,7 @@ export default async function TicketPage({
   const t = await getTranslations("ticket");
 
   const ref = reference.toUpperCase();
+  const lang = locale === "kn" ? "kn" : "en";
   const ticket = verifyTicket(ref, token) ? await getBookingForTicket(ref) : null;
 
   if (!ticket) {
@@ -50,9 +55,15 @@ export default async function TicketPage({
   }
 
   const [temple, settings] = await Promise.all([getTempleInfo().catch(() => null), getSiteSettings().catch(() => null)]);
-  const awaitingPayment = ticket.amount > 0 && ticket.status !== "cancelled" && ticket.paymentStatus === "unpaid";
+  // A paid seva gets its ticket only once it's paid (or, in the UPI QR
+  // flow, once the screenshot is in).
+  const unpaid = ticket.amount > 0 && ticket.paymentStatus === "unpaid";
+  const awaitingPayment = unpaid && ticket.status !== "cancelled";
   const tMeta = await getTranslations("meta");
   const tPay = await getTranslations("payment");
+  const tBooking = await getTranslations("booking");
+  const online = razorpayConfigured();
+  const upi = settings && upiReady(settings) ? settings : null;
 
   // The QR encodes this ticket's own signed link, so scanning it at the
   // counter shows the live booking and payment status.
@@ -70,22 +81,53 @@ export default async function TicketPage({
           </Link>
         </div>
       ) : null}
-      {awaitingPayment && settings && upiReady(settings) ? (
-        <TicketPayment
-          reference={ref}
-          ticketToken={signTicket(ref)}
-          amount={ticket.amount}
-          upi={{ upiId: settings.upiId, upiNumber: settings.upiNumber, upiPayeeName: settings.upiPayeeName, upiQrUrl: settings.upiQrUrl }}
-          fallbackPayee={tMeta("siteTitle")}
-          rejectedNote={ticket.paymentReviewedAt ? ticket.paymentNote : null}
-        />
-      ) : paid === "1" && ticket.paymentStatus === "submitted" ? (
-        <p className="mx-auto mb-6 max-w-[794px] rounded-2xl border border-green-600/30 bg-green-50 px-4 py-3 text-center text-sm font-semibold text-green-800">
-          {tPay("submittedBanner")}
-        </p>
-      ) : null}
-      <TicketCard ticket={ticket} temple={temple} qrSvg={qrSvg} locale={locale === "kn" ? "kn" : "en"} />
-      <TicketActions reference={ticket.reference ?? ref} />
+      {unpaid ? (
+        <div className="mx-auto mb-6 max-w-xl rounded-2xl border border-gold/30 bg-white/80 p-5 text-center shadow-sm sm:p-6">
+          <p className="font-display text-2xl text-maroon">{awaitingPayment ? tPay("payForTicketTitle") : tPay("releasedTitle")}</p>
+          <p className="mt-2 font-semibold text-ink">{ticket.sevaName[lang]}</p>
+          <p className="text-sm text-ink/70">
+            {formatIso(ticket.date, lang, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+            {ticket.slot ? ` · ${formatSlot(ticket.slot, lang)}` : ""} · {tBooking("ticketCount", { count: ticket.quantity })} · ₹{ticket.amount}
+          </p>
+          <p className="mt-1 font-mono text-sm tracking-widest text-ink/60">{ref}</p>
+          <p className="mt-3 text-sm text-ink/70">
+            {awaitingPayment
+              ? online && ticket.paymentMethod === "razorpay"
+                ? tPay("payForTicketHold", { minutes: PAYMENT_HOLD_MINUTES })
+                : tPay("payForTicketBody")
+              : tPay("releasedBody")}
+          </p>
+          {awaitingPayment ? (
+            online || upi ? (
+              <div className="mt-4 text-left">
+                <TicketPayment
+                  reference={ref}
+                  ticketToken={signTicket(ref)}
+                  amount={ticket.amount}
+                  online={online}
+                  upi={upi && { upiId: upi.upiId, upiNumber: upi.upiNumber, upiPayeeName: upi.upiPayeeName, upiQrUrl: upi.upiQrUrl }}
+                  fallbackPayee={tMeta("siteTitle")}
+                  rejectedNote={ticket.paymentReviewedAt ? ticket.paymentNote : null}
+                />
+              </div>
+            ) : null
+          ) : (
+            <Link href="/booking" className="mt-4 inline-block rounded-full bg-maroon px-6 py-3 text-sm font-semibold text-cream hover:bg-maroon-dark">
+              {tPay("bookAgain")}
+            </Link>
+          )}
+        </div>
+      ) : (
+        <>
+          {paid === "1" ? (
+            <p className="mx-auto mb-6 max-w-[794px] rounded-2xl border border-green-600/30 bg-green-50 px-4 py-3 text-center text-sm font-semibold text-green-800">
+              {tPay(ticket.paymentStatus === "paid" ? "onlinePaidBanner" : "submittedBanner")}
+            </p>
+          ) : null}
+          <TicketCard ticket={ticket} temple={temple} qrSvg={qrSvg} locale={lang} />
+          <TicketActions reference={ticket.reference ?? ref} />
+        </>
+      )}
     </div>
   );
 }

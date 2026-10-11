@@ -204,7 +204,7 @@ function BookingList({
                   </p>
                 </div>
                 <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${tone}`}>{t(`status.${status}`)}</span>
-                {b.reference ? (
+                {b.reference && status !== "payAtCounter" && !(b.amount > 0 && b.paymentStatus === "unpaid") ? (
                   <Link
                     href={{ pathname: `/ticket/${b.reference}`, query: { t: signTicket(b.reference) } }}
                     className="text-sm font-semibold text-maroon hover:underline"
@@ -213,7 +213,7 @@ function BookingList({
                   </Link>
                 ) : null}
                 {b.reference && status === "payAtCounter" ? (
-                  // Pay by UPI / upload the screenshot on the ticket page.
+                  // Pay on the ticket page; the ticket is issued once paid.
                   <Link
                     href={{ pathname: `/ticket/${b.reference}`, query: { t: signTicket(b.reference) }, hash: "pay" }}
                     className="w-full rounded-full bg-maroon px-4 py-2.5 text-center text-sm font-semibold text-cream hover:bg-maroon-dark sm:w-auto"

@@ -12,6 +12,9 @@ import { getBookingForTicket } from "@/lib/data/bookings";
 import { alertOfficeOfPayment } from "@/lib/notify/booking-alert";
 import { emailPriestOfPayment } from "@/lib/notify/priest-email";
 import { siteOrigin } from "@/lib/site-url";
+import { createRazorpayOrder, razorpayConfigured, razorpayKeyId, verifyPaymentSignature } from "@/lib/razorpay";
+import { markBookingPaid, releaseExpiredHolds } from "@/lib/booking-payments";
+import { PAYMENT_HOLD_MS } from "@/lib/payment-hold";
 import { PAYMENT_WINDOW_MS, checkPayment, type ScreenshotReading } from "@/lib/payment-check";
 
 // UPI pay-by-proof: the devotee is shown the temple's UPI QR / ID for 10
@@ -38,9 +41,17 @@ const cleanUtr = (v: unknown) => {
   return utrPattern.test(s) ? s.toUpperCase() : null;
 };
 
-type PayableBooking = { id: string; amount: number; status: string; payment_status: string; payment_sessions: string[] | null };
+type PayableBooking = {
+  id: string;
+  amount: number;
+  status: string;
+  payment_status: string;
+  payment_method: string | null;
+  payment_sessions: string[] | null;
+  created_at: string;
+};
 
-export type PaymentError = "not_found" | "cancelled" | "already_paid" | "bad_file" | "failed";
+export type PaymentError = "not_found" | "cancelled" | "already_paid" | "bad_file" | "failed" | "expired";
 
 // The ticket link's signature proves this is the devotee's own booking.
 async function payableBooking(reference: string, token: string): Promise<PayableBooking | { error: PaymentError }> {
@@ -48,7 +59,7 @@ async function payableBooking(reference: string, token: string): Promise<Payable
   if (!refPattern.test(ref) || !verifyTicket(ref, token)) return { error: "not_found" };
   const { data, error } = await createAdminClient()
     .from("bookings")
-    .select("id, amount, status, payment_status, payment_sessions")
+    .select("id, amount, status, payment_status, payment_method, payment_sessions, created_at")
     .eq("reference", ref)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -83,6 +94,73 @@ export async function startPaymentSession(
   const { error } = await createAdminClient().from("bookings").update({ payment_sessions: next }).eq("id", booking.id);
   if (error) return { error: "failed" };
   return { session: { startedAt: now, expiresAt: now + PAYMENT_WINDOW_MS, serverNow: now } };
+}
+
+// ── Online payment (Razorpay Checkout) ───────────────────────────────────
+
+export type StartOnlinePaymentResult =
+  | {
+      ok: true;
+      orderId: string;
+      keyId: string;
+      amountPaise: number;
+      prefill: { name: string; contact: string };
+      /** Seconds left on the seat hold: Checkout closes when it runs out. */
+      holdSeconds: number;
+    }
+  | { ok: false; error: PaymentError | "unavailable" };
+
+// Opens a Razorpay order for the booking's exact amount. The booking only
+// becomes paid once a signed payment for this order comes back
+// (confirmOnlinePayment or the webhook).
+export async function startOnlinePayment(reference: string, token: string): Promise<StartOnlinePaymentResult> {
+  if (!razorpayConfigured()) return { ok: false, error: "unavailable" };
+  const booking = await payableBooking(reference, token);
+  if ("error" in booking) return { ok: false, error: booking.error };
+  // A UPI screenshot is already with the office: don't take the money twice.
+  if (booking.payment_status === "submitted") return { ok: false, error: "already_paid" };
+  // Seats are held for a while to pay online; after that, book again.
+  const holdSeconds =
+    booking.payment_method === "razorpay"
+      ? Math.floor((Date.parse(booking.created_at) + PAYMENT_HOLD_MS - Date.now()) / 1000)
+      : PAYMENT_HOLD_MS / 1000;
+  if (holdSeconds < 60) {
+    await releaseExpiredHolds();
+    return { ok: false, error: "expired" };
+  }
+  const ref = reference.trim().toUpperCase();
+  const supabase = createAdminClient();
+  const { data: contact } = await supabase.from("bookings").select("devotee_name, phone").eq("id", booking.id).single();
+  try {
+    const order = await createRazorpayOrder({
+      amountPaise: booking.amount * 100,
+      receipt: ref,
+      notes: { booking_id: booking.id, reference: ref },
+    });
+    const { error } = await supabase.from("bookings").update({ razorpay_order_id: order.id }).eq("id", booking.id);
+    if (error) throw new Error(error.message);
+    return {
+      ok: true,
+      orderId: order.id,
+      keyId: razorpayKeyId(),
+      amountPaise: order.amount,
+      prefill: { name: contact?.devotee_name ?? "", contact: contact?.phone ?? "" },
+      holdSeconds,
+    };
+  } catch (e) {
+    console.error("startOnlinePayment:", e);
+    return { ok: false, error: "failed" };
+  }
+}
+
+export async function confirmOnlinePayment(input: {
+  orderId: string;
+  paymentId: string;
+  signature: string;
+  locale: string;
+}): Promise<{ ok: boolean }> {
+  if (!verifyPaymentSignature(input.orderId, input.paymentId, input.signature)) return { ok: false };
+  return { ok: !!(await markBookingPaid(input.orderId, input.paymentId, input.locale === "kn" ? "kn" : "en")) };
 }
 
 // ── Screenshot upload ────────────────────────────────────────────────────

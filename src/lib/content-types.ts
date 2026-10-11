@@ -41,10 +41,12 @@ export type Booking = {
   checkedInAt: string | null;
   /** Set when prasadam was handed over (same QR, after darshan) — the QR is then fully spent. */
   prasadamClaimedAt: string | null;
-  /** How it was paid ("upi" = devotee uploaded a payment screenshot). */
-  paymentMethod: "upi" | "counter" | null;
+  /** How it was paid ("upi" = devotee uploaded a payment screenshot, "razorpay" = paid online). */
+  paymentMethod: "upi" | "counter" | "razorpay" | null;
   /** UPI transaction reference (UTR), typed by the devotee or read from the screenshot. */
   paymentUtr: string | null;
+  /** Razorpay payment id ("pay_…") when paid online. */
+  razorpayPaymentId: string | null;
   paymentSubmittedAt: string | null;
   paymentReviewedAt: string | null;
   /** Office note on the payment, e.g. why a screenshot was rejected. */

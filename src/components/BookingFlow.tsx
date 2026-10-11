@@ -14,7 +14,9 @@ import Chip, { ChipRow } from "@/components/ui/Chip";
 import AvailabilityCalendar, { selectedColors, statusColors, type DayStatus } from "@/components/booking/AvailabilityCalendar";
 import ChakraLoader from "@/components/ChakraLoader";
 import DevoteeFields, { emptyDevotee, fieldClass, type DevoteeDraft } from "@/components/booking/DevoteeFields";
-import UpiPaymentPanel, { type UpiDetails } from "@/components/payment/UpiPaymentPanel";
+import BookingPayment from "@/components/payment/BookingPayment";
+import { PAYMENT_HOLD_MINUTES } from "@/lib/payment-hold";
+import type { UpiDetails } from "@/components/payment/UpiPaymentPanel";
 import { formatIso, isoFromDate, localTodayIso, maxIso, parseIso } from "@/lib/dates";
 import type { DevoteeProfile } from "@/lib/devotee/types";
 import { buildFolderTree, filterByFolder, selectedFolderIds, type Folder } from "@/lib/folders";
@@ -45,6 +47,7 @@ export default function BookingFlow({
   folders,
   profile,
   upi,
+  online = false,
 }: {
   sevas: Seva[];
   folders: Folder[];
@@ -52,6 +55,8 @@ export default function BookingFlow({
   profile?: DevoteeProfile | null;
   /** The temple's UPI details; null when online payment isn't set up (pay at the counter). */
   upi?: UpiDetails | null;
+  /** Razorpay is set up: devotees can pay online and get the ticket confirmed at once. */
+  online?: boolean;
 }) {
   const t = useTranslations("booking");
   const tSevas = useTranslations("sevas");
@@ -243,7 +248,7 @@ export default function BookingFlow({
             <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" />
           </svg>
         </div>
-        <p className="mt-4 font-display text-2xl text-maroon">{isPending ? (upi ? t("reservedPayTitle") : t("pendingTitle")) : t("confirmedTitle")}</p>
+        <p className="mt-4 font-display text-2xl text-maroon">{isPending ? (upi || online ? t("reservedPayTitle") : t("pendingTitle")) : t("confirmedTitle")}</p>
         <p className="mt-1 text-sm text-ink/70">
           {seva.name[locale]} &middot; {fmt(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           {slot ? <> &middot; {formatSlot(slot, locale)}</> : null}
@@ -257,32 +262,41 @@ export default function BookingFlow({
         </p>
         <p className="mt-5 text-xs uppercase tracking-wide text-ink/50">{t("referenceLabel")}</p>
         <p className="font-mono text-3xl font-semibold tracking-widest text-maroon-dark">{confirmed.reference}</p>
-        {isPending && upi ? (
+        {isPending && (upi || online) ? (
           <div className="mt-5">
-            <UpiPaymentPanel
+            <BookingPayment
               mode="booking"
               reference={confirmed.reference}
               ticketToken={confirmed.ticketToken}
               amount={confirmed.amount}
-              upi={upi}
+              online={online}
+              upi={upi ?? null}
               fallbackPayee={tMeta("siteTitle")}
+              onPaid={() =>
+                router.push({ pathname: `/ticket/${confirmed.reference}`, query: { t: confirmed.ticketToken, paid: "1" } })
+              }
               onSubmitted={() =>
                 router.push({ pathname: `/ticket/${confirmed.reference}`, query: { t: confirmed.ticketToken, paid: "1" } })
               }
             />
-            <p className="mt-3 text-xs text-ink/55">{t("payLaterNote", { amount: confirmed.amount })}</p>
+            <p className="mt-3 text-xs text-ink/55">
+              {online ? t("payHoldNote", { minutes: PAYMENT_HOLD_MINUTES }) : t("payLaterNote", { amount: confirmed.amount })}
+            </p>
           </div>
         ) : (
           <p className="mt-5 rounded-xl bg-cream-dark px-4 py-3 text-sm text-ink/70">
             {isPending ? t("payAtCounterNote", { amount: confirmed.amount }) : t("freeConfirmedNote")}
           </p>
         )}
-        <Link
-          href={{ pathname: `/ticket/${confirmed.reference}`, query: { t: confirmed.ticketToken } }}
-          className="mt-5 inline-block rounded-full bg-maroon px-6 py-3 text-sm font-semibold text-cream hover:bg-maroon-dark"
-        >
-          {tTicket("viewTicket")}
-        </Link>
+        {/* No ticket until a paid seva is paid. */}
+        {!isPending ? (
+          <Link
+            href={{ pathname: `/ticket/${confirmed.reference}`, query: { t: confirmed.ticketToken } }}
+            className="mt-5 inline-block rounded-full bg-maroon px-6 py-3 text-sm font-semibold text-cream hover:bg-maroon-dark"
+          >
+            {tTicket("viewTicket")}
+          </Link>
+        ) : null}
         <Link href="/account" className="ml-3 mt-5 inline-block text-sm font-semibold text-maroon underline-offset-4 hover:underline">
           {t("myBookings")}
         </Link>
