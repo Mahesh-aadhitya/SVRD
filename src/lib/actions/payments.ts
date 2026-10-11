@@ -12,15 +12,14 @@ import { getBookingForTicket } from "@/lib/data/bookings";
 import { alertOfficeOfPayment } from "@/lib/notify/booking-alert";
 import { emailPriestOfPayment } from "@/lib/notify/priest-email";
 import { siteOrigin } from "@/lib/site-url";
-import { PAYMENT_WINDOW_MS, checkPayment, type PaymentRejection, type ScreenshotReading } from "@/lib/payment-check";
+import { PAYMENT_WINDOW_MS, checkPayment, type ScreenshotReading } from "@/lib/payment-check";
 
 // UPI pay-by-proof: the devotee is shown the temple's UPI QR / ID for 10
 // minutes, pays from any UPI app, then uploads the payment screenshot. The
-// screenshot is read and checked — paid to the temple, the full ticket
-// amount, a successful payment made inside a QR window, a UTR not used
-// before — and only then is the ticket issued as "payment submitted". The
-// office still verifies each one from the Payments log, where rejected
-// attempts are listed too.
+// ticket is issued as "payment submitted" straight away. The screenshot is
+// read and checked — the amount, the date and the receiver's account name —
+// and anything that doesn't match is noted for the office, which verifies
+// each payment from the Payments log. Nothing is rejected automatically.
 
 const PROOF_BUCKET = "payment-proofs";
 const PROOF_EXT: Record<string, string> = {
@@ -41,7 +40,7 @@ const cleanUtr = (v: unknown) => {
 
 type PayableBooking = { id: string; amount: number; status: string; payment_status: string; payment_sessions: string[] | null };
 
-export type PaymentError = "not_found" | "cancelled" | "already_paid" | "bad_file" | "failed" | "read_failed" | "duplicate_utr";
+export type PaymentError = "not_found" | "cancelled" | "already_paid" | "bad_file" | "failed";
 
 // The ticket link's signature proves this is the devotee's own booking.
 async function payableBooking(reference: string, token: string): Promise<PayableBooking | { error: PaymentError }> {
@@ -104,11 +103,7 @@ export async function requestPaymentProofUpload(
   return { path: data.path, token: data.token };
 }
 
-export type SubmitPaymentResult =
-  | { ok: true; utr: string }
-  | { ok: false; error: PaymentError }
-  // The screenshot doesn't prove this payment: "Invalid payment details".
-  | { ok: false; error: "invalid"; reason: PaymentRejection; details: Record<string, string | number> };
+export type SubmitPaymentResult = { ok: true; utr: string | null } | { ok: false; error: PaymentError };
 
 export async function submitPaymentProof(input: {
   reference: string;
@@ -130,41 +125,19 @@ export async function submitPaymentProof(input: {
     console.error("readScreenshot:", error instanceof Error ? error.message : error);
     return null;
   });
-  // Couldn't read it at all (reader busy or down): ask to try again rather
-  // than accept a payment nobody checked.
-  if (!reading) return { ok: false, error: "read_failed" };
-
   const settings = await fetchSiteSettings();
   const now = Date.now();
-  const result = checkPayment(reading, {
-    reference: ref,
-    amount: booking.amount,
-    sessions: (booking.payment_sessions ?? []).map((s) => Date.parse(s)).filter(Number.isFinite),
-    receiver: { upiId: settings.upiId, upiNumber: settings.upiNumber, payeeName: settings.upiPayeeName },
-    typedUtr: cleanUtr(input.utr),
-    now,
-  });
-
-  const log = (accepted: boolean, reason: string | null) =>
-    supabase.from("payment_attempts").insert({ booking_id: booking.id, proof_path: input.path, accepted, reason, reading });
-
-  if (!result.ok) {
-    await log(false, result.reason);
-    return { ok: false, error: "invalid", reason: result.reason, details: result.details };
-  }
-
-  // The same UPI transaction can't pay for two bookings.
-  const { data: reused } = await supabase
-    .from("bookings")
-    .select("id")
-    .eq("payment_utr", result.utr)
-    .neq("id", booking.id)
-    .in("payment_status", ["submitted", "paid"])
-    .limit(1);
-  if (reused?.length) {
-    await log(false, "duplicate_utr");
-    return { ok: false, error: "duplicate_utr" };
-  }
+  // Couldn't read it at all (reader busy or down): accept it anyway and
+  // leave the check to the office.
+  const result = reading
+    ? checkPayment(reading, {
+        amount: booking.amount,
+        sessions: (booking.payment_sessions ?? []).map((s) => Date.parse(s)).filter(Number.isFinite),
+        payeeName: settings.upiPayeeName,
+        typedUtr: cleanUtr(input.utr),
+        now,
+      })
+    : { utr: cleanUtr(input.utr), paidAt: null, notes: ["Screenshot couldn't be read automatically — check it by hand."] };
 
   const { error } = await supabase
     .from("bookings")
@@ -173,7 +146,7 @@ export async function submitPaymentProof(input: {
       payment_method: "upi",
       payment_proof_path: input.path,
       payment_utr: result.utr,
-      payment_submitted_at: new Date(result.paidAt).toISOString(),
+      payment_submitted_at: new Date(result.paidAt ?? now).toISOString(),
       payment_reviewed_at: null,
       payment_reviewed_by: null,
       payment_note: result.notes.join(" ") || null,
@@ -186,14 +159,14 @@ export async function submitPaymentProof(input: {
     console.error("submitPaymentProof:", error.message);
     return { ok: false, error: "failed" };
   }
-  await log(true, null);
+  await supabase.from("payment_attempts").insert({ booking_id: booking.id, proof_path: input.path, accepted: true, reason: null, reading });
   revalidatePath("/[locale]/admin", "layout");
 
   // Tell the priest, after the response: on WhatsApp with a 30-day link to
   // the screenshot (the bucket is private), and by email with the
   // screenshot attached.
   const origin = await siteOrigin();
-  const utr = result.utr;
+  const utr = result.utr ?? "—";
   after(async () => {
     const ticket = await getBookingForTicket(ref).catch((e) => (console.error("payment alerts:", e), null));
     if (!ticket) return;

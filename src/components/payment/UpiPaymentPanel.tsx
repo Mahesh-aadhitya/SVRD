@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { requestPaymentProofUpload, startPaymentSession, submitPaymentProof, type PaymentError } from "@/lib/actions/payments";
-import type { PaymentRejection } from "@/lib/payment-check";
 import { uploadFile } from "@/components/admin/uploadFile";
 
 export type UpiDetails = { upiId: string; upiNumber: string; upiPayeeName: string; upiQrUrl: string | null };
@@ -31,7 +30,7 @@ async function copyText(text: string) {
   }
 }
 
-type Failure = { code: PaymentError } | { code: "invalid"; reason: PaymentRejection; details: Record<string, string | number> };
+type Failure = { code: PaymentError };
 
 const clock = (ms: number) => {
   const sec = Math.max(0, Math.ceil(ms / 1000));
@@ -42,7 +41,7 @@ const clock = (ms: number) => {
  * Pay a booking by UPI: the temple's QR, UPI ID and number (each one tap
  * to copy) and a button that opens the phone's UPI app with the amount
  * filled in — valid for 10 minutes at a time — then the payment screenshot
- * upload, which is checked and issues the ticket at once.
+ * upload, which issues the ticket at once (the office checks it).
  *
  * On the booking screen ("booking") the upload is offered only while the
  * QR is valid; after that the devotee is sent to their ticket / My
@@ -68,7 +67,7 @@ export default function UpiPaymentPanel({
   fallbackPayee: string;
   /** Why an earlier screenshot was rejected, if it was. */
   rejectedNote?: string | null;
-  onSubmitted: (utr: string) => void;
+  onSubmitted: (utr: string | null) => void;
 }) {
   const t = useTranslations("payment");
   const tBooking = useTranslations("booking");
@@ -164,11 +163,7 @@ export default function UpiPaymentPanel({
       );
       setStage("reading");
       const result = await submitPaymentProof({ reference, token: ticketToken, path, utr });
-      if (!result.ok) {
-        throw new PaymentFailure(
-          result.error === "invalid" ? { code: "invalid", reason: result.reason, details: result.details } : { code: result.error },
-        );
-      }
+      if (!result.ok) throw new PaymentFailure({ code: result.error });
       onSubmitted(result.utr);
     } catch (e) {
       setError(e instanceof PaymentFailure ? e.failure : { code: "failed" });
@@ -353,14 +348,7 @@ export default function UpiPaymentPanel({
 
             {error ? (
               <div role="alert" className="mt-3 rounded-xl border border-red-600/30 bg-red-50 px-3 py-2.5 text-sm text-red-800">
-                {error.code === "invalid" ? (
-                  <>
-                    <p className="font-bold">{t("invalidTitle")}</p>
-                    <p className="mt-0.5">{t(`invalid.${error.reason}`, { ...error.details, expected: error.details.expected ?? amount })}</p>
-                  </>
-                ) : (
-                  t(`errors.${error.code}`)
-                )}
+                {t(`errors.${error.code}`)}
               </div>
             ) : null}
 

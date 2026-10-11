@@ -871,34 +871,19 @@
       "failed": "Couldn't upload. Check your connection and try again.",
       "already_paid": "This booking is already paid.",
       "cancelled": "This booking was cancelled.",
-      "not_found": "Booking not found. Please open your ticket again.",
-      "read_failed": "We couldn't read the screenshot just now. Please try again in a moment.",
-      "duplicate_utr": "Invalid payment details — this transaction has already been used for another booking."
+      "not_found": "Booking not found. Please open your ticket again."
     },
     "preparingQr": "Preparing payment QR…",
     "tryAgain": "Try again",
     "showQr": "Pay ₹{amount} by UPI — show QR",
     "validFor": "QR valid for {time}",
-    "windowRule": "Pay the exact amount within this window. Payments made before the QR was shown or after it expires can't be accepted.",
+    "windowRule": "Pay the exact amount within this window.",
     "expiredTitle": "This payment QR has expired",
     "expiredBodyBooking": "Already paid? Upload the screenshot from your ticket or My bookings. Not paid yet? Show the QR again and pay within 10 minutes.",
     "expiredBodyTicket": "Already paid? Upload the screenshot below. Not paid yet? Show the QR again and pay within 10 minutes.",
     "restart": "Show QR again",
     "uploadMoved": "The QR window has closed. Upload your payment screenshot from your ticket — your seat stays reserved and you can download the ticket there.",
-    "uploadOnTicket": "Upload on my ticket",
-    "invalidTitle": "Invalid payment details",
-    "invalid": {
-      "not_payment": "This isn't a UPI payment screenshot. Please upload the screenshot of the “Payment successful” screen.",
-      "not_successful": "The screenshot doesn't show a successful payment. If money was deducted, wait for it to complete and upload the final screen.",
-      "wrong_receiver": "This payment wasn't made to the temple's UPI account. The screenshot must show the temple's name, UPI ID or number as the receiver.",
-      "amount_mismatch": "The screenshot shows ₹{paid}, but your tickets total ₹{expected}. Please pay the exact total, or contact the temple office.",
-      "missing_time": "The screenshot must show the payment date and time.",
-      "date_mismatch": "The payment date ({date}) doesn't match the day the payment QR was shown.",
-      "time_mismatch": "The payment time ({time}) is outside the QR's 10-minute window ({from}–{to}). Show the QR again, pay within the window, and upload that screenshot.",
-      "other_booking": "The payment note belongs to a different booking.",
-      "utr_mismatch": "The transaction ID you typed doesn't match the screenshot.",
-      "missing_utr": "The transaction ID (UTR) isn't visible. Upload a screenshot that shows it, or type it in the box above."
-    }
+    "uploadOnTicket": "Upload on my ticket"
   },
   "welcomeGreeting": {
     "namaskaram": "Namaskaram",
